@@ -467,6 +467,18 @@ function AppContent() {
             <div className="bottom-ad-container">
                 <AdPlacement type="leaderboard" />
             </div>
+
+            {/* Footer with Legal Links */}
+            <footer className="app-footer">
+                <div className="footer-content">
+                    <span>© 2026 MN School Sathi</span>
+                    <div className="footer-links">
+                        <a href="/privacy" target="_blank">Privacy Policy</a>
+                        <span className="divider">|</span>
+                        <a href="/terms" target="_blank">Terms of Service</a>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -1,0 +1,146 @@
+.legal-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    padding: 2rem;
+}
+
+.legal-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #555;
+    transition: all 0.2s ease;
+    margin-bottom: 1.5rem;
+}
+
+.back-btn:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.legal-container h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.last-updated {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.legal-container section {
+    margin-bottom: 2rem;
+}
+
+.legal-container h2 {
+    font-size: 1.25rem;
+    color: #444;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.legal-container p {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+
+.legal-container ul {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.legal-container li {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+}
+
+.legal-container a {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.legal-container a:hover {
+    text-decoration: underline;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .legal-page {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+
+    .legal-container {
+        background: #1e1e2f;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .legal-container h1 {
+        color: #f0f0f0;
+    }
+
+    .legal-container h2 {
+        color: #ddd;
+    }
+
+    .legal-container p,
+    .legal-container li {
+        color: #aaa;
+    }
+
+    .back-btn {
+        background: #2a2a3e;
+        color: #aaa;
+    }
+
+    .back-btn:hover {
+        background: #3a3a4e;
+        color: #fff;
+    }
+
+    .last-updated {
+        color: #777;
+        border-bottom-color: #333;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .legal-page {
+        padding: 1rem;
+    }
+
+    .legal-container {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .legal-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .legal-container h2 {
+        font-size: 1.1rem;
+    }
+}
