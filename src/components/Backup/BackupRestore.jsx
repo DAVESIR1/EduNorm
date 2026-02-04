@@ -37,7 +37,7 @@ export default function BackupRestore({
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `edudata_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.download = `edunorm_backup_${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             URL.revokeObjectURL(url);
             alert('✅ JSON backup exported successfully!');
@@ -78,12 +78,12 @@ export default function BackupRestore({
         try {
             const allData = await db.exportAllData();
             const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-            const file = new File([blob], 'edudata_backup.json', { type: 'application/json' });
+            const file = new File([blob], 'edunorm_backup.json', { type: 'application/json' });
 
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({
-                    title: 'EduData Backup',
-                    text: 'Student data backup from EduData',
+                    title: 'EduNorm Backup',
+                    text: 'Student data backup from EduNorm',
                     files: [file]
                 });
             } else {
@@ -103,7 +103,7 @@ export default function BackupRestore({
         try {
             const allData = await db.exportAllData();
             const summary = `
-EduData Backup Summary:
+EduNorm Backup Summary:
 - Date: ${new Date().toLocaleString()}
 - Total Students: ${allData.students?.length || 0}
 - Standards: ${allData.standards?.map(s => s.name).join(', ') || 'None'}
@@ -111,7 +111,7 @@ EduData Backup Summary:
 Note: For full data, please use the JSON export feature and attach the file to your email.
             `.trim();
 
-            const subject = encodeURIComponent('EduData Backup - ' + new Date().toLocaleDateString());
+            const subject = encodeURIComponent('EduNorm Backup - ' + new Date().toLocaleDateString());
             const body = encodeURIComponent(summary);
             window.open(`mailto:?subject=${subject}&body=${body}`);
         } catch (error) {

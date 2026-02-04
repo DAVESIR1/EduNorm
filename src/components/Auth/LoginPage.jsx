@@ -116,7 +116,7 @@ export default function LoginPage() {
                 {/* Logo & Title */}
                 <div className="login-header">
                     <div className="login-logo">📚</div>
-                    <h1>MN School Sathi</h1>
+                    <h1>EduNorm</h1>
                     <p>Manage your school records securely</p>
                 </div>
 

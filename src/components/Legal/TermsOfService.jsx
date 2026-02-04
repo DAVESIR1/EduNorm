@@ -20,7 +20,7 @@ export default function TermsOfService() {
                 <section>
                     <h2>1. Acceptance of Terms</h2>
                     <p>
-                        By accessing and using MN School Sathi ("Service"), you accept and agree to be bound by
+                        By accessing and using EduNorm ("Service"), you accept and agree to be bound by
                         the terms and conditions of this agreement. If you do not agree to these terms, please
                         do not use our Service.
                     </p>
@@ -29,7 +29,7 @@ export default function TermsOfService() {
                 <section>
                     <h2>2. Description of Service</h2>
                     <p>
-                        MN School Sathi is a school management application that allows users to:
+                        EduNorm is a school management application that allows users to:
                     </p>
                     <ul>
                         <li>Manage student records and information</li>
@@ -119,7 +119,7 @@ export default function TermsOfService() {
                     <h2>11. Contact</h2>
                     <p>
                         For questions about these Terms, contact us at:
-                        <a href="mailto:support@mnschoolsathi.com">support@mnschoolsathi.com</a>
+                        <a href="mailto:support@edunorm.com">support@edunorm.com</a>
                     </p>
                 </section>
             </div>

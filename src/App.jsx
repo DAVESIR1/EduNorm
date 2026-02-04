@@ -225,7 +225,7 @@ function AppContent() {
             <div className="loading-screen">
                 <div className="loading-content">
                     <div className="loading-spinner animate-pulse">📚</div>
-                    <h2 className="display-font gradient-text">Loading EduData...</h2>
+                    <h2 className="display-font gradient-text">Loading EduNorm...</h2>
                 </div>
             </div>
         );
@@ -298,7 +298,7 @@ function AppContent() {
                     <div className="header-info">
                         <h1 className="display-font gradient-text">
                             <Sparkles className="header-icon" size={28} />
-                            MN School Sathi
+                            EduNorm
                         </h1>
                         {selectedStandard && (
                             <div className="header-meta">
@@ -387,7 +387,7 @@ function AppContent() {
                         <div className="no-standard-selected fluffy-card">
                             <div className="empty-state">
                                 <span className="empty-icon animate-float">🏫</span>
-                                <h2 className="display-font">Welcome to EduData!</h2>
+                                <h2 className="display-font">Welcome to EduNorm!</h2>
                                 <p>Please select or create a Standard/Class from the sidebar to start entering student data.</p>
                                 <div className="empty-steps">
                                     <div className="step-item">
@@ -471,7 +471,7 @@ function AppContent() {
             {/* Footer with Legal Links */}
             <footer className="app-footer">
                 <div className="footer-content">
-                    <span>© 2026 MN School Sathi</span>
+                    <span>© 2026 EduNorm</span>
                     <div className="footer-links">
                         <a href="/privacy" target="_blank">Privacy Policy</a>
                         <span className="divider">|</span>

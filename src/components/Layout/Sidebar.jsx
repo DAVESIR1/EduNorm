@@ -90,7 +90,7 @@ export default function Sidebar({
                 <div className="sidebar-header">
                     <div className="sidebar-logo animate-float">
                         <span className="logo-icon">📚</span>
-                        {isOpen && <span className="logo-text display-font">EduData</span>}
+                        {isOpen && <span className="logo-text display-font">EduNorm</span>}
                     </div>
                     <button className="toggle-btn btn-icon btn-ghost" onClick={onToggle}>
                         {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}

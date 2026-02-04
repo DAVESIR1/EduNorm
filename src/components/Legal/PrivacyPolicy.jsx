@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
                 <section>
                     <h2>1. Information We Collect</h2>
                     <p>
-                        MN School Sathi ("we", "our", or "us") collects information you provide directly to us, including:
+                        EduNorm ("we", "our", or "us") collects information you provide directly to us, including:
                     </p>
                     <ul>
                         <li>Account information (email address, phone number)</li>
@@ -101,7 +101,7 @@ export default function PrivacyPolicy() {
                     <h2>9. Contact Us</h2>
                     <p>
                         If you have any questions about this Privacy Policy, please contact us at:
-                        <a href="mailto:support@mnschoolsathi.com">support@mnschoolsathi.com</a>
+                        <a href="mailto:support@edunorm.com">support@edunorm.com</a>
                     </p>
                 </section>
             </div>
