@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Cloud, CloudUpload, CloudDownload, RefreshCw, CheckCircle,
+    Cloud, UploadCloud, DownloadCloud, RefreshCw, CheckCircle,
     AlertCircle, X, Trash2, Clock, Download, LogIn, LogOut
 } from 'lucide-react';
 import {
@@ -243,7 +243,7 @@ export default function DriveBackup({ isOpen, onClose, onRestore }) {
                                             onClick={handleBackup}
                                             disabled={isLoading}
                                         >
-                                            <CloudUpload size={20} />
+                                            <UploadCloud size={20} />
                                             {isLoading ? 'Saving...' : 'Backup Now'}
                                         </button>
                                         <button
@@ -284,7 +284,7 @@ export default function DriveBackup({ isOpen, onClose, onRestore }) {
                                                             onClick={() => handleRestore(backup.id)}
                                                             disabled={isLoading}
                                                         >
-                                                            <CloudDownload size={16} />
+                                                            <DownloadCloud size={16} />
                                                             Restore
                                                         </button>
                                                         <button
@@ -334,7 +334,7 @@ export default function DriveBackup({ isOpen, onClose, onRestore }) {
                                         onClick={() => handleRestore()}
                                         disabled={isLoading}
                                     >
-                                        <CloudDownload size={20} />
+                                        <DownloadCloud size={20} />
                                         Restore from Local Backup
                                     </button>
                                 )}
