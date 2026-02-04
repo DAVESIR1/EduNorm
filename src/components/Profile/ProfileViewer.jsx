@@ -62,8 +62,8 @@ export default function ProfileViewer({
     };
 
     return (
-        <div className="profile-viewer-overlay animate-fade-in">
-            <div className="profile-viewer-container">
+        <div className="profile-viewer-overlay animate-fade-in" onClick={onClose}>
+            <div className="profile-viewer-container" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="profile-viewer-header">
                     <h2 className="display-font gradient-text">

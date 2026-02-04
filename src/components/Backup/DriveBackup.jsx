@@ -39,6 +39,16 @@ export default function DriveBackup({ isOpen, onClose, onRestore }) {
         setIsLoading(true);
         setError('');
         try {
+            // Check if credentials are configured
+            const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+            const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+
+            if (!clientId || !apiKey) {
+                setError('⚠️ Google Drive integration requires API credentials. Please add VITE_GOOGLE_CLIENT_ID and VITE_GOOGLE_API_KEY to your .env file. Contact admin for credentials.');
+                setIsLoading(false);
+                return;
+            }
+
             await loadGoogleScripts();
             initTokenClient(
                 async () => {
@@ -47,13 +57,13 @@ export default function DriveBackup({ isOpen, onClose, onRestore }) {
                     setIsLoading(false);
                 },
                 (err) => {
-                    setError('Failed to connect to Google Drive');
+                    setError('Failed to connect to Google Drive. Please try again.');
                     setIsLoading(false);
                 }
             );
             await requestAccessToken();
         } catch (err) {
-            setError('Failed to load Google services');
+            setError('Failed to load Google services: ' + err.message);
             setIsLoading(false);
         }
     };

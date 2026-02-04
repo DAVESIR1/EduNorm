@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     X, Download, Upload, Share2, Mail, Cloud,
     Smartphone, FileJson, FileSpreadsheet, RefreshCw
@@ -13,14 +13,22 @@ export default function BackupRestore({
     ledger = [],
     standards = [],
     selectedStandard,
-    onImportComplete
+    onImportComplete,
+    initialTab = 'export'
 }) {
-    const [activeTab, setActiveTab] = useState('export');
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [importing, setImporting] = useState(false);
     const [importPreview, setImportPreview] = useState(null);
     const [importError, setImportError] = useState('');
     const fileInputRef = useRef(null);
     const restoreInputRef = useRef(null);
+
+    // Update activeTab when initialTab changes (on open)
+    useEffect(() => {
+        if (isOpen) {
+            setActiveTab(initialTab);
+        }
+    }, [isOpen, initialTab]);
 
     if (!isOpen) return null;
 

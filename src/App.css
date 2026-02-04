@@ -31,6 +31,7 @@
 .main-content {
     min-height: 100vh;
     padding: var(--space-6);
+    padding-bottom: 100px;
     transition: margin-left var(--transition-slow);
 }
 
@@ -74,7 +75,53 @@
 }
 
 .header-icon {
-    color: var(--pastel-lemon-dark);
+    color: #f59e0b;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Colorful Icon System */
+.icon-gradient {
+    background: linear-gradient(135deg, #7c3aed, #db2777, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.icon-primary {
+    color: #7c3aed;
+}
+
+.icon-secondary {
+    color: #db2777;
+}
+
+.icon-accent {
+    color: #f59e0b;
+}
+
+.icon-success {
+    color: #10b981;
+}
+
+.icon-warning {
+    color: #f97316;
+}
+
+.icon-danger {
+    color: #ef4444;
+}
+
+@keyframes sparkle {
+
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    50% {
+        transform: scale(1.1) rotate(5deg);
+    }
 }
 
 .header-meta {
@@ -349,7 +396,7 @@
 
 .bottom-ad-container {
     position: fixed;
-    bottom: 0;
+    bottom: 40px;
     left: 320px;
     right: 0;
     z-index: 50;
@@ -373,14 +420,14 @@
 /* ===== APP FOOTER ===== */
 .app-footer {
     position: fixed;
-    bottom: 90px;
+    bottom: 0;
     left: 320px;
     right: 0;
-    z-index: 40;
+    z-index: 100;
     padding: var(--space-2) var(--space-4);
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(4px);
-    border-top: 1px solid var(--gray-100);
+    border-top: 1px solid var(--gray-200);
 }
 
 .sidebar-collapsed~.main-content~.app-footer,
@@ -421,7 +468,7 @@
 @media (max-width: 768px) {
     .app-footer {
         left: 0;
-        bottom: 80px;
+        bottom: 0;
     }
 
     .footer-content {

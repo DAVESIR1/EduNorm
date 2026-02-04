@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CERTIFICATE_TEMPLATES, getTemplatesByCategory, getCategories, getTemplateById } from './CertificateTemplates';
-import { AwardIcon, PrinterIcon, XIcon, DownloadIcon } from '../Icons/CustomIcons';
+import { Award, Printer, X, Download } from 'lucide-react';
 import './CertificateGenerator.css';
 
 export default function CertificateGenerator({ isOpen, onClose, student, schoolName, schoolLogo }) {
@@ -156,13 +156,15 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
             .join(' ') || student.name || 'Student Name';
     };
 
+    if (!isOpen) return null;
+
     return (
         <div className="cert-gen-overlay" onClick={onClose}>
             <div className="cert-gen-modal" onClick={e => e.stopPropagation()}>
                 <div className="cert-gen-header" style={{ background: `linear-gradient(135deg, ${selectedTemplate.primaryColor} 0%, ${selectedTemplate.secondaryColor} 100%)` }}>
-                    <h2><AwardIcon size={24} className="header-icon" /> Certificate Generator</h2>
+                    <h2><Award size={24} className="header-icon" /> Certificate Generator</h2>
                     <span className="template-count">{CERTIFICATE_TEMPLATES.length} Templates</span>
-                    <button className="close-btn" onClick={onClose}><XIcon size={20} /></button>
+                    <button className="close-btn" onClick={onClose}><X size={20} /></button>
                 </div>
 
                 <div className="cert-gen-content">

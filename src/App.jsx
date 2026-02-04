@@ -7,6 +7,8 @@ import BackupRestore from './components/Backup/BackupRestore';
 import DriveBackup from './components/Backup/DriveBackup';
 import LoginPage from './components/Auth/LoginPage';
 import AdminPanel from './components/Admin/AdminPanel';
+import CertificateGenerator from './components/Features/CertificateGenerator';
+import AnalyticsDashboard from './components/Features/AnalyticsDashboard';
 import { AdPlacement } from './components/Ads/AdBanner';
 import UpgradeModal from './components/Premium/UpgradeModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -41,6 +43,9 @@ function AppContent() {
     const [showBackup, setShowBackup] = useState(false);
     const [showDriveBackup, setShowDriveBackup] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
+    const [showCertificate, setShowCertificate] = useState(false);
+    const [showAnalytics, setShowAnalytics] = useState(false);
+    const [backupAction, setBackupAction] = useState('export');
 
     // Hooks
     const { settings, updateSetting, loading: settingsLoading } = useSettings();
@@ -162,6 +167,7 @@ function AppContent() {
         if (action === 'backup' || action === 'restore') {
             setShowDriveBackup(true);
         } else {
+            setBackupAction(action); // 'export', 'import', or 'share'
             setShowBackup(true);
         }
     }, []);
@@ -296,6 +302,8 @@ function AppContent() {
                 isFree={isFree}
                 onOpenAdmin={() => setShowAdmin(true)}
                 onOpenUpgrade={() => setShowUpgradeModal(true)}
+                onOpenCertificate={() => setShowCertificate(true)}
+                onOpenAnalytics={() => setShowAnalytics(true)}
             />
 
             {/* Main Content */}
@@ -459,6 +467,7 @@ function AppContent() {
                 standards={standards}
                 selectedStandard={selectedStandard}
                 onImportComplete={handleImportComplete}
+                initialTab={backupAction}
             />
 
             {/* Google Drive Backup Modal */}
@@ -476,6 +485,24 @@ function AppContent() {
                     totalStandards={standards.length}
                 />
             )}
+
+            {/* Certificate Generator */}
+            <CertificateGenerator
+                isOpen={showCertificate}
+                onClose={() => setShowCertificate(false)}
+                student={editingStudent || (students.length > 0 ? students[0] : null)}
+                schoolName={schoolName}
+                schoolLogo={schoolLogo}
+            />
+
+            {/* Analytics Dashboard */}
+            <AnalyticsDashboard
+                isOpen={showAnalytics}
+                onClose={() => setShowAnalytics(false)}
+                students={students}
+                standards={standards}
+                ledger={ledger}
+            />
 
             {/* Ad Banner for Free Users */}
             <div className="bottom-ad-container">
