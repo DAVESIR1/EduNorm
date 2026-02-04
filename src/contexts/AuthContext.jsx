@@ -8,7 +8,7 @@ import {
     RecaptchaVerifier,
     signOut
 } from 'firebase/auth';
-import { auth, googleProvider } from '../config/firebase';
+import { auth, googleProvider, isFirebaseConfigured } from '../config/firebase';
 
 const AuthContext = createContext(null);
 
@@ -29,6 +29,7 @@ const getErrorMessage = (errorCode) => {
         'auth/invalid-phone-number': 'Please enter a valid phone number.',
         'auth/invalid-verification-code': 'Invalid OTP code. Please try again.',
         'auth/code-expired': 'OTP has expired. Please request a new one.',
+        'firebase-not-configured': 'Cloud features not available. Running in offline mode.'
     };
     return errorMessages[errorCode] || 'An error occurred. Please try again.';
 };
@@ -38,9 +39,25 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [confirmationResult, setConfirmationResult] = useState(null);
+    const [offlineMode, setOfflineMode] = useState(!isFirebaseConfigured);
 
-    // Listen for auth state changes
+    // Listen for auth state changes (only if Firebase is configured)
     useEffect(() => {
+        if (!isFirebaseConfigured || !auth) {
+            console.warn('Firebase not configured - running in offline mode');
+            setLoading(false);
+            setOfflineMode(true);
+            // Create a local user for offline mode
+            setUser({
+                uid: 'offline-user',
+                email: 'offline@local',
+                displayName: 'Offline User',
+                isAdmin: true, // Give admin access in offline mode
+                isOffline: true
+            });
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             if (firebaseUser) {
                 // Add admin flag
@@ -65,6 +82,10 @@ export function AuthProvider({ children }) {
 
     // Email + Password Registration
     const registerWithEmail = useCallback(async (email, password) => {
+        if (!isFirebaseConfigured || !auth) {
+            setError(getErrorMessage('firebase-not-configured'));
+            return { success: false, error: 'Firebase not configured' };
+        }
         try {
             setError(null);
             const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -78,6 +99,10 @@ export function AuthProvider({ children }) {
 
     // Email + Password Login
     const loginWithEmail = useCallback(async (email, password) => {
+        if (!isFirebaseConfigured || !auth) {
+            setError(getErrorMessage('firebase-not-configured'));
+            return { success: false, error: 'Firebase not configured' };
+        }
         try {
             setError(null);
             const result = await signInWithEmailAndPassword(auth, email, password);
@@ -91,6 +116,10 @@ export function AuthProvider({ children }) {
 
     // Google Sign-in
     const loginWithGoogle = useCallback(async () => {
+        if (!isFirebaseConfigured || !auth) {
+            setError(getErrorMessage('firebase-not-configured'));
+            return { success: false, error: 'Firebase not configured' };
+        }
         try {
             setError(null);
             const result = await signInWithPopup(auth, googleProvider);
@@ -104,6 +133,7 @@ export function AuthProvider({ children }) {
 
     // Setup Recaptcha for phone auth
     const setupRecaptcha = useCallback((containerId) => {
+        if (!isFirebaseConfigured || !auth) return null;
         if (!window.recaptchaVerifier) {
             window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
                 size: 'invisible',
@@ -118,6 +148,10 @@ export function AuthProvider({ children }) {
 
     // Phone OTP - Send
     const sendPhoneOTP = useCallback(async (phoneNumber, recaptchaContainerId) => {
+        if (!isFirebaseConfigured || !auth) {
+            setError(getErrorMessage('firebase-not-configured'));
+            return { success: false, error: 'Firebase not configured' };
+        }
         try {
             setError(null);
             const appVerifier = setupRecaptcha(recaptchaContainerId);
@@ -156,6 +190,10 @@ export function AuthProvider({ children }) {
 
     // Logout
     const logout = useCallback(async () => {
+        if (offlineMode) {
+            setUser(null);
+            return { success: true };
+        }
         try {
             await signOut(auth);
             return { success: true };
@@ -163,13 +201,15 @@ export function AuthProvider({ children }) {
             setError('Failed to logout. Please try again.');
             return { success: false, error: err.message };
         }
-    }, []);
+    }, [offlineMode]);
 
     const value = {
         user,
         loading,
         error,
+        offlineMode,
         isAuthenticated: !!user,
+        isFirebaseConfigured,
         registerWithEmail,
         loginWithEmail,
         loginWithGoogle,
