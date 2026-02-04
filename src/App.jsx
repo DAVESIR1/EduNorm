@@ -4,6 +4,7 @@ import StepWizard, { DATA_FIELDS } from './components/DataEntry/StepWizard';
 import ProfileViewer from './components/Profile/ProfileViewer';
 import GeneralRegister from './components/Ledger/GeneralRegister';
 import BackupRestore from './components/Backup/BackupRestore';
+import DriveBackup from './components/Backup/DriveBackup';
 import LoginPage from './components/Auth/LoginPage';
 import AdminPanel from './components/Admin/AdminPanel';
 import { AdPlacement } from './components/Ads/AdBanner';
@@ -37,6 +38,7 @@ function AppContent() {
     const [searchResults, setSearchResults] = useState([]);
     const [isFormMaximized, setIsFormMaximized] = useState(false);
     const [showBackup, setShowBackup] = useState(false);
+    const [showDriveBackup, setShowDriveBackup] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
 
     // Hooks
@@ -154,9 +156,13 @@ function AppContent() {
         setEditMode(!editMode);
     }, [editMode]);
 
-    // Share/Export - opens backup modal
-    const handleShare = useCallback(() => {
-        setShowBackup(true);
+    // Share/Export - handles different backup actions
+    const handleShare = useCallback((action) => {
+        if (action === 'backup' || action === 'restore') {
+            setShowDriveBackup(true);
+        } else {
+            setShowBackup(true);
+        }
     }, []);
 
     // Import complete callback
@@ -452,6 +458,13 @@ function AppContent() {
                 standards={standards}
                 selectedStandard={selectedStandard}
                 onImportComplete={handleImportComplete}
+            />
+
+            {/* Google Drive Backup Modal */}
+            <DriveBackup
+                isOpen={showDriveBackup}
+                onClose={() => setShowDriveBackup(false)}
+                onRestore={handleImportComplete}
             />
 
             {/* Admin Panel */}
