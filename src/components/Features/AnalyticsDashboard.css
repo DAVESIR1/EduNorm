@@ -1,0 +1,322 @@
+.analytics-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.analytics-modal {
+    background: var(--card-bg, #fff);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+}
+
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.analytics-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.analytics-header .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+}
+
+.analytics-content {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(90vh - 80px);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+
+.metric-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.metric-card.primary .metric-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.metric-card.success .metric-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.metric-card.warning .metric-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.metric-card.info .metric-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary, #1a1a2e);
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    color: var(--text-muted, #666);
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.chart-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    margin: 0 0 16px;
+    color: var(--text-primary, #333);
+}
+
+/* Class Bars */
+.class-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.class-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.class-name {
+    width: 60px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary, #333);
+}
+
+.bar-container {
+    flex: 1;
+    height: 24px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    animation: barGrow 0.6s ease forwards;
+}
+
+@keyframes barGrow {
+    from {
+        width: 0;
+    }
+}
+
+.class-count {
+    width: 40px;
+    text-align: right;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+}
+
+/* Gender Chart */
+.gender-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gender-visual {
+    height: 30px;
+    display: flex;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.gender-segment {
+    height: 100%;
+    transition: width 0.6s ease;
+}
+
+.gender-segment.male {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.gender-segment.female {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+}
+
+.gender-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted, #666);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-dot.male {
+    background: #3b82f6;
+}
+
+.legend-dot.female {
+    background: #ec4899;
+}
+
+.legend-item strong {
+    color: var(--text-primary, #333);
+}
+
+/* Category Tags */
+.category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #f0f0f0 0%, #e5e5e5 100%);
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.cat-name {
+    color: var(--text-primary, #333);
+}
+
+.cat-count {
+    background: #667eea;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .analytics-modal {
+    background: #1e1e2e;
+}
+
+[data-theme="dark"] .metric-card,
+[data-theme="dark"] .chart-card {
+    background: #2a2a3e;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+        padding: 16px;
+    }
+
+    .metric-value {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}

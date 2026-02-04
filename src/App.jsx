@@ -11,6 +11,7 @@ import { AdPlacement } from './components/Ads/AdBanner';
 import UpgradeModal from './components/Premium/UpgradeModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { UserTierProvider, useUserTier } from './contexts/UserTierContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import {
     useSettings,
     useStudents,
@@ -496,15 +497,17 @@ function AppContent() {
     );
 }
 
-// App wrapper with AuthProvider and UserTierProvider
+// App wrapper with AuthProvider, UserTierProvider, and LanguageProvider
 function App() {
     return (
-        <AuthProvider>
-            <UserTierProvider>
-                <AppContent />
-                <UpgradeModal />
-            </UserTierProvider>
-        </AuthProvider>
+        <LanguageProvider>
+            <AuthProvider>
+                <UserTierProvider>
+                    <AppContent />
+                    <UpgradeModal />
+                </UserTierProvider>
+            </AuthProvider>
+        </LanguageProvider>
     );
 }
 

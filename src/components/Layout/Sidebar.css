@@ -498,6 +498,11 @@
     color: var(--white);
 }
 
+/* Language Section */
+.language-section {
+    margin-top: var(--space-3);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar.open {

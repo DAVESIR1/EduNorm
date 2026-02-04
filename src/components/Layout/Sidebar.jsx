@@ -7,6 +7,7 @@ import {
     LogOut, Crown, Shield, Sparkles, CloudUpload, CloudDownload
 } from 'lucide-react';
 import './Sidebar.css';
+import LanguageSelector from '../Settings/LanguageSelector';
 
 export default function Sidebar({
     isOpen,
@@ -461,6 +462,10 @@ export default function Sidebar({
                                 >
                                     🌈
                                 </button>
+                            </div>
+
+                            <div className="language-section">
+                                <LanguageSelector />
                             </div>
                         </div>
 

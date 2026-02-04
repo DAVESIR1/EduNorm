@@ -1,0 +1,360 @@
+// Certificate Template Definitions - 25+ Unique Designs
+// Organized by event type with unique backgrounds, colors, and styles
+
+export const CERTIFICATE_TEMPLATES = [
+    // ACADEMIC CERTIFICATES
+    {
+        id: 'academic-excellence',
+        name: 'Academic Excellence',
+        category: 'Academic',
+        icon: '🎓',
+        primaryColor: '#1e40af',
+        secondaryColor: '#3b82f6',
+        accentColor: '#dbeafe',
+        borderStyle: 'double',
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #dbeafe 50%, #bfdbfe 100%)',
+        pattern: 'diploma',
+        defaultTitle: 'Certificate of Academic Excellence'
+    },
+    {
+        id: 'merit-scholar',
+        name: 'Merit Scholar',
+        category: 'Academic',
+        icon: '📜',
+        primaryColor: '#7c2d12',
+        secondaryColor: '#b45309',
+        accentColor: '#fef3c7',
+        borderStyle: 'ornate',
+        background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)',
+        pattern: 'classic',
+        defaultTitle: 'Merit Scholar Certificate'
+    },
+    {
+        id: 'honor-roll',
+        name: 'Honor Roll',
+        category: 'Academic',
+        icon: '🏆',
+        primaryColor: '#166534',
+        secondaryColor: '#22c55e',
+        accentColor: '#dcfce7',
+        borderStyle: 'elegant',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)',
+        pattern: 'laurel',
+        defaultTitle: 'Honor Roll Certificate'
+    },
+    {
+        id: 'subject-topper',
+        name: 'Subject Topper',
+        category: 'Academic',
+        icon: '⭐',
+        primaryColor: '#6b21a8',
+        secondaryColor: '#a855f7',
+        accentColor: '#f3e8ff',
+        borderStyle: 'modern',
+        background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%)',
+        pattern: 'stars',
+        defaultTitle: 'Subject Excellence Award'
+    },
+
+    // SPORTS CERTIFICATES
+    {
+        id: 'sports-champion',
+        name: 'Sports Champion',
+        category: 'Sports',
+        icon: '🏅',
+        primaryColor: '#dc2626',
+        secondaryColor: '#f97316',
+        accentColor: '#fef2f2',
+        borderStyle: 'athletic',
+        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%)',
+        pattern: 'trophy',
+        defaultTitle: 'Sports Champion Certificate'
+    },
+    {
+        id: 'athletic-meet',
+        name: 'Athletic Meet',
+        category: 'Sports',
+        icon: '🏃',
+        primaryColor: '#0369a1',
+        secondaryColor: '#38bdf8',
+        accentColor: '#e0f2fe',
+        borderStyle: 'sporty',
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+        pattern: 'track',
+        defaultTitle: 'Athletic Achievement Award'
+    },
+    {
+        id: 'cricket-winner',
+        name: 'Cricket Winner',
+        category: 'Sports',
+        icon: '🏏',
+        primaryColor: '#15803d',
+        secondaryColor: '#4ade80',
+        accentColor: '#dcfce7',
+        borderStyle: 'badge',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+        pattern: 'cricket',
+        defaultTitle: 'Cricket Championship Certificate'
+    },
+    {
+        id: 'football-best',
+        name: 'Football Star',
+        category: 'Sports',
+        icon: '⚽',
+        primaryColor: '#1d4ed8',
+        secondaryColor: '#60a5fa',
+        accentColor: '#dbeafe',
+        borderStyle: 'dynamic',
+        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        pattern: 'football',
+        defaultTitle: 'Football Excellence Award'
+    },
+    {
+        id: 'kabaddi-champ',
+        name: 'Kabaddi Champion',
+        category: 'Sports',
+        icon: '🤼',
+        primaryColor: '#ea580c',
+        secondaryColor: '#fb923c',
+        accentColor: '#ffedd5',
+        borderStyle: 'bold',
+        background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+        pattern: 'kabaddi',
+        defaultTitle: 'Kabaddi Champion Certificate'
+    },
+
+    // GYMNASTICS CERTIFICATES
+    {
+        id: 'gymnastics-gold',
+        name: 'Gymnastics Gold',
+        category: 'Gymnastics',
+        icon: '🤸',
+        primaryColor: '#be185d',
+        secondaryColor: '#ec4899',
+        accentColor: '#fce7f3',
+        borderStyle: 'graceful',
+        background: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%)',
+        pattern: 'ribbon',
+        defaultTitle: 'Gymnastics Excellence Award'
+    },
+    {
+        id: 'yoga-master',
+        name: 'Yoga Master',
+        category: 'Gymnastics',
+        icon: '🧘',
+        primaryColor: '#047857',
+        secondaryColor: '#34d399',
+        accentColor: '#d1fae5',
+        borderStyle: 'zen',
+        background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+        pattern: 'mandala',
+        defaultTitle: 'Yoga Excellence Certificate'
+    },
+    {
+        id: 'march-past',
+        name: 'March Past',
+        category: 'Gymnastics',
+        icon: '🎖️',
+        primaryColor: '#1e3a8a',
+        secondaryColor: '#3b82f6',
+        accentColor: '#dbeafe',
+        borderStyle: 'military',
+        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        pattern: 'stripes',
+        defaultTitle: 'March Past Excellence Award'
+    },
+
+    // CULTURAL CERTIFICATES
+    {
+        id: 'cultural-star',
+        name: 'Cultural Star',
+        category: 'Cultural',
+        icon: '🎭',
+        primaryColor: '#7c3aed',
+        secondaryColor: '#a78bfa',
+        accentColor: '#ede9fe',
+        borderStyle: 'artistic',
+        background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #ddd6fe 100%)',
+        pattern: 'rangoli',
+        defaultTitle: 'Cultural Excellence Certificate'
+    },
+    {
+        id: 'dance-performance',
+        name: 'Dance Performance',
+        category: 'Cultural',
+        icon: '💃',
+        primaryColor: '#db2777',
+        secondaryColor: '#f472b6',
+        accentColor: '#fce7f3',
+        borderStyle: 'flowing',
+        background: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)',
+        pattern: 'dance',
+        defaultTitle: 'Dance Excellence Award'
+    },
+    {
+        id: 'music-maestro',
+        name: 'Music Maestro',
+        category: 'Cultural',
+        icon: '🎵',
+        primaryColor: '#0891b2',
+        secondaryColor: '#22d3ee',
+        accentColor: '#cffafe',
+        borderStyle: 'melodic',
+        background: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)',
+        pattern: 'notes',
+        defaultTitle: 'Music Excellence Certificate'
+    },
+    {
+        id: 'drama-king',
+        name: 'Drama Excellence',
+        category: 'Cultural',
+        icon: '🎬',
+        primaryColor: '#4c1d95',
+        secondaryColor: '#8b5cf6',
+        accentColor: '#ede9fe',
+        borderStyle: 'theatrical',
+        background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+        pattern: 'curtain',
+        defaultTitle: 'Drama Excellence Award'
+    },
+    {
+        id: 'folk-dance',
+        name: 'Folk Dance',
+        category: 'Cultural',
+        icon: '👯',
+        primaryColor: '#c2410c',
+        secondaryColor: '#fb923c',
+        accentColor: '#ffedd5',
+        borderStyle: 'traditional',
+        background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+        pattern: 'folk',
+        defaultTitle: 'Folk Dance Achievement'
+    },
+
+    // ARTS CERTIFICATES
+    {
+        id: 'art-prodigy',
+        name: 'Art Prodigy',
+        category: 'Arts',
+        icon: '🎨',
+        primaryColor: '#c026d3',
+        secondaryColor: '#e879f9',
+        accentColor: '#fae8ff',
+        borderStyle: 'creative',
+        background: 'linear-gradient(135deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%)',
+        pattern: 'palette',
+        defaultTitle: 'Art Excellence Certificate'
+    },
+    {
+        id: 'drawing-master',
+        name: 'Drawing Master',
+        category: 'Arts',
+        icon: '✏️',
+        primaryColor: '#374151',
+        secondaryColor: '#6b7280',
+        accentColor: '#f3f4f6',
+        borderStyle: 'sketch',
+        background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+        pattern: 'pencil',
+        defaultTitle: 'Drawing Excellence Award'
+    },
+    {
+        id: 'craft-wizard',
+        name: 'Craft Wizard',
+        category: 'Arts',
+        icon: '🎁',
+        primaryColor: '#059669',
+        secondaryColor: '#34d399',
+        accentColor: '#d1fae5',
+        borderStyle: 'crafty',
+        background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+        pattern: 'craft',
+        defaultTitle: 'Craft Excellence Certificate'
+    },
+
+    // SPECIAL ACHIEVEMENTS
+    {
+        id: 'participation',
+        name: 'Participation',
+        category: 'Special',
+        icon: '🌟',
+        primaryColor: '#0d9488',
+        secondaryColor: '#2dd4bf',
+        accentColor: '#ccfbf1',
+        borderStyle: 'simple',
+        background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)',
+        pattern: 'waves',
+        defaultTitle: 'Certificate of Participation'
+    },
+    {
+        id: 'best-student',
+        name: 'Best Student',
+        category: 'Special',
+        icon: '👑',
+        primaryColor: '#b45309',
+        secondaryColor: '#f59e0b',
+        accentColor: '#fef3c7',
+        borderStyle: 'royal',
+        background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)',
+        pattern: 'crown',
+        defaultTitle: 'Best Student Award'
+    },
+    {
+        id: 'leadership',
+        name: 'Leadership',
+        category: 'Special',
+        icon: '🦁',
+        primaryColor: '#7f1d1d',
+        secondaryColor: '#dc2626',
+        accentColor: '#fee2e2',
+        borderStyle: 'powerful',
+        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+        pattern: 'shield',
+        defaultTitle: 'Leadership Excellence Award'
+    },
+    {
+        id: 'discipline',
+        name: 'Discipline Award',
+        category: 'Special',
+        icon: '📋',
+        primaryColor: '#0f766e',
+        secondaryColor: '#14b8a6',
+        accentColor: '#ccfbf1',
+        borderStyle: 'strict',
+        background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)',
+        pattern: 'order',
+        defaultTitle: 'Discipline Excellence Certificate'
+    },
+    {
+        id: 'attendance',
+        name: 'Perfect Attendance',
+        category: 'Special',
+        icon: '📅',
+        primaryColor: '#4338ca',
+        secondaryColor: '#818cf8',
+        accentColor: '#e0e7ff',
+        borderStyle: 'clean',
+        background: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
+        pattern: 'calendar',
+        defaultTitle: 'Perfect Attendance Certificate'
+    },
+];
+
+// Get templates by category
+export function getTemplatesByCategory(category) {
+    if (category === 'All') return CERTIFICATE_TEMPLATES;
+    return CERTIFICATE_TEMPLATES.filter(t => t.category === category);
+}
+
+// Get unique categories
+export function getCategories() {
+    const cats = [...new Set(CERTIFICATE_TEMPLATES.map(t => t.category))];
+    return ['All', ...cats];
+}
+
+// Get template by ID
+export function getTemplateById(id) {
+    return CERTIFICATE_TEMPLATES.find(t => t.id === id) || CERTIFICATE_TEMPLATES[0];
+}
+
+export default CERTIFICATE_TEMPLATES;

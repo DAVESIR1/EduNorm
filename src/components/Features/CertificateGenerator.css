@@ -1,0 +1,441 @@
+.cert-gen-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.cert-gen-modal {
+    background: var(--card-bg, #fff);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 1200px;
+    max-height: 95vh;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+}
+
+.cert-gen-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    color: white;
+}
+
+.cert-gen-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.3rem;
+    flex: 1;
+}
+
+.cert-gen-header .header-icon {
+    fill: none;
+}
+
+.cert-gen-header .header-icon path,
+.cert-gen-header .header-icon circle {
+    stroke: white;
+}
+
+.template-count {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.cert-gen-header .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.cert-gen-header .close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.cert-gen-header .close-btn svg path {
+    stroke: white;
+}
+
+.cert-gen-content {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    max-height: calc(95vh - 70px);
+    overflow: hidden;
+}
+
+.cert-gen-settings {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color, #eee);
+    overflow: hidden;
+}
+
+/* Category Tabs */
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px 16px;
+    background: var(--bg-secondary, #f8f9fa);
+    border-bottom: 1px solid var(--border-color, #eee);
+}
+
+.cat-tab {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted, #666);
+}
+
+.cat-tab:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.cat-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Template Grid */
+.template-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    max-height: 200px;
+}
+
+.template-grid-new {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.template-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: var(--card-bg, white);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-card:hover {
+    background: var(--card-bg);
+    border-color: var(--card-color);
+    transform: translateY(-2px);
+}
+
+.template-card.active {
+    background: var(--card-bg);
+    border-color: var(--card-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.template-emoji {
+    font-size: 1.5rem;
+}
+
+.template-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-primary, #333);
+    line-height: 1.2;
+}
+
+/* Form Styles */
+.cert-form {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-muted, #666);
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.print-btn-new {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.print-btn-new:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.print-btn-new svg path {
+    stroke: white;
+}
+
+/* Certificate Preview */
+.cert-preview-container {
+    padding: 20px;
+    overflow: auto;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.certificate-print {
+    width: 700px;
+    min-height: 500px;
+    padding: 40px;
+    border: 12px double var(--primary);
+    text-align: center;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.certificate-print::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 2px solid var(--secondary);
+    pointer-events: none;
+}
+
+.certificate-print .cert-header {
+    margin-bottom: 30px;
+}
+
+.certificate-print .cert-logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.certificate-print .cert-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.certificate-print .cert-category {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--secondary);
+    margin-bottom: 8px;
+}
+
+.certificate-print .cert-title {
+    font-size: 32px;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    margin: 8px 0;
+    font-weight: 700;
+}
+
+.certificate-print .cert-school {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.certificate-print .cert-body {
+    margin: 35px 0;
+}
+
+.certificate-print .presented-to {
+    font-size: 13px;
+    color: #888;
+    font-style: italic;
+    margin-bottom: 12px;
+}
+
+.certificate-print .student-name {
+    font-size: 28px;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-weight: 700;
+    display: inline-block;
+    padding: 8px 40px;
+    margin: 10px 0 20px;
+    border-bottom: 3px solid;
+}
+
+.certificate-print .class-info {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.certificate-print .event-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.certificate-print .achievement-text {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.certificate-print .cert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 45px;
+    padding-top: 25px;
+}
+
+.certificate-print .signature-block {
+    text-align: center;
+}
+
+.certificate-print .signature-line {
+    width: 140px;
+    border-top: 2px solid;
+    margin: 0 auto 6px;
+}
+
+.certificate-print .signature-label {
+    font-size: 11px;
+    color: #666;
+    margin: 0;
+}
+
+.certificate-print .date-block {
+    text-align: center;
+}
+
+.certificate-print .cert-date {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .cert-gen-modal {
+    background: #1e1e2e;
+}
+
+[data-theme="dark"] .category-tabs {
+    background: #252535;
+}
+
+[data-theme="dark"] .template-card {
+    background: #252535;
+}
+
+[data-theme="dark"] .cert-preview-container {
+    background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2e 100%);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .cert-gen-content {
+        grid-template-columns: 1fr;
+    }
+
+    .cert-gen-settings {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color, #eee);
+    }
+
+    .template-scroll {
+        max-height: 120px;
+    }
+
+    .certificate-print {
+        width: 100%;
+        min-width: 0;
+        padding: 25px;
+    }
+}
+
+@media (max-width: 600px) {
+    .template-grid-new {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .certificate-print {
+        padding: 20px;
+    }
+
+    .certificate-print .cert-title {
+        font-size: 22px;
+    }
+
+    .certificate-print .student-name {
+        font-size: 20px;
+        padding: 6px 20px;
+    }
+}
