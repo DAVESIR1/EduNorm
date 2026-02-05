@@ -28,7 +28,14 @@ export async function backupToCloud(userId) {
         throw new Error('Firebase is not configured. Please set up Firebase environment variables or use local backup.');
     }
 
+    // Check network connectivity first
+    if (!navigator.onLine) {
+        throw new Error('No internet connection. Please check your network and try again.');
+    }
+
     try {
+        console.log('CloudBackupService: Starting backup for user:', userId);
+
         // Gather all local data
         const settingsArray = await localDb.getAllSettings();
         // Convert settings array to object for easier storage
@@ -46,6 +53,8 @@ export async function backupToCloud(userId) {
         const customFields = await localDb.getAllCustomFields();
         const ledger = await localDb.getAllLedgerEntries();
 
+        console.log('CloudBackupService: Data gathered - Students:', students?.length || 0);
+
         // Create backup object
         const backupData = {
             settings,
@@ -54,6 +63,7 @@ export async function backupToCloud(userId) {
             customFields,
             ledger,
             backupDate: serverTimestamp(),
+            lastModified: new Date().toISOString(),
             appVersion: '1.0.0'
         };
 
@@ -61,12 +71,19 @@ export async function backupToCloud(userId) {
         const backupRef = doc(db, 'backups', userId);
         await setDoc(backupRef, backupData);
 
-        // Also save to history
-        const historyRef = doc(collection(db, 'backups', userId, 'history'));
-        await setDoc(historyRef, {
-            ...backupData,
-            backupDate: serverTimestamp()
-        });
+        console.log('CloudBackupService: Backup saved successfully!');
+
+        // Also save to history (optional - may fail on free tier limits)
+        try {
+            const historyRef = doc(collection(db, 'backups', userId, 'history'));
+            await setDoc(historyRef, {
+                ...backupData,
+                backupDate: serverTimestamp()
+            });
+        } catch (historyError) {
+            // Don't fail the whole backup if history fails
+            console.warn('CloudBackupService: Could not save backup history:', historyError.message);
+        }
 
         return {
             success: true,
@@ -74,7 +91,17 @@ export async function backupToCloud(userId) {
             timestamp: new Date().toISOString()
         };
     } catch (error) {
-        console.error('Cloud backup error:', error);
+        console.error('CloudBackupService: Backup error:', error);
+
+        // Provide more specific error messages
+        if (error.code === 'unavailable' || error.message?.includes('offline')) {
+            throw new Error('Cannot reach Firebase server. Please check if Firestore is enabled in your Firebase Console.');
+        } else if (error.code === 'permission-denied') {
+            throw new Error('Permission denied. Please ensure Firestore security rules allow writes for authenticated users.');
+        } else if (error.code === 'unauthenticated') {
+            throw new Error('Please log in again to backup your data.');
+        }
+
         throw new Error(`Backup failed: ${error.message}`);
     }
 }

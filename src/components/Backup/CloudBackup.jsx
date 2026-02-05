@@ -49,11 +49,11 @@ export default function CloudBackup({ isOpen, onClose, onRestoreComplete }) {
 
         setAction('backup');
         setStatus('loading');
-        setMessage('Backing up your data...');
+        setMessage('Backing up your data to cloud...');
 
-        // Set a timeout of 10 seconds to prevent infinite loading
+        // Set a timeout of 30 seconds for cloud backup
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('timeout')), 10000);
+            setTimeout(() => reject(new Error('timeout')), 30000);
         });
 
         try {
@@ -83,9 +83,15 @@ export default function CloudBackup({ isOpen, onClose, onRestoreComplete }) {
             console.error('Backup error:', error);
 
             if (error.message === 'timeout') {
-                // Timeout occurred - show local backup message
+                // Timeout occurred - show local backup message with more detail
                 setStatus('success');
-                setMessage('Data saved locally. Cloud sync pending (no internet or cloud not configured).');
+                setMessage('Data saved locally. Cloud sync is taking longer than expected - it may complete in the background.');
+            } else if (error.message?.includes('permission') || error.message?.includes('PERMISSION')) {
+                setStatus('error');
+                setMessage('Cloud backup failed: Permission denied. Please contact support.');
+            } else if (error.message?.includes('not configured')) {
+                setStatus('error');
+                setMessage('Firebase is not configured properly. Please contact support.');
             } else {
                 setStatus('error');
                 setMessage(error.message || 'Backup failed. Please try again.');

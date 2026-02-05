@@ -33,7 +33,8 @@ import {
 import * as db from './services/database';
 import * as LocalBackupService from './services/LocalBackupService';
 import * as MandatoryBackupService from './services/MandatoryBackupService';
-import { Menu, Users, FileSpreadsheet, Sparkles, Download, Share2, Maximize2, Minimize2 } from 'lucide-react';
+import * as CloudSyncService from './services/CloudSyncService';
+import { Menu, Users, FileSpreadsheet, Sparkles, Download, Share2, Maximize2, Minimize2, Cloud, CloudOff, Check, Loader } from 'lucide-react';
 import './App.css';
 
 // Main App Content (wrapped in auth and tier providers)
@@ -64,6 +65,7 @@ function AppContent() {
     const [showWhatsApp, setShowWhatsApp] = useState(false);
     const [showPhotoEnhance, setShowPhotoEnhance] = useState(false);
     const [backupAction, setBackupAction] = useState('export');
+    const [syncStatus, setSyncStatus] = useState(null);
 
     // Hooks
     const { settings, updateSetting, loading: settingsLoading } = useSettings();
@@ -102,7 +104,46 @@ function AppContent() {
         }
     }, [settings, settingsLoading]);
 
-    // Initialize mandatory backup system and sync on app load
+    // Auto-sync on login (like Google Contacts)
+    useEffect(() => {
+        const performAutoSync = async () => {
+            if (user?.uid && isReady && !user.isOffline) {
+                console.log('Starting auto-sync on login...');
+                setSyncStatus({ type: 'syncing', message: 'Syncing with cloud...' });
+
+                try {
+                    const result = await CloudSyncService.autoSyncOnLogin(user.uid);
+                    console.log('Auto-sync result:', result);
+
+                    if (result.success) {
+                        if (result.action === 'restored') {
+                            setSyncStatus({
+                                type: 'success',
+                                message: `Restored ${result.studentCount || 0} students from cloud!`
+                            });
+                            // Refresh data after restore
+                            await refreshStudents();
+                            await refreshLedger();
+                        } else if (result.action === 'backed_up' || result.action === 'first_backup') {
+                            setSyncStatus({ type: 'success', message: 'Data synced to cloud!' });
+                        } else {
+                            setSyncStatus(null); // Nothing to show
+                        }
+                    }
+                } catch (error) {
+                    console.error('Auto-sync failed:', error);
+                    setSyncStatus({ type: 'error', message: 'Sync failed - data safe locally' });
+                }
+
+                // Clear status after 3 seconds
+                setTimeout(() => setSyncStatus(null), 3000);
+            }
+        };
+
+        performAutoSync();
+    }, [user?.uid, isReady]);
+
+    // Initialize mandatory backup system
     useEffect(() => {
         const initBackupSystem = async () => {
             try {
@@ -112,42 +153,32 @@ function AppContent() {
                 // Check if version changed (potential data loss scenario)
                 if (LocalBackupService.hasVersionChanged()) {
                     console.log('App version changed - checking for data recovery...');
-                    // Try to restore from cloud/local backup
                     const restoreResult = await MandatoryBackupService.restoreFromBackup(user?.uid);
                     if (restoreResult.success) {
                         console.log('Data restored from:', restoreResult.source);
                     }
                 }
 
-                // Perform immediate full backup on app load (local + R2 cloud)
-                if (user?.uid) {
-                    await MandatoryBackupService.forceImmediateBackup(user.uid);
-                } else {
-                    // Anonymous backup for non-logged-in users
-                    const allData = await db.exportAllData();
-                    if (allData && (allData.students?.length > 0 || allData.settings)) {
-                        LocalBackupService.createLocalBackup(allData);
-                    }
+                // Create local backup always
+                const allData = await db.exportAllData();
+                if (allData && (allData.students?.length > 0 || allData.settings)) {
+                    LocalBackupService.createLocalBackup(allData);
                 }
 
                 // Save current version
                 LocalBackupService.saveAppVersion();
 
-                console.log('Mandatory backup system initialized');
+                console.log('Backup system initialized');
             } catch (error) {
                 console.error('Backup system init failed:', error);
             }
         };
 
-        // Run after app is ready
         if (isReady) {
             initBackupSystem();
         }
 
-        // Cleanup on unmount
-        return () => {
-            MandatoryBackupService.cleanup();
-        };
+        return () => MandatoryBackupService.cleanup();
     }, [isReady, user?.uid]);
 
     // Save settings
@@ -160,8 +191,10 @@ function AppContent() {
         await updateSetting('selectedStandard', selectedStandard);
         // Trigger backup after settings change
         MandatoryBackupService.triggerBackupOnChange();
+        // Schedule cloud backup
+        if (user?.uid) CloudSyncService.scheduleBackup(user.uid);
         alert('Settings saved successfully!');
-    }, [schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard, updateSetting]);
+    }, [schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard, updateSetting, user?.uid]);
 
     // Add new student
     const handleAddStudent = useCallback(async (studentData) => {
@@ -179,7 +212,9 @@ function AppContent() {
         await refreshLedger();
         // Trigger backup after student data change
         MandatoryBackupService.triggerBackupOnChange();
-    }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger]);
+        // Schedule cloud backup
+        if (user?.uid) CloudSyncService.scheduleBackup(user.uid);
+    }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger, user?.uid]);
 
     // Class upgrade
     const handleUpgradeClass = useCallback(async () => {
@@ -391,6 +426,15 @@ function AppContent() {
 
             {/* Main Content */}
             <main className={`main-content ${sidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
+                {/* Cloud Sync Status Toast */}
+                {syncStatus && (
+                    <div className={`sync-toast sync-${syncStatus.type}`}>
+                        {syncStatus.type === 'syncing' && <Loader size={16} className="spin" />}
+                        {syncStatus.type === 'success' && <Check size={16} />}
+                        {syncStatus.type === 'error' && <CloudOff size={16} />}
+                        <span>{syncStatus.message}</span>
+                    </div>
+                )}
                 {/* Header */}
                 <header className="main-header">
                     <div className="header-info">

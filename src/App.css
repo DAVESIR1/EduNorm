@@ -335,6 +335,64 @@
     font-size: var(--text-2xl);
 }
 
+/* ===== CLOUD SYNC TOAST ===== */
+.sync-toast {
+    position: fixed;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    animation: slideInRight 0.3s ease;
+    box-shadow: var(--shadow-lg);
+}
+
+.sync-syncing {
+    background: linear-gradient(135deg, #3B82F6, #6366F1);
+    color: white;
+}
+
+.sync-success {
+    background: linear-gradient(135deg, #10B981, #34D399);
+    color: white;
+}
+
+.sync-error {
+    background: linear-gradient(135deg, #EF4444, #F87171);
+    color: white;
+}
+
+.sync-toast .spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* ===== RESPONSIVE ADJUSTMENTS ===== */
 @media (max-width: 1024px) {
     .main-content.sidebar-open {
