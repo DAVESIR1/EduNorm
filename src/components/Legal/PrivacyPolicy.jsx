@@ -101,7 +101,7 @@ export default function PrivacyPolicy() {
                     <h2>9. Contact Us</h2>
                     <p>
                         If you have any questions about this Privacy Policy, please contact us at:
-                        <a href="mailto:support@edunorm.com">support@edunorm.com</a>
+                        <a href="mailto:help@edunorm.in">help@edunorm.in</a>
                     </p>
                 </section>
             </div>

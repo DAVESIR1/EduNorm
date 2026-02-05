@@ -119,7 +119,7 @@ export default function TermsOfService() {
                     <h2>11. Contact</h2>
                     <p>
                         For questions about these Terms, contact us at:
-                        <a href="mailto:support@edunorm.com">support@edunorm.com</a>
+                        <a href="mailto:help@edunorm.in">help@edunorm.in</a>
                     </p>
                 </section>
             </div>

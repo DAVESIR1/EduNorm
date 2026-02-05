@@ -263,18 +263,31 @@ function AppContent() {
         const customField = fields.find(f => f.id === parseInt(fieldId) || f.key === fieldId);
         if (customField) {
             await updateField(customField.id, { name: newName });
+        } else {
+            // For built-in fields, store rename mapping in settings
+            const fieldRenames = settings.fieldRenames || {};
+            fieldRenames[fieldId] = newName;
+            await updateSetting('fieldRenames', fieldRenames);
         }
-        // Note: Built-in fields renaming could be stored in settings in future
-    }, [updateField, fields]);
+        // Trigger backup after field rename
+        MandatoryBackupService.triggerBackupOnChange();
+        alert(`Field renamed to "${newName}" successfully!`);
+    }, [updateField, fields, settings.fieldRenames, updateSetting]);
 
-    // Combine built-in and custom fields for dropdown
+    // Combine built-in and custom fields for dropdown (apply renames from settings)
     const allFields = useMemo(() => {
+        const fieldRenames = settings.fieldRenames || {};
         const builtInFields = DATA_FIELDS.flatMap(step =>
-            step.fields.map(f => ({ key: f.key, label: f.label, type: f.type, builtIn: true }))
+            step.fields.map(f => ({
+                key: f.key,
+                label: fieldRenames[f.key] || f.label, // Use renamed label if exists
+                type: f.type,
+                builtIn: true
+            }))
         );
         const customFieldsList = fields.map(f => ({ key: f.id.toString(), label: f.name, type: f.type, builtIn: false }));
         return [...builtInFields, ...customFieldsList];
-    }, [fields]);
+    }, [fields, settings.fieldRenames]);
 
     // Handle import from Excel (opens backup modal on import tab)
     const handleImportExcel = useCallback(() => {
@@ -660,6 +673,8 @@ function AppContent() {
                         <a href="/privacy" target="_blank">Privacy Policy</a>
                         <span className="divider">|</span>
                         <a href="/terms" target="_blank">Terms of Service</a>
+                        <span className="divider">|</span>
+                        <a href="mailto:help@edunorm.in">help@edunorm.in</a>
                     </div>
                 </div>
             </footer>

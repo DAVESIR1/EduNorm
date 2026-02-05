@@ -22,8 +22,8 @@ export const PROVIDERS = {
     LOCAL_ONLY: 'local_only'
 };
 
-// Current active provider - R2 is now default for 10GB free storage
-let currentProvider = PROVIDERS.CLOUDFLARE_R2;
+// Current active provider - Firebase is default (configured on Vercel)
+let currentProvider = PROVIDERS.FIREBASE;
 
 /**
  * Get the current storage provider
