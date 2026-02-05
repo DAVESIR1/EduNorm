@@ -1,4 +1,4 @@
-# EduNorm Project Status - February 4, 2026
+# EduNorm Project Status - February 5, 2026
 
 ## 🎉 SITE IS LIVE!
 **URL:** https://edunorm.in / https://www.edunorm.in
@@ -15,6 +15,24 @@
 | Mandatory Backup System | ✅ Working |
 | Offline Mode | ✅ Working |
 | Local IndexedDB | ✅ Working |
+| General Register | ✅ Fixed - View/Edit/Maximize buttons |
+| Student ID Card | ✅ Enhanced - Standard size, batch print |
+| Profile Viewer | ✅ Enhanced - Paper size, print ready |
+
+---
+
+## 🆕 Latest Updates (Feb 5, 2026)
+
+### ID Card & Profile Print System
+- **ID Card Size:** Standard 85.6mm × 54mm (credit card size)
+- **Paper Size Selector:** A4 (10 cards), Letter (10), Legal (12), A5 (3)
+- **Batch Printing:** Search by GR number, multi-select students
+- **Print Mode:** Only content prints, no UI elements
+
+### General Register Fixes
+- Fixed View/Edit buttons not responding on first click
+- Fixed maximize button closing window
+- Fixed StepWizard state sync when switching students
 
 ---
 
@@ -48,17 +66,17 @@ All variables are configured in Vercel Dashboard:
 
 ---
 
-## 📁 Key Files Modified Today
+## 📁 Key Files Modified Today (Feb 5)
 
 | File | Purpose |
 |------|---------|
-| `src/config/firebase.js` | Graceful null handling when env vars missing |
-| `src/contexts/AuthContext.jsx` | Offline mode support |
-| `src/main.jsx` | Error boundary added |
-| `src/services/MandatoryBackupService.js` | Auto-backup to R2 + local |
-| `src/services/R2StorageService.js` | Cloudflare R2 integration |
-| `src/services/HybridStorageService.js` | Multi-provider abstraction |
-| `vercel.json` | Fixed SPA routing (rewrites not routes) |
+| `ProfileViewer.jsx` | Paper size selector, batch mode, GR search |
+| `ProfileViewer.css` | New controls, print styles |
+| `IdCard.css` | Standard 85.6×54mm size, mm units, batch grid |
+| `GeneralRegister.jsx` | stopPropagation fixes for buttons |
+| `GeneralRegister.css` | Button z-index, sizing fixes |
+| `StepWizard.jsx` | useEffect for initialData sync |
+| `App.css` | .no-print utility class |
 
 ---
 
@@ -96,7 +114,7 @@ User Data → LocalStorage + IndexedDB (immediate)
 ## 🔧 Local Development
 
 ```bash
-cd /home/davesir/Documents/EduNorm
+cd "C:\Users\acer\Documents\school student documents"
 npm install
 npm run dev
 # Opens at http://localhost:5173
@@ -104,23 +122,25 @@ npm run dev
 
 ---
 
-## 📋 Tomorrow's Tasks
+## 📋 Next Session Tasks
 
-1. [ ] Add `edunorm.in` to Firebase authorized domains
-2. [ ] Test Google login on live site
-3. [ ] Test data backup/restore functionality
-4. [ ] Add any remaining features
+1. [ ] Test ID Card batch printing feature
+2. [ ] Test Profile print with paper size selection
+3. [ ] Add `edunorm.in` to Firebase authorized domains
+4. [ ] Test Google login on live site
 
 ---
 
 ## 💡 Quick Commands
 
-```bash
+```powershell
 # Build
 npm run build
 
 # Push to GitHub (triggers auto-deploy)
-git add -A && git commit -m "message" && git push origin main
+git add -A
+git commit -m "message"
+git push origin main
 
 # Check Vercel deployment
 # Visit: https://vercel.com/baraiyanitin220-3489s-projects/edu-norm
@@ -128,4 +148,4 @@ git add -A && git commit -m "message" && git push origin main
 
 ---
 
-**Last Updated:** February 4, 2026 at 10:06 PM IST
+**Last Updated:** February 5, 2026 at 11:28 AM IST
