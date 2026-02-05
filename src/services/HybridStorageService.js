@@ -122,15 +122,27 @@ export async function backupToCloud(userId) {
         }
     } catch (error) {
         console.error('HybridStorage backup error:', error);
+
+        // Check for network/fetch errors and provide clearer messages
+        let userMessage = 'Backed up locally';
+        if (error.message?.includes('fetch') || error.message?.includes('network') || error.name === 'TypeError') {
+            userMessage += ' (Cloud unavailable - check internet connection)';
+        } else if (error.message?.includes('not configured')) {
+            userMessage += ' (Cloud storage not configured)';
+        } else {
+            userMessage += ` (${error.message || 'Cloud sync pending'})`;
+        }
+
         // Local backup already created above
         return {
             success: true,
-            message: 'Backed up locally (cloud backup failed: ' + error.message + ')',
+            message: userMessage,
             timestamp: new Date().toISOString(),
             provider: 'local',
             cloudError: error.message
         };
     }
+
 }
 
 /**

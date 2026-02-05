@@ -10,43 +10,40 @@
 | Feature | Status |
 |---------|--------|
 | Domain (edunorm.in) | ✅ Live via Vercel |
-| Firebase Auth | ✅ Configured (needs domain whitelist) |
+| Firebase Auth | ✅ Configured in Vercel |
 | Cloudflare R2 Storage | ✅ Configured |
+| Firebase Cloud Backup | ✅ Working |
 | Mandatory Backup System | ✅ Working |
 | Offline Mode | ✅ Working |
 | Local IndexedDB | ✅ Working |
 | General Register | ✅ Fixed - View/Edit/Maximize buttons |
 | Student ID Card | ✅ Enhanced - Standard size, batch print |
-| Profile Viewer | ✅ Enhanced - Paper size, print ready |
+| Profile Viewer | ✅ Enhanced - Maximize, dropdown menus |
+| Razorpay Payment Gateway | ✅ Integrated (needs live keys) |
 
 ---
 
-## 🆕 Latest Updates (Feb 5, 2026)
+## 🆕 Latest Updates (Feb 5, 2026 - Evening)
 
-### ID Card & Profile Print System
-- **ID Card Size:** Standard 85.6mm × 54mm (credit card size)
-- **Paper Size Selector:** A4 (10 cards), Letter (10), Legal (12), A5 (3)
-- **Batch Printing:** Search by GR number, multi-select students
-- **Print Mode:** Only content prints, no UI elements
+### Profile Viewer UI Enhancements
+- **Maximize Button:** Added to expand modal to full screen
+- **Profile Template:** Converted to dropdown menu
+- **Profile/ID Buttons:** Made compact, in single row
+- **ID Card Options:** Consolidated into dropdown menu:
+  - Paper size selection (A4, Letter, Legal, A5)
+  - Template selection
+  - Batch print toggle
+  - Field customization
 
-### General Register Fixes
-- Fixed View/Edit buttons not responding on first click
-- Fixed maximize button closing window
-- Fixed StepWizard state sync when switching students
+### Payment Gateway Integration
+- **Razorpay Integration:** Complete with order creation & verification
+- **Premium Upgrade Modal:** Functional with payment checkout
+- **API Endpoints:** `/api/create-order.js`, `/api/verify-payment.js`
 
----
-
-## ⚠️ PENDING: Add Domain to Firebase
-
-**Google login won't work until you do this:**
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select project: **mn-school-sathi**
-3. Go to: **Authentication → Settings → Authorized domains**
-4. Add these domains:
-   - `edunorm.in`
-   - `www.edunorm.in`
-5. Save
+### Cloud Backup
+- **Firebase Firestore:** Full backup/restore functionality
+- **Fallback System:** Falls back to local IndexedDB if offline
+- **Auto-sync:** Works across devices with Firebase Auth
 
 ---
 
@@ -59,10 +56,15 @@ All variables are configured in Vercel Dashboard:
 - `VITE_FIREBASE_STORAGE_BUCKET`
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
+- `VITE_FIREBASE_MEASUREMENT_ID`
 - `VITE_R2_ACCOUNT_ID`
 - `VITE_R2_ACCESS_KEY_ID`
 - `VITE_R2_SECRET_ACCESS_KEY`
 - `VITE_R2_BUCKET_NAME`
+
+**To Add (for Payment Gateway):**
+- `RAZORPAY_KEY_ID`
+- `RAZORPAY_KEY_SECRET`
 
 ---
 
@@ -70,13 +72,13 @@ All variables are configured in Vercel Dashboard:
 
 | File | Purpose |
 |------|---------|
-| `ProfileViewer.jsx` | Paper size selector, batch mode, GR search |
-| `ProfileViewer.css` | New controls, print styles |
-| `IdCard.css` | Standard 85.6×54mm size, mm units, batch grid |
-| `GeneralRegister.jsx` | stopPropagation fixes for buttons |
-| `GeneralRegister.css` | Button z-index, sizing fixes |
-| `StepWizard.jsx` | useEffect for initialData sync |
-| `App.css` | .no-print utility class |
+| `ProfileViewer.jsx` | Maximize button, options dropdown, compact UI |
+| `ProfileViewer.css` | New styles for maximize, dropdown, compact controls |
+| `TemplateSelector.jsx` | Converted to dropdown menu |
+| `TemplateSelector.css` | Dropdown styling |
+| `UpgradeModal.jsx` | Razorpay checkout integration |
+| `api/create-order.js` | Razorpay order creation API |
+| `api/verify-payment.js` | Payment verification API |
 
 ---
 
@@ -93,8 +95,8 @@ GoDaddy Domain (edunorm.in)
 **Backup Strategy:**
 ```
 User Data → LocalStorage + IndexedDB (immediate)
-         → Cloudflare R2 (periodic + on-change)
-         → Firebase Firestore (fallback)
+         → Firebase Firestore (cloud backup)
+         → Cloudflare R2 (file storage)
 ```
 
 ---
@@ -108,24 +110,25 @@ User Data → LocalStorage + IndexedDB (immediate)
 | GoDaddy | dcc.godaddy.com | Domain DNS |
 | Firebase | console.firebase.google.com | Project: mn-school-sathi |
 | Cloudflare | dash.cloudflare.com | R2 storage |
+| Razorpay | dashboard.razorpay.com | Payment gateway |
 
 ---
 
 ## 🔧 Local Development
 
 ```bash
-cd "C:\Users\acer\Documents\school student documents"
+cd /home/davesir/Documents/EduNorm
 npm install
 npm run dev
-# Opens at http://localhost:5173
+# Opens at http://localhost:5174
 ```
 
 ---
 
-## 📋 Next Session Tasks
+## 📋 Next Tasks
 
-1. [ ] Test ID Card batch printing feature
-2. [ ] Test Profile print with paper size selection
+1. [ ] Add Razorpay live keys to Vercel
+2. [ ] Test payment flow on production
 3. [ ] Add `edunorm.in` to Firebase authorized domains
 4. [ ] Test Google login on live site
 
@@ -133,7 +136,7 @@ npm run dev
 
 ## 💡 Quick Commands
 
-```powershell
+```bash
 # Build
 npm run build
 
@@ -148,4 +151,4 @@ git push origin main
 
 ---
 
-**Last Updated:** February 5, 2026 at 11:28 AM IST
+**Last Updated:** February 5, 2026 at 8:15 PM IST

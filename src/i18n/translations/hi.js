@@ -184,5 +184,20 @@ export default {
         privacy: 'गोपनीयता नीति',
         terms: 'सेवा की शर्तें',
         contact: 'संपर्क करें'
+    },
+
+    // Placeholders - प्लेसहोल्डर्स
+    placeholders: {
+        enterSchoolName: 'स्कूल का नाम दर्ज करें...',
+        schoolPhone: 'स्कूल का फोन नंबर...',
+        schoolEmail: 'school@example.com',
+        teacherName: 'कक्षा शिक्षक का नाम...',
+        selectStandard: 'कक्षा चुनें',
+        fieldName: 'फील्ड का नाम...',
+        newName: 'नया नाम...',
+        standardExample: 'उदा. कक्षा 3-अ',
+        searchStudents: 'छात्र खोजें...',
+        selectToRemove: 'हटाने के लिए चुनें',
+        selectToRename: 'नाम बदलने के लिए चुनें'
     }
 };

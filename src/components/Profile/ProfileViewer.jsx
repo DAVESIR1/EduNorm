@@ -1,9 +1,9 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { X, Download, Printer, Image, Search, Plus, Minus } from 'lucide-react';
+import { X, Download, Printer, Image, Search, Plus, Minus, Maximize2, Minimize2, ChevronDown, Settings } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ProfileCard from './ProfileCard';
-import IdCard, { TEMPLATES } from './IdCard';
+import IdCard, { TEMPLATES, AVAILABLE_FIELDS, DEFAULT_VISIBLE_FIELDS } from './IdCard';
 import TemplateSelector from './TemplateSelector';
 import './ProfileViewer.css';
 
@@ -34,6 +34,10 @@ export default function ProfileViewer({
     const [batchMode, setBatchMode] = useState(false);
     const [selectedGrNumbers, setSelectedGrNumbers] = useState([]);
     const [grSearchQuery, setGrSearchQuery] = useState('');
+    const [visibleIdFields, setVisibleIdFields] = useState(DEFAULT_VISIBLE_FIELDS);
+    const [showFieldCustomizer, setShowFieldCustomizer] = useState(false);
+    const [isMaximized, setIsMaximized] = useState(false);
+    const [showOptionsMenu, setShowOptionsMenu] = useState(false);
     const profileRef = useRef(null);
     const idCardRef = useRef(null);
     const batchPrintRef = useRef(null);
@@ -139,15 +143,24 @@ export default function ProfileViewer({
 
     return (
         <div className="profile-viewer-overlay animate-fade-in" onClick={onClose}>
-            <div className="profile-viewer-container" onClick={e => e.stopPropagation()}>
+            <div className={`profile-viewer-container ${isMaximized ? 'maximized' : ''}`} onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="profile-viewer-header no-print">
                     <h2 className="display-font gradient-text">
-                        {viewMode === 'idcard' ? '🪪 Student ID Card' : '👤 Student Profile'}
+                        {viewMode === 'idcard' ? '🪪 ID Card' : '👤 Profile'}
                     </h2>
-                    <button className="btn btn-ghost btn-icon" onClick={onClose}>
-                        <X size={24} />
-                    </button>
+                    <div className="header-actions">
+                        <button
+                            className="btn btn-ghost btn-icon btn-sm"
+                            onClick={() => setIsMaximized(!isMaximized)}
+                            title={isMaximized ? 'Restore' : 'Maximize'}
+                        >
+                            {isMaximized ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                        </button>
+                        <button className="btn btn-ghost btn-icon btn-sm" onClick={onClose}>
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Controls */}
@@ -196,96 +209,150 @@ export default function ProfileViewer({
                             className={`toggle-btn ${viewMode === 'profile' ? 'active' : ''}`}
                             onClick={() => { setViewMode('profile'); setBatchMode(false); }}
                         >
-                            📋 Full Profile
+                            📋 Profile
                         </button>
                         <button
                             className={`toggle-btn ${viewMode === 'idcard' ? 'active' : ''}`}
                             onClick={() => setViewMode('idcard')}
                         >
-                            🪪 ID Card
+                            🪪 ID
                         </button>
                     </div>
+
+                    {/* Options Menu for ID Card */}
+                    {viewMode === 'idcard' && (
+                        <div className="options-menu-container">
+                            <button
+                                className="btn btn-ghost btn-sm options-trigger"
+                                onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                            >
+                                <Settings size={16} />
+                                Options
+                                <ChevronDown size={14} className={showOptionsMenu ? 'rotated' : ''} />
+                            </button>
+                            {showOptionsMenu && (
+                                <div className="options-dropdown">
+                                    <div className="option-item">
+                                        <label>📄 Paper:</label>
+                                        <select
+                                            className="input-field input-sm"
+                                            value={paperSize}
+                                            onChange={(e) => setPaperSize(e.target.value)}
+                                        >
+                                            {Object.entries(PAPER_SIZES).map(([key, size]) => (
+                                                <option key={key} value={key}>
+                                                    {size.name} ({size.cards})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="option-item">
+                                        <label>🎨 Template:</label>
+                                        <select
+                                            className="input-field input-sm"
+                                            value={idCardTemplate}
+                                            onChange={(e) => setIdCardTemplate(e.target.value)}
+                                        >
+                                            {TEMPLATES.map(t => (
+                                                <option key={t.id} value={t.id}>
+                                                    {t.icon} {t.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="option-item">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={batchMode}
+                                                onChange={(e) => setBatchMode(e.target.checked)}
+                                            />
+                                            🔢 Batch Print
+                                        </label>
+                                    </div>
+                                    <div className="option-item">
+                                        <button
+                                            className="btn btn-ghost btn-sm full-width"
+                                            onClick={() => setShowFieldCustomizer(!showFieldCustomizer)}
+                                        >
+                                            ⚙️ Customize Fields
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
-                {/* ID Card Mode Controls */}
-                {viewMode === 'idcard' && (
-                    <div className="idcard-controls no-print">
-                        {/* Paper Size Selector */}
-                        <div className="paper-size-selector">
-                            <label>📄 Paper Size:</label>
-                            <div className="paper-options">
-                                {Object.entries(PAPER_SIZES).map(([key, size]) => (
+                {/* Field Customizer Popup */}
+                {showFieldCustomizer && (
+                    <div className="field-customizer-panel no-print">
+                        <div className="field-checkboxes">
+                            {AVAILABLE_FIELDS.map(field => (
+                                <label key={field.id} className="field-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        checked={visibleIdFields.includes(field.id)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setVisibleIdFields([...visibleIdFields, field.id]);
+                                            } else {
+                                                setVisibleIdFields(visibleIdFields.filter(f => f !== field.id));
+                                            }
+                                        }}
+                                    />
+                                    {field.label}
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* GR Number Selection (Batch Mode) */}
+                {viewMode === 'idcard' && batchMode && (
+                    <div className="batch-controls no-print">
+                        <div className="gr-search-wrap">
+                            <Search size={16} />
+                            <input
+                                type="text"
+                                className="input-field"
+                                placeholder="Search GR No. or Name..."
+                                value={grSearchQuery}
+                                onChange={(e) => setGrSearchQuery(e.target.value)}
+                            />
+                        </div>
+
+                        {grSearchResults.length > 0 && (
+                            <div className="gr-search-results">
+                                {grSearchResults.map(s => (
                                     <button
-                                        key={key}
-                                        className={`paper-btn ${paperSize === key ? 'active' : ''}`}
-                                        onClick={() => setPaperSize(key)}
+                                        key={s.grNo}
+                                        className="gr-result-item"
+                                        onClick={() => addToGrSelection(s.grNo)}
                                     >
-                                        {size.name}
-                                        <span className="paper-cards">{size.cards} cards</span>
+                                        <Plus size={14} />
+                                        <span className="gr-no">{s.grNo}</span>
+                                        <span className="gr-name">{s.name || s.nameEnglish}</span>
                                     </button>
                                 ))}
                             </div>
-                        </div>
+                        )}
 
-                        {/* Batch Mode Toggle */}
-                        <div className="batch-toggle">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={batchMode}
-                                    onChange={(e) => setBatchMode(e.target.checked)}
-                                />
-                                🔢 Batch Print Multiple Cards
-                            </label>
-                        </div>
-
-                        {/* GR Number Selection (Batch Mode) */}
-                        {batchMode && (
-                            <div className="gr-selector">
-                                <div className="gr-search-wrap">
-                                    <Search size={16} />
-                                    <input
-                                        type="text"
-                                        className="input-field"
-                                        placeholder="Search by GR No. or Name..."
-                                        value={grSearchQuery}
-                                        onChange={(e) => setGrSearchQuery(e.target.value)}
-                                    />
-                                </div>
-
-                                {grSearchResults.length > 0 && (
-                                    <div className="gr-search-results">
-                                        {grSearchResults.map(s => (
-                                            <button
-                                                key={s.grNo}
-                                                className="gr-result-item"
-                                                onClick={() => addToGrSelection(s.grNo)}
-                                            >
-                                                <Plus size={14} />
-                                                <span className="gr-no">{s.grNo}</span>
-                                                <span className="gr-name">{s.name || s.nameEnglish}</span>
+                        {selectedGrNumbers.length > 0 && (
+                            <div className="selected-gr-list">
+                                <span className="selected-count">
+                                    Selected: {selectedGrNumbers.length} / {maxCardsPerPage}
+                                </span>
+                                <div className="gr-chips">
+                                    {selectedGrNumbers.map(gr => (
+                                        <span key={gr} className="gr-chip">
+                                            {gr}
+                                            <button onClick={() => removeFromGrSelection(gr)}>
+                                                <Minus size={12} />
                                             </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {selectedGrNumbers.length > 0 && (
-                                    <div className="selected-gr-list">
-                                        <span className="selected-count">
-                                            Selected: {selectedGrNumbers.length} / {maxCardsPerPage} per page
                                         </span>
-                                        <div className="gr-chips">
-                                            {selectedGrNumbers.map(gr => (
-                                                <span key={gr} className="gr-chip">
-                                                    {gr}
-                                                    <button onClick={() => removeFromGrSelection(gr)}>
-                                                        <Minus size={12} />
-                                                    </button>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -299,25 +366,7 @@ export default function ProfileViewer({
                     />
                 )}
 
-                {/* ID Card Template Selector (15 styles) */}
-                {viewMode === 'idcard' && (
-                    <div className="id-template-selector no-print">
-                        <label className="template-label">Choose ID Card Style:</label>
-                        <div className="id-template-grid">
-                            {TEMPLATES.map(t => (
-                                <button
-                                    key={t.id}
-                                    className={`id-template-btn ${idCardTemplate === t.id ? 'active' : ''}`}
-                                    onClick={() => setIdCardTemplate(t.id)}
-                                    title={t.name}
-                                >
-                                    <span className="template-icon">{t.icon}</span>
-                                    <span className="template-name">{t.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+
 
                 {/* Profile/ID Card Display */}
                 <div className="profile-display">
@@ -335,6 +384,7 @@ export default function ProfileViewer({
                                     schoolLogo={schoolLogo}
                                     schoolContact={schoolContact}
                                     template={idCardTemplate}
+                                    visibleFields={visibleIdFields}
                                 />
                             ))}
                         </div>
@@ -348,6 +398,7 @@ export default function ProfileViewer({
                                     schoolLogo={schoolLogo}
                                     schoolContact={schoolContact}
                                     template={idCardTemplate}
+                                    visibleFields={visibleIdFields}
                                 />
                             </div>
                         ) : (

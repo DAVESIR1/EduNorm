@@ -20,26 +20,59 @@ const TEMPLATES = [
     { id: 'eco-nature', name: 'Eco Nature', icon: '🌿' }
 ];
 
+// Available fields for customization
+const AVAILABLE_FIELDS = [
+    { id: 'grNo', label: 'GR Number', default: true },
+    { id: 'rollNo', label: 'Roll Number', default: true },
+    { id: 'standard', label: 'Class/Standard', default: true },
+    { id: 'contact', label: 'Contact Number', default: true },
+    { id: 'email', label: 'Email', default: false },
+    { id: 'dob', label: 'Date of Birth', default: false },
+    { id: 'fatherName', label: 'Father Name', default: false },
+    { id: 'bloodGroup', label: 'Blood Group', default: false },
+    { id: 'address', label: 'Address', default: false },
+    { id: 'section', label: 'Section', default: false },
+    { id: 'admissionDate', label: 'Admission Date', default: false }
+];
+
+// Default visible fields
+const DEFAULT_VISIBLE_FIELDS = AVAILABLE_FIELDS.filter(f => f.default).map(f => f.id);
+
 const IdCard = forwardRef(({
     student,
     schoolName,
     schoolLogo,
     schoolContact,
     schoolEmail,
-    template = 'classic-elegant'
+    template = 'classic-elegant',
+    visibleFields = DEFAULT_VISIBLE_FIELDS
 }, ref) => {
     if (!student) return null;
 
     // Required fields - always displayed
     const studentName = student.name || student.nameEnglish || 'Student Name';
-    const grNo = student.grNo || '—';
-    const standard = student.standard || '—';
-    const rollNo = student.rollNo || '—';
-    const contact = student.contactNumber || schoolContact || '—';
-    const email = student.email || schoolEmail || '';
     const photo = student.studentPhoto;
     const logo = schoolLogo;
     const school = schoolName || 'School Name';
+
+    // Field values with fallbacks
+    const fieldValues = {
+        grNo: { label: 'GR No.', value: student.grNo || '—' },
+        rollNo: { label: 'Roll No.', value: student.rollNo || '—' },
+        standard: { label: 'Class', value: student.standard || '—' },
+        contact: { label: '📞', value: student.contactNumber || schoolContact || '—' },
+        email: { label: '✉️', value: student.email || schoolEmail || '' },
+        dob: { label: 'DOB', value: student.dateOfBirth || '—' },
+        fatherName: { label: "Father's Name", value: student.fatherName || '—' },
+        bloodGroup: { label: 'Blood', value: student.bloodGroup || '—' },
+        address: { label: 'Address', value: student.address || '—' },
+        section: { label: 'Section', value: student.section || '—' },
+        admissionDate: { label: 'Admitted', value: student.admissionDate || '—' }
+    };
+
+    // Split visible fields into main fields and contact fields
+    const mainFields = visibleFields.filter(f => !['contact', 'email'].includes(f));
+    const contactFields = visibleFields.filter(f => ['contact', 'email'].includes(f));
 
     return (
         <div ref={ref} className={`id-card template-${template}`}>
@@ -88,32 +121,32 @@ const IdCard = forwardRef(({
                         <div className="id-student-name">{studentName}</div>
 
                         <div className="id-fields">
-                            <div className="id-field">
-                                <span className="field-label">GR No.</span>
-                                <span className="field-value">{grNo}</span>
-                            </div>
-                            <div className="id-field">
-                                <span className="field-label">Class</span>
-                                <span className="field-value">{standard}</span>
-                            </div>
-                            <div className="id-field">
-                                <span className="field-label">Roll No.</span>
-                                <span className="field-value">{rollNo}</span>
-                            </div>
+                            {mainFields.map(fieldId => {
+                                const field = fieldValues[fieldId];
+                                if (!field || !field.value || field.value === '—') return null;
+                                return (
+                                    <div key={fieldId} className="id-field">
+                                        <span className="field-label">{field.label}</span>
+                                        <span className="field-value">{field.value}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
 
-                        <div className="id-contact-info">
-                            <div className="contact-row">
-                                <span className="contact-icon">📞</span>
-                                <span className="contact-text">{contact}</span>
+                        {contactFields.length > 0 && (
+                            <div className="id-contact-info">
+                                {contactFields.map(fieldId => {
+                                    const field = fieldValues[fieldId];
+                                    if (!field || !field.value || field.value === '—') return null;
+                                    return (
+                                        <div key={fieldId} className="contact-row">
+                                            <span className="contact-icon">{field.label}</span>
+                                            <span className="contact-text">{field.value}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            {email && (
-                                <div className="contact-row">
-                                    <span className="contact-icon">✉️</span>
-                                    <span className="contact-text">{email}</span>
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </main>
 
@@ -134,5 +167,6 @@ const IdCard = forwardRef(({
 });
 
 IdCard.displayName = 'IdCard';
-export { TEMPLATES };
+export { TEMPLATES, AVAILABLE_FIELDS, DEFAULT_VISIBLE_FIELDS };
 export default IdCard;
+

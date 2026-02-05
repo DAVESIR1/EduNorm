@@ -282,17 +282,11 @@ function AppContent() {
         // The BackupRestore modal will show the Import tab
     }, []);
 
-    // Auth loading state
+    // Auth loading state - show minimal spinner instead of lock screen
     if (authLoading) {
-        return (
-            <div className="loading-screen">
-                <div className="loading-content">
-                    <div className="loading-spinner animate-pulse">🔐</div>
-                    <h2 className="display-font gradient-text">Authenticating...</h2>
-                </div>
-            </div>
-        );
+        return null; // Don't show anything during quick auth check
     }
+
 
     // Show login page if not authenticated
     if (!isAuthenticated) {

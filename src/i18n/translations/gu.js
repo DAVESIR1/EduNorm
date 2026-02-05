@@ -192,5 +192,20 @@ export default {
         privacy: 'ગોપનીયતા નીતિ',
         terms: 'સેવાની શરતો',
         contact: 'અમારો સંપર્ક કરો'
+    },
+
+    // Placeholders - પ્લેસહોલ્ડર્સ
+    placeholders: {
+        enterSchoolName: 'શાળાનું નામ દાખલ કરો...',
+        schoolPhone: 'શાળાનો ફોન નંબર...',
+        schoolEmail: 'school@example.com',
+        teacherName: 'વર્ગ શિક્ષકનું નામ...',
+        selectStandard: 'ધોરણ પસંદ કરો',
+        fieldName: 'ફીલ્ડનું નામ...',
+        newName: 'નવું નામ...',
+        standardExample: 'દા.ત. ધોરણ ૩-અ',
+        searchStudents: 'વિદ્યાર્થી શોધો...',
+        selectToRemove: 'દૂર કરવા પસંદ કરો',
+        selectToRename: 'નામ બદલવા પસંદ કરો'
     }
 };

@@ -215,5 +215,20 @@ export default {
         privacy: 'Privacy Policy',
         terms: 'Terms of Service',
         contact: 'Contact Us'
+    },
+
+    // Placeholders
+    placeholders: {
+        enterSchoolName: 'Enter school name...',
+        schoolPhone: 'School phone number...',
+        schoolEmail: 'school@example.com',
+        teacherName: 'Class teacher name...',
+        selectStandard: 'Select Standard',
+        fieldName: 'Field name...',
+        newName: 'New name...',
+        standardExample: 'e.g. Standard 3-A',
+        searchStudents: 'Search students...',
+        selectToRemove: 'Select to remove',
+        selectToRename: 'Select to rename'
     }
 };

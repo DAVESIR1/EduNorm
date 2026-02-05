@@ -201,7 +201,7 @@ export default function Sidebar({
                             <input
                                 type="text"
                                 className="input-field"
-                                placeholder="Enter school name..."
+                                placeholder={t('placeholders.enterSchoolName', 'Enter school name...')}
                                 value={schoolName}
                                 onChange={(e) => setSchoolName(e.target.value)}
                             />
@@ -216,7 +216,7 @@ export default function Sidebar({
                             <input
                                 type="tel"
                                 className="input-field"
-                                placeholder="School phone number..."
+                                placeholder={t('placeholders.schoolPhone', 'School phone number...')}
                                 value={schoolContact || ''}
                                 onChange={(e) => setSchoolContact(e.target.value)}
                             />
@@ -231,7 +231,7 @@ export default function Sidebar({
                             <input
                                 type="email"
                                 className="input-field"
-                                placeholder="school@example.com"
+                                placeholder={t('placeholders.schoolEmail', 'school@example.com')}
                                 value={schoolEmail || ''}
                                 onChange={(e) => setSchoolEmail(e.target.value)}
                             />
@@ -246,7 +246,7 @@ export default function Sidebar({
                             <input
                                 type="text"
                                 className="input-field"
-                                placeholder="Class teacher name..."
+                                placeholder={t('placeholders.teacherName', 'Class teacher name...')}
                                 value={teacherName}
                                 onChange={(e) => setTeacherName(e.target.value)}
                             />
@@ -264,7 +264,7 @@ export default function Sidebar({
                                     value={selectedStandard}
                                     onChange={(e) => setSelectedStandard(e.target.value)}
                                 >
-                                    <option value="">Select Standard</option>
+                                    <option value="">{t('placeholders.selectStandard', 'Select Standard')}</option>
                                     {standards.map(std => (
                                         <option key={std.id} value={std.id}>{std.name}</option>
                                     ))}
@@ -282,7 +282,7 @@ export default function Sidebar({
                                     <input
                                         type="text"
                                         className="input-field"
-                                        placeholder="e.g. Standard 3-A"
+                                        placeholder={t('placeholders.standardExample', 'e.g. Standard 3-A')}
                                         value={newStandard}
                                         onChange={(e) => setNewStandard(e.target.value)}
                                     />
@@ -316,7 +316,7 @@ export default function Sidebar({
                                     <input
                                         type="text"
                                         className="input-field"
-                                        placeholder="Field name..."
+                                        placeholder={t('placeholders.fieldName', 'Field name...')}
                                         value={newFieldName}
                                         onChange={(e) => setNewFieldName(e.target.value)}
                                     />
@@ -395,13 +395,28 @@ export default function Sidebar({
                                 </button>
                             </div>
                             {renameFieldId && (
-                                <input
-                                    type="text"
-                                    className="input-field small"
-                                    placeholder="New name..."
-                                    value={renameFieldValue}
-                                    onChange={(e) => setRenameFieldValue(e.target.value)}
-                                />
+                                <div className="inline-form animate-slide-up">
+                                    <input
+                                        type="text"
+                                        className="input-field small"
+                                        placeholder={t('placeholders.newName', 'New name...')}
+                                        value={renameFieldValue}
+                                        onChange={(e) => setRenameFieldValue(e.target.value)}
+                                    />
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            if (renameFieldId && renameFieldValue) {
+                                                onRenameDataBox(renameFieldId, renameFieldValue);
+                                                setRenameFieldId('');
+                                                setRenameFieldValue('');
+                                            }
+                                        }}
+                                        disabled={!renameFieldValue}
+                                    >
+                                        <SaveIcon size={14} />
+                                    </button>
+                                </div>
                             )}
                         </div>
 

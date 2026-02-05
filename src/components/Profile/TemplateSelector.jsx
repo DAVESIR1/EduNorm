@@ -16,22 +16,19 @@ const TEMPLATES = [
 
 export default function TemplateSelector({ selected, onSelect }) {
     return (
-        <div className="template-selector no-print">
-            <span className="selector-label">Template:</span>
-            <div className="template-list">
+        <div className="template-selector-dropdown no-print">
+            <label className="selector-label">🎨 Template:</label>
+            <select
+                className="input-field template-dropdown"
+                value={selected}
+                onChange={(e) => onSelect(e.target.value)}
+            >
                 {TEMPLATES.map(template => (
-                    <button
-                        key={template.id}
-                        className={`template-btn ${selected === template.id ? 'active' : ''}`}
-                        onClick={() => onSelect(template.id)}
-                        style={{ '--template-color': template.color }}
-                        title={template.name}
-                    >
-                        <span className="template-emoji">{template.emoji}</span>
-                        <span className="template-name">{template.name}</span>
-                    </button>
+                    <option key={template.id} value={template.id}>
+                        {template.emoji} {template.name}
+                    </option>
                 ))}
-            </div>
+            </select>
         </div>
     );
 }
