@@ -5,6 +5,7 @@ import App from './App'
 import PrivacyPolicy from './components/Legal/PrivacyPolicy'
 import TermsOfService from './components/Legal/TermsOfService'
 import { UndoProvider } from './contexts/UndoContext'
+import { MenuProvider } from './contexts/MenuContext'
 import './styles/design-system.css'
 
 // Error Boundary Component
@@ -84,11 +85,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ErrorBoundary>
             <BrowserRouter>
                 <UndoProvider>
-                    <Routes>
-                        <Route path="/" element={<App />} />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="/terms" element={<TermsOfService />} />
-                    </Routes>
+                    <MenuProvider>
+                        <Routes>
+                            <Route path="/" element={<App />} />
+                            <Route path="/privacy" element={<PrivacyPolicy />} />
+                            <Route path="/terms" element={<TermsOfService />} />
+                        </Routes>
+                    </MenuProvider>
                 </UndoProvider>
             </BrowserRouter>
         </ErrorBoundary>

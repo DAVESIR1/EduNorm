@@ -1,0 +1,280 @@
+.school-profile {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--border-color, #e5e7eb);
+}
+
+.school-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.school-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: white;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.school-info h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    color: var(--text-primary, #1f2937);
+}
+
+.school-info p {
+    margin: 4px 0;
+    color: var(--text-secondary, #6b7280);
+    font-size: 14px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--hover-bg, #f3f4f6);
+    color: var(--text-primary, #1f2937);
+}
+
+.action-btn:hover {
+    background: var(--border-color, #e5e7eb);
+}
+
+.action-btn.save {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+}
+
+.action-btn.save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Sections */
+.facilities-section,
+.custom-fields-section {
+    margin-bottom: 32px;
+}
+
+.facilities-section h2,
+.custom-fields-section h2 {
+    margin: 0 0 20px;
+    font-size: 18px;
+    color: var(--text-primary, #1f2937);
+}
+
+/* Facilities Grid */
+.facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.facility-item {
+    background: var(--surface-color, white);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.facility-item label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 8px;
+}
+
+.field-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, #1f2937);
+}
+
+.field-value .empty {
+    color: var(--text-secondary, #9ca3af);
+    font-weight: 400;
+    font-style: italic;
+}
+
+.field-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--border-color, #e5e7eb);
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    background: var(--input-bg, white);
+    color: var(--text-primary, #1f2937);
+}
+
+.field-input:focus {
+    border-color: #3B82F6;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #EF4444;
+    opacity: 0.6;
+}
+
+.remove-btn:hover {
+    opacity: 1;
+}
+
+/* Add Field */
+.add-field-area {
+    margin-top: 20px;
+}
+
+.add-field-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border: 2px dashed var(--border-color, #d1d5db);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-secondary, #6b7280);
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    justify-content: center;
+}
+
+.add-field-btn:hover {
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
+.add-field-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.add-field-form .field-input {
+    flex: 1;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: var(--hover-bg, #f3f4f6);
+    color: var(--text-primary, #1f2937);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Print styles */
+@media print {
+
+    .header-actions,
+    .add-field-area,
+    .remove-btn {
+        display: none !important;
+    }
+
+    .school-profile {
+        padding: 0;
+    }
+
+    .facility-item {
+        border: 1px solid #ccc;
+        break-inside: avoid;
+    }
+}
+
+/* Dark Theme */
+[data-theme="dark"] .facility-item {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+[data-theme="dark"] .field-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .school-profile {
+        padding: 16px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .school-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .school-info h1 {
+        font-size: 22px;
+    }
+
+    .facilities-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .add-field-form {
+        flex-direction: column;
+    }
+
+    .add-field-form .field-input {
+        width: 100%;
+    }
+}
