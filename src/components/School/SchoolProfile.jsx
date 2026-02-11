@@ -23,18 +23,29 @@ const DEFAULT_FACILITIES = [
     { id: 'compound_wall', label: 'Compound Wall', type: 'select', options: ['Yes', 'No', 'Partial'], value: '' },
 ];
 
-export default function SchoolProfile({ schoolName, schoolContact, schoolEmail, schoolLogo }) {
+export default function SchoolProfile({
+    schoolName, schoolContact, schoolEmail, schoolLogo,
+    onSchoolNameChange, onSchoolContactChange, onSchoolEmailChange, onSchoolLogoChange,
+    onSaveSettings
+}) {
     const [facilities, setFacilities] = useState(DEFAULT_FACILITIES);
     const [customFields, setCustomFields] = useState([]);
-    const [editMode, setEditMode] = useState(false);
+    const [editMode, setEditMode] = useState(true);
     const [saving, setSaving] = useState(false);
     const [newFieldName, setNewFieldName] = useState('');
     const [showAddField, setShowAddField] = useState(false);
+    const [schoolLandline, setSchoolLandline] = useState('');
     const { recordAction } = useUndo();
 
-    // Load saved data on mount
+    // Split contact into mobile and landline on load
     useEffect(() => {
         loadData();
+        // Parse landline from contact if stored as "mobile|landline"
+        if (schoolContact && schoolContact.includes('|')) {
+            const parts = schoolContact.split('|');
+            onSchoolContactChange?.(parts[0]);
+            setSchoolLandline(parts[1] || '');
+        }
     }, []);
 
     const loadData = async () => {
@@ -43,10 +54,32 @@ export default function SchoolProfile({ schoolName, schoolContact, schoolEmail, 
             if (saved) {
                 if (saved.facilities) setFacilities(saved.facilities);
                 if (saved.customFields) setCustomFields(saved.customFields);
+                if (saved.schoolLandline) setSchoolLandline(saved.schoolLandline);
             }
         } catch (error) {
             console.error('Failed to load school profile:', error);
         }
+    };
+
+    const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type and size
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file (PNG, JPG, etc.)');
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Logo file must be less than 2MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            onSchoolLogoChange?.(event.target.result);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleFieldChange = (id, value) => {
@@ -127,8 +160,11 @@ export default function SchoolProfile({ schoolName, schoolContact, schoolEmail, 
             await db.setSetting('school_profile', {
                 facilities,
                 customFields,
+                schoolLandline,
                 updatedAt: Date.now()
             });
+            // Also save school info to main settings
+            if (onSaveSettings) onSaveSettings();
             setEditMode(false);
             alert('School profile saved successfully!');
         } catch (error) {
@@ -247,6 +283,88 @@ export default function SchoolProfile({ schoolName, schoolContact, schoolEmail, 
                             </button>
                         </>
                     )}
+                </div>
+            </div>
+
+            {/* School Basic Info - Always Editable */}
+            <div className="school-info-section">
+                <h2>🏫 School Information</h2>
+                <div className="school-info-grid">
+                    {/* Logo Upload */}
+                    <div className="logo-upload-card">
+                        <label>School Logo</label>
+                        <div className="logo-upload-area">
+                            {schoolLogo ? (
+                                <div className="logo-preview">
+                                    <img src={schoolLogo} alt="School Logo" />
+                                    <button className="change-logo-btn" onClick={() => document.getElementById('logo-upload-input').click()}>
+                                        Change Logo
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="logo-placeholder" onClick={() => document.getElementById('logo-upload-input').click()}>
+                                    <span className="upload-icon">📷</span>
+                                    <span>Click to upload logo</span>
+                                    <span className="upload-hint">PNG, JPG • Max 2MB</span>
+                                </div>
+                            )}
+                            <input
+                                id="logo-upload-input"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleLogoUpload}
+                                style={{ display: 'none' }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* School Name */}
+                    <div className="info-field-card">
+                        <label>School Name</label>
+                        <input
+                            type="text"
+                            className="field-input"
+                            value={schoolName || ''}
+                            onChange={(e) => onSchoolNameChange?.(e.target.value)}
+                            placeholder="Enter school name..."
+                        />
+                    </div>
+
+                    {/* Mobile Contact */}
+                    <div className="info-field-card">
+                        <label>📱 Mobile Number</label>
+                        <input
+                            type="tel"
+                            className="field-input"
+                            value={schoolContact || ''}
+                            onChange={(e) => onSchoolContactChange?.(e.target.value)}
+                            placeholder="+91 98765 43210"
+                        />
+                    </div>
+
+                    {/* Landline */}
+                    <div className="info-field-card">
+                        <label>📞 Landline Number</label>
+                        <input
+                            type="tel"
+                            className="field-input"
+                            value={schoolLandline}
+                            onChange={(e) => setSchoolLandline(e.target.value)}
+                            placeholder="0XX-XXXXXXXX"
+                        />
+                    </div>
+
+                    {/* Email */}
+                    <div className="info-field-card">
+                        <label>✉️ School Email</label>
+                        <input
+                            type="email"
+                            className="field-input"
+                            value={schoolEmail || ''}
+                            onChange={(e) => onSchoolEmailChange?.(e.target.value)}
+                            placeholder="school@example.com"
+                        />
+                    </div>
                 </div>
             </div>
 

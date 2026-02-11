@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { CERTIFICATE_TEMPLATES, getTemplatesByCategory, getCategories, getTemplateById } from './CertificateTemplates';
 import { Award, Printer as PrinterIcon, X, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import './CertificateGenerator.css';
 
 export default function CertificateGenerator({ isOpen, onClose, student, schoolName, schoolLogo }) {
@@ -30,10 +32,20 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
             <html>
                 <head>
                     <title>Certificate - ${student?.studentFirstName || 'Student'}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600&display=swap');
+                        @page {
+                            size: A4 landscape;
+                            margin: 15mm;
+                        }
                         
-                        body { margin: 0; padding: 20px; font-family: 'Montserrat', sans-serif; }
+                        body { 
+                            margin: 0; 
+                            padding: 0; 
+                            font-family: 'Montserrat', sans-serif;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
                         
                         .certificate-print {
                             width: 100%;
@@ -149,6 +161,40 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
         printWindow.print();
     };
 
+    const handleDownloadPDF = async () => {
+        const element = certificateRef.current;
+        if (!element) return;
+
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true
+            });
+            const imgData = canvas.toDataURL('image/png');
+
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+            const x = (pdfWidth - imgWidth * ratio) / 2;
+            const y = (pdfHeight - imgHeight * ratio) / 2;
+
+            pdf.addImage(imgData, 'PNG', x, y, imgWidth * ratio, imgHeight * ratio);
+            pdf.save(`Certificate_${student?.studentFirstName || student?.name || 'Student'}.pdf`);
+        } catch (error) {
+            console.error('PDF download failed:', error);
+            alert('Failed to download PDF. Please try again.');
+        }
+    };
+
     const getStudentName = () => {
         if (!student) return 'Student Name';
         return [student.studentFirstName, student.studentMiddleName, student.studentLastName]
@@ -255,10 +301,16 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
                                 </div>
                             </div>
 
-                            <button className="print-btn-new" onClick={handlePrint}>
-                                <PrinterIcon size={20} />
-                                Print Certificate
-                            </button>
+                            <div className="cert-action-btns">
+                                <button className="print-btn-new" onClick={handlePrint}>
+                                    <PrinterIcon size={20} />
+                                    Print
+                                </button>
+                                <button className="print-btn-new download-btn" onClick={handleDownloadPDF}>
+                                    <Download size={20} />
+                                    Download PDF
+                                </button>
+                            </div>
                         </div>
                     </div>
 

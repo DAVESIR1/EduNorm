@@ -78,7 +78,8 @@ export default {
         backupRestore: 'बैकअप और रिस्टोर',
         cloudBackup: 'क्लाउड बैकअप',
         exportData: 'डेटा एक्सपोर्ट',
-        importData: 'डेटा इम्पोर्ट'
+        importData: 'डेटा इम्पोर्ट',
+        helpSupport: 'सहायता और सुझाव'
     },
     form: {
         basicInfo: 'मूल जानकारी',

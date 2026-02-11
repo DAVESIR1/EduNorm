@@ -86,7 +86,8 @@ export default {
         backupRestore: 'બેકઅપ અને રિસ્ટોર',
         cloudBackup: 'ક્લાઉડ બેકઅપ',
         exportData: 'ડેટા એક્સપોર્ટ',
-        importData: 'ડેટા ઇમ્પોર્ટ'
+        importData: 'ડેટા ઇમ્પોર્ટ',
+        helpSupport: 'સહાય અને સૂચનો'
     },
     form: {
         basicInfo: 'મૂળભૂત માહિતી',

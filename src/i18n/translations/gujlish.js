@@ -77,9 +77,7 @@ export default {
         uploadLogo: 'Logo Upload Karo',
         hoiPassword: 'Password Set / Change Karo',
         backupRestore: 'Backup & Restore',
-        cloudBackup: 'Cloud Backup',
-        exportData: 'Data Export Karo',
-        importData: 'Data Import Karo'
+        helpSupport: 'Help & Suggestions'
     },
     form: {
         basicInfo: 'Basic Info',

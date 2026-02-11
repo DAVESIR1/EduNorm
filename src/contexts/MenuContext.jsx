@@ -92,7 +92,8 @@ export const MENU_STRUCTURE = {
             { id: 'cloud-backup', name: 'Cloud Backup', nameKey: 'sidebar.cloudBackup', icon: 'cloud', status: 'active' },
             { id: 'upload-logo', name: 'Upload Logo', nameKey: 'sidebar.uploadLogo', icon: 'image', status: 'active' },
             { id: 'export-data', name: 'Export Data', nameKey: 'sidebar.exportData', icon: 'fileText', status: 'active' },
-            { id: 'import-data', name: 'Import Data', nameKey: 'sidebar.importData', icon: 'plus', status: 'coming-soon' },
+            { id: 'import-data', name: 'Import Data', nameKey: 'sidebar.importData', icon: 'plus', status: 'active' },
+            { id: 'help-support', name: 'Help & Suggestions', nameKey: 'sidebar.helpSupport', icon: 'messageCircle', status: 'active' },
         ]
     }
 };

@@ -38,14 +38,8 @@ export default function HoiPasswordSettings({ isOpen, onClose }) {
             };
             sessionStorage.setItem('hoi_password_otp', JSON.stringify(otpData));
 
-            // Send email via mailto (browser will open email client)
-            // In production, use a proper email service
-            const emailBody = `Your EduNorm HOI Password Setup OTP is: ${otpCode}\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore this email.`;
-            const mailtoLink = `mailto:help@edunorm.com?subject=HOI Password Setup OTP&body=${encodeURIComponent(emailBody)}`;
-
-            // For demo, show OTP in console and alert
-            console.log('HOI Password OTP:', otpCode);
-            alert(`Demo Mode: Your OTP is ${otpCode}\n\nIn production, this will be sent to help@edunorm.com`);
+            // Show OTP to admin for verification
+            alert(`🔐 Your verification OTP is: ${otpCode}\n\nPlease enter this OTP to confirm password change.\nValid for 10 minutes.`);
 
             setSentOtp(true);
             setStep('verify');

@@ -93,7 +93,8 @@ export default {
         backupRestore: 'Backup & Restore',
         cloudBackup: 'Cloud Backup',
         exportData: 'Export Data',
-        importData: 'Import Data'
+        importData: 'Import Data',
+        helpSupport: 'Help & Suggestions'
     },
 
     // Data Entry Form

@@ -333,6 +333,11 @@ function AppContent() {
                     schoolContact={schoolContact}
                     schoolEmail={schoolEmail}
                     schoolLogo={schoolLogo}
+                    onSchoolNameChange={setSchoolName}
+                    onSchoolContactChange={setSchoolContact}
+                    onSchoolEmailChange={setSchoolEmail}
+                    onSchoolLogoChange={setSchoolLogo}
+                    onSaveSettings={handleSaveSettings}
                 />;
             case 'general-register':
                 setShowLedger(true);
@@ -432,6 +437,69 @@ function AppContent() {
             case 'download-certificate':
             case 'qa-chat':
                 return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
+
+            // Data Management items
+            case 'backup-restore':
+                setShowBackup(true);
+                setShowMenuContent(false);
+                return null;
+            case 'cloud-backup':
+                setShowCloudBackup(true);
+                setShowMenuContent(false);
+                return null;
+            case 'upload-logo':
+                // Logo upload is in school profile
+                setMenuContentType('school-profile');
+                return null;
+            case 'export-data':
+                setBackupAction('export');
+                setShowBackup(true);
+                setShowMenuContent(false);
+                return null;
+            case 'import-data':
+                setBackupAction('import');
+                setShowBackup(true);
+                setShowMenuContent(false);
+                return null;
+
+            // HOI Password - handled by sidebar directly, but add fallback
+            case 'hoi-password':
+                setShowMenuContent(false);
+                setMenuContentType(null);
+                return null;
+
+            // Help & Support
+            case 'help-support':
+                return (
+                    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+                        <h2 style={{ marginBottom: '8px', fontSize: '1.3rem' }}>💬 Help & Suggestions</h2>
+                        <p style={{ color: 'var(--gray-600)', marginBottom: '16px', fontSize: '0.9rem' }}>
+                            Have a question, bug report, or suggestion? Send us a message and we'll get back to you!
+                        </p>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const subject = e.target.subject.value;
+                            const message = e.target.message.value;
+                            const email = user?.email || '';
+                            const mailtoLink = `mailto:help@edunorm.in?subject=${encodeURIComponent('[EduNorm Support] ' + subject)}&body=${encodeURIComponent(message + '\n\n---\nFrom: ' + email)}`;
+                            window.open(mailtoLink);
+                        }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <input name="subject" className="input-field" placeholder="Subject (e.g. Bug Report, Feature Request)" required style={{ padding: '10px 14px' }} />
+                            <textarea name="message" className="input-field" placeholder="Type your message here..." required rows={6} style={{ padding: '10px 14px', resize: 'vertical', minHeight: '120px' }} />
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                                    📧 Send to help@edunorm.in
+                                </button>
+                                <button type="button" className="btn" onClick={() => { setShowMenuContent(false); setMenuContentType(null); }}>
+                                    Cancel
+                                </button>
+                            </div>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', textAlign: 'center' }}>
+                                🔒 Your data is safe. We never share student information with anyone.
+                            </p>
+                        </form>
+                    </div>
+                );
 
             default:
                 return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
@@ -906,17 +974,16 @@ function AppContent() {
             {/* Undo/Redo floating bar */}
             <UndoRedoBar />
 
-            {/* Footer with Legal Links */}
+            {/* Footer */}
             <footer className="app-footer">
-                <div className="footer-content">
+                <div className="footer-row">
+                    <a href="mailto:help@edunorm.in">help@edunorm.in</a>
+                    <span className="dot">·</span>
+                    <a href="/privacy" target="_blank">Privacy</a>
+                    <span className="dot">·</span>
+                    <a href="/terms" target="_blank">Terms</a>
+                    <span className="dot">·</span>
                     <span>© 2026 EduNorm</span>
-                    <div className="footer-links">
-                        <a href="/privacy" target="_blank">Privacy Policy</a>
-                        <span className="divider">|</span>
-                        <a href="/terms" target="_blank">Terms of Service</a>
-                        <span className="divider">|</span>
-                        <a href="mailto:help@edunorm.in">help@edunorm.in</a>
-                    </div>
                 </div>
             </footer>
         </div>
