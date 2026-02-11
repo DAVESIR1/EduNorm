@@ -513,6 +513,8 @@ export const IconMap = {
     camera: CameraIcon,
     mic: MicIcon,
     messageCircle: MessageCircleIcon,
+    database: CloudDownloadIcon,
+    cloud: CloudUploadIcon,
     palette: 'PaletteIcon',
     language: 'LanguageIcon',
 };

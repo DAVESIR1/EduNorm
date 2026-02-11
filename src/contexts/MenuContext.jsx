@@ -80,6 +80,20 @@ export const MENU_STRUCTURE = {
             { id: 'programs-events', name: 'Programs & Events', nameKey: 'sidebar.programsEvents', icon: 'calendar', status: 'coming-soon' },
             { id: 'activity-gallery', name: 'Activity Gallery', nameKey: 'sidebar.activityGallery', icon: 'image', status: 'coming-soon' },
         ]
+    },
+    dataManagement: {
+        id: 'dataManagement',
+        name: 'Data Management',
+        nameKey: 'menu.dataManagement',
+        icon: 'database',
+        color: '#EC4899',
+        items: [
+            { id: 'backup-restore', name: 'Backup & Restore', nameKey: 'sidebar.backupRestore', icon: 'download', status: 'active' },
+            { id: 'cloud-backup', name: 'Cloud Backup', nameKey: 'sidebar.cloudBackup', icon: 'cloud', status: 'active' },
+            { id: 'upload-logo', name: 'Upload Logo', nameKey: 'sidebar.uploadLogo', icon: 'image', status: 'active' },
+            { id: 'export-data', name: 'Export Data', nameKey: 'sidebar.exportData', icon: 'fileText', status: 'active' },
+            { id: 'import-data', name: 'Import Data', nameKey: 'sidebar.importData', icon: 'plus', status: 'coming-soon' },
+        ]
     }
 };
 

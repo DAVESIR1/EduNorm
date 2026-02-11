@@ -13,7 +13,8 @@ export default {
         hoiFull: 'संस्था प्रमुख',
         teacher: 'शिक्षक',
         student: 'छात्र',
-        other: 'अन्य'
+        other: 'अन्य',
+        dataManagement: 'डेटा प्रबंधन'
     },
     nav: {
         home: 'होम',
@@ -73,7 +74,11 @@ export default {
         programsEvents: 'कार्यक्रम और इवेंट्स',
         activityGallery: 'गतिविधि गैलरी',
         uploadLogo: 'लोगो अपलोड करें',
-        hoiPassword: 'पासवर्ड सेट / बदलें'
+        hoiPassword: 'पासवर्ड सेट / बदलें',
+        backupRestore: 'बैकअप और रिस्टोर',
+        cloudBackup: 'क्लाउड बैकअप',
+        exportData: 'डेटा एक्सपोर्ट',
+        importData: 'डेटा इम्पोर्ट'
     },
     form: {
         basicInfo: 'मूल जानकारी',

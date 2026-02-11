@@ -16,7 +16,8 @@ export default {
         hoiFull: 'Head of Institute',
         teacher: 'Teacher',
         student: 'Student',
-        other: 'Other'
+        other: 'Other',
+        dataManagement: 'Data Management'
     },
 
     // Navigation & Menu
@@ -88,7 +89,11 @@ export default {
         programsEvents: 'Programs & Events',
         activityGallery: 'Activity Gallery',
         uploadLogo: 'Upload Logo',
-        hoiPassword: 'Set / Change Password'
+        hoiPassword: 'Set / Change Password',
+        backupRestore: 'Backup & Restore',
+        cloudBackup: 'Cloud Backup',
+        exportData: 'Export Data',
+        importData: 'Import Data'
     },
 
     // Data Entry Form

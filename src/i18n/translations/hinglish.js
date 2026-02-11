@@ -14,7 +14,8 @@ export default {
         hoiFull: 'Head of Institute',
         teacher: 'Teacher',
         student: 'Student',
-        other: 'Other'
+        other: 'Other',
+        dataManagement: 'Data Management'
     },
     nav: {
         home: 'Home',
@@ -74,7 +75,11 @@ export default {
         programsEvents: 'Programs & Events',
         activityGallery: 'Activity Gallery',
         uploadLogo: 'Logo Upload Karo',
-        hoiPassword: 'Password Set / Change Karo'
+        hoiPassword: 'Password Set / Change Karo',
+        backupRestore: 'Backup & Restore',
+        cloudBackup: 'Cloud Backup',
+        exportData: 'Data Export Karo',
+        importData: 'Data Import Karo'
     },
     form: {
         basicInfo: 'Basic Info',
