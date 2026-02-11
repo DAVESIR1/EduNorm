@@ -403,13 +403,6 @@
     /* Animation removed */
 }
 
-/* keyframe removed */
-
-    50% {
-        transform: translateY(-8px) scale(1.05);
-    }
-}
-
 .template-colorful-fun .id-accent-bar {
     background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0.8), #fff);
 }
@@ -702,9 +695,9 @@
 
 /* keyframe removed */
 
-    100% {
-        background-position: 100px 0;
-    }
+100% {
+    background-position: 100px 0;
+}
 }
 
 .template-ocean-breeze .shape-1 {
