@@ -512,9 +512,33 @@ export const IconMap = {
     bookOpen: BookOpenIcon,
     camera: CameraIcon,
     mic: MicIcon,
-    gitBranch: GitBranchIcon,
-    clock: ClockIcon,
     messageCircle: MessageCircleIcon,
+    palette: 'PaletteIcon',
+    language: 'LanguageIcon',
 };
 
+// Palette Icon for theme selection
+export const PaletteIcon = ({ size = 24, className = '' }) => (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className}>
+        <path d="M24 6C13.5 6 5 14.5 5 25C5 28.5 6 31.5 8 34C10 36.5 13.5 38 17 38H20C21 38 22 37 22 36V35C22 34.5 21.8 34 21.5 33.5C21.2 33 21 32.3 21 31.5C21 29.6 22.6 28 24.5 28H30C36.6 28 42 22.6 42 16C42 10.5 33.9 6 24 6Z" stroke="#E5A021" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="15" cy="18" r="2.5" fill="#E07B67" />
+        <circle cx="12" cy="28" r="2.5" fill="#3D9970" />
+        <circle cx="24" cy="14" r="2.5" fill="#4A90A4" />
+        <circle cx="33" cy="18" r="2.5" fill="#9B7ED9" />
+    </svg>
+);
+
+// Language/Globe Icon for language selection  
+export const LanguageIcon = ({ size = 24, className = '' }) => (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className}>
+        <circle cx="24" cy="24" r="18" stroke="#4A90A4" strokeWidth="2.5" />
+        <path d="M6 24H42" stroke="#4A90A4" strokeWidth="2" />
+        <path d="M24 6C24 6 18 12 18 24C18 36 24 42 24 42" stroke="#4A90A4" strokeWidth="2" />
+        <path d="M24 6C24 6 30 12 30 24C30 36 24 42 24 42" stroke="#4A90A4" strokeWidth="2" />
+        <path d="M10 12C10 12 14 16 24 16C34 16 38 12 38 12" stroke="#4A90A4" strokeWidth="2" strokeLinecap="round" />
+        <path d="M10 36C10 36 14 32 24 32C34 32 38 36 38 36" stroke="#4A90A4" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+);
+
 export default IconMap;
+

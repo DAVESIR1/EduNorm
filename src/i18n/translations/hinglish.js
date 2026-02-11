@@ -8,6 +8,14 @@ export default {
         welcome: 'EduNorm mein aapka swagat hai',
         copyright: '© 2026 EduNorm'
     },
+    menu: {
+        school: 'School',
+        hoi: 'HOI',
+        hoiFull: 'Head of Institute',
+        teacher: 'Teacher',
+        student: 'Student',
+        other: 'Other'
+    },
     nav: {
         home: 'Home',
         dashboard: 'Dashboard',
@@ -54,7 +62,19 @@ export default {
         dataBoxes: 'Data Boxes',
         addField: 'Field Add Karo',
         removeField: 'Field Hatao',
-        renameField: 'Field Rename Karo'
+        renameField: 'Field Rename Karo',
+        staffInfo: 'Staff Info',
+        hoiDiary: 'HOI Diary',
+        deadStock: 'Dead Stock Register',
+        auditRegister: 'Audit Register',
+        billRegister: 'Bill Register',
+        salaryBook: 'Salary Book',
+        qaChat: 'Q&A Chat',
+        newsCirculars: 'News & Circulars',
+        programsEvents: 'Programs & Events',
+        activityGallery: 'Activity Gallery',
+        uploadLogo: 'Logo Upload Karo',
+        hoiPassword: 'Password Set / Change Karo'
     },
     form: {
         basicInfo: 'Basic Info',

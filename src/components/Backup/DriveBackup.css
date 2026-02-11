@@ -24,12 +24,7 @@
     animation: none;
 }
 
-/* keyframe removed */
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+
 
 .drive-backup-header {
     display: flex;
@@ -277,9 +272,7 @@
     animation: none;
 }
 
-/* keyframe removed */
-    to { transform: rotate(360deg); }
-}
+
 
 /* Last Backup Info */
 .last-backup-info {

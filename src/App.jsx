@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import Sidebar from './components/Layout/Sidebar';
+import NewSidebar from './components/Layout/NewSidebar';
 import StepWizard, { DATA_FIELDS } from './components/DataEntry/StepWizard';
 import ProfileViewer from './components/Profile/ProfileViewer';
 import GeneralRegister from './components/Ledger/GeneralRegister';
@@ -24,7 +24,6 @@ import { UserTierProvider, useUserTier } from './contexts/UserTierContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import UndoRedoBar from './components/Common/UndoRedoBar';
 import { useMenu } from './contexts/MenuContext';
-import MainMenu from './components/Menu/MainMenu';
 import SchoolProfile from './components/School/SchoolProfile';
 import StaffInfo from './components/HOI/StaffInfo';
 import HOIDiary from './components/HOI/HOIDiary';
@@ -583,73 +582,24 @@ function AppContent() {
                 <div className="blob blob-3"></div>
             </div>
 
-            {/* Mobile menu button */}
+            {/* Sidebar toggle button - always visible */}
             <button
-                className="mobile-menu-btn btn btn-primary btn-icon"
-                onClick={() => setSidebarOpen(true)}
+                className="sidebar-toggle-btn"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                title={sidebarOpen ? 'Close Menu' : 'Open Menu'}
             >
                 <Menu size={24} />
             </button>
 
-            {/* Sidebar */}
-            <Sidebar
+            {/* New Sidebar with 5-Category Menu */}
+            <NewSidebar
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
-                schoolName={schoolName}
-                setSchoolName={setSchoolName}
-                schoolLogo={schoolLogo}
-                setSchoolLogo={setSchoolLogo}
-                schoolContact={schoolContact}
-                setSchoolContact={setSchoolContact}
-                teacherName={teacherName}
-                setTeacherName={setTeacherName}
-                selectedStandard={selectedStandard}
-                setSelectedStandard={setSelectedStandard}
-                standards={standards}
-                onAddStandard={addStandard}
-                onDeleteStandard={handleDeleteStandard}
-                onSaveSettings={handleSaveSettings}
-                onOpenProfile={() => setShowProfile(true)}
-                onUpgradeClass={handleUpgradeClass}
-                onDowngradeClass={handleDowngradeClass}
-                onGoToSheet={() => setShowLedger(true)}
-                theme={theme}
-                onChangeTheme={changeTheme}
-                onEditMode={handleEditMode}
-                editMode={editMode}
-                onShare={handleShare}
-                onAddDataBox={handleAddDataBox}
-                onRemoveDataBox={handleRemoveDataBox}
-                onRenameDataBox={handleRenameDataBox}
-                customFields={fields}
-                allFields={allFields}
-                schoolEmail={schoolEmail}
-                setSchoolEmail={setSchoolEmail}
-                onImportExcel={handleImportExcel}
-                user={user}
-                onLogout={logout}
-                tier={tier}
-                isAdmin={isAdmin}
-                isFree={isFree}
+                onNavigate={handleMenuNavigate}
                 onOpenAdmin={() => setShowAdmin(true)}
                 onOpenUpgrade={() => setShowUpgradeModal(true)}
-                onOpenCertificate={() => setShowCertificate(true)}
-                onOpenAnalytics={() => setShowAnalytics(true)}
-                onOpenQRAttendance={() => setShowQRAttendance(true)}
-                onOpenSmartSearch={() => setShowSmartSearch(true)}
-                onOpenCloudBackup={() => setShowCloudBackup(true)}
-                onOpenDocScanner={() => setShowDocScanner(true)}
-                onOpenVoiceInput={() => setShowVoiceInput(true)}
-                onOpenFamilyTree={() => setShowFamilyTree(true)}
-                onOpenTimeline={() => setShowTimeline(true)}
-                onOpenWhatsApp={() => setShowWhatsApp(true)}
-                onOpenPhotoEnhance={() => setShowPhotoEnhance(true)}
+                onLogout={logout}
             />
-
-            {/* 5 Main Menus - Accordion Navigation */}
-            {sidebarOpen && (
-                <MainMenu onNavigate={handleMenuNavigate} />
-            )}
 
             {/* Main Content */}
             <main className={`main-content ${sidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
@@ -666,7 +616,7 @@ function AppContent() {
                 <header className="main-header">
                     <div className="header-info">
                         <h1 className="display-font gradient-text">
-                            <Sparkles className="header-icon" size={28} />
+                            <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 32, height: 32, borderRadius: 8, marginRight: 8, verticalAlign: 'middle' }} />
                             EduNorm
                         </h1>
                         {selectedStandard && (
@@ -696,10 +646,12 @@ function AppContent() {
                     </div>
                 </header>
 
-                {/* Top Ad Banner - Non-intrusive, below header */}
-                <div className="top-ad-wrapper">
-                    <AdPlacement type="banner" />
-                </div>
+                {/* Top Ad Banner - Only show when content is present */}
+                {(selectedStandard || showMenuContent) && (
+                    <div className="top-ad-wrapper">
+                        <AdPlacement type="banner" />
+                    </div>
+                )}
 
                 {/* Edit Mode Student Selector */}
                 {editMode && selectedStandard && students.length > 0 && (
@@ -944,10 +896,12 @@ function AppContent() {
                 }}
             />
 
-            {/* Ad Banner for Free Users */}
-            <div className="bottom-ad-container">
-                <AdPlacement type="leaderboard" />
-            </div>
+            {/* Ad Banner for Free Users - Only show when content is present */}
+            {(selectedStandard || showMenuContent) && (
+                <div className="bottom-ad-container">
+                    <AdPlacement type="leaderboard" />
+                </div>
+            )}
 
             {/* Undo/Redo floating bar */}
             <UndoRedoBar />

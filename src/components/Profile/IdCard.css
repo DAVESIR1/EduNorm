@@ -693,13 +693,6 @@
     animation: none;
 }
 
-/* keyframe removed */
-
-100% {
-    background-position: 100px 0;
-}
-}
-
 .template-ocean-breeze .shape-1 {
     width: 180px;
     height: 180px;

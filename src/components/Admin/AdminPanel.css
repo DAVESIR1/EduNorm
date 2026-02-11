@@ -22,13 +22,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 /* Access Denied */
 .admin-panel.access-denied {
@@ -249,4 +243,162 @@
     .grant-form select {
         width: 100%;
     }
+}
+
+/* ===== PRO CODE GENERATOR STYLES ===== */
+.code-generator {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.generator-form {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.generator-form .input-field {
+    flex: 1;
+    min-width: 150px;
+}
+
+.generated-code-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--gray-50);
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius-lg);
+}
+
+.code-text {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--primary);
+    padding: var(--space-2);
+    background: white;
+    border-radius: var(--radius-md);
+}
+
+.code-list {
+    margin-top: var(--space-2);
+}
+
+.code-list h4 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--gray-600);
+    margin-bottom: var(--space-3);
+}
+
+.no-codes {
+    text-align: center;
+    padding: var(--space-6);
+    color: var(--gray-400);
+    font-size: var(--text-sm);
+}
+
+.code-table {
+    overflow-x: auto;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+}
+
+.code-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+}
+
+.code-table thead {
+    background: var(--gray-100);
+}
+
+.code-table th {
+    padding: var(--space-3);
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.code-table td {
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.code-table tr:last-child td {
+    border-bottom: none;
+}
+
+.code-table tr:hover {
+    background: var(--gray-50);
+}
+
+.code-cell {
+    font-family: 'Courier New', monospace;
+    font-size: var(--text-xs);
+    background: var(--gray-100);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--gray-700);
+}
+
+.duration-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--pastel-blue-light);
+    color: #1e40af;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 500;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 500;
+}
+
+.status-badge.unused {
+    background: var(--pastel-mint-light);
+    color: #15803d;
+}
+
+.status-badge.used {
+    background: var(--gray-200);
+    color: var(--gray-600);
+}
+
+.date-cell {
+    color: var(--gray-500);
+    font-size: var(--text-xs);
+}
+
+.email-cell {
+    color: var(--gray-600);
+    font-size: var(--text-xs);
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actions-cell {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.actions-cell .btn-icon {
+    padding: 6px;
+}
+
+.actions-cell .btn-icon:hover {
+    background: var(--gray-200);
 }

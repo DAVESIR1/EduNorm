@@ -12,23 +12,17 @@
     justify-content: center;
     z-index: 1000;
     /* blur removed */
-    -webkit-/* blur removed */
+    /* blur removed */
     animation: none;
 }
 
-/* keyframe removed */
 
-    to {
-        opacity: 1;
-        /* blur removed */
-    }
-}
 
 /* Modal with glass morphism */
 .cloud-backup-modal {
     background: rgba(255, 255, 255, 0.85);
     /* blur removed */
-    -webkit-/* blur removed */
+    /* blur removed */
     border-radius: 20px;
     width: 90%;
     max-width: 480px;
@@ -42,13 +36,7 @@
     transform-origin: center center;
 }
 
-/* keyframe removed */
 
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
 
 /* Header with gradient */
 .cloud-backup-header {
@@ -115,17 +103,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    50% {
-        transform: scale(1.02);
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
 
 .status-box.loading {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
@@ -146,8 +124,7 @@
     animation: none;
 }
 
-/* keyframe removed */
-}
+
 
 /* Backup Info Card with glass effect */
 .backup-info {
@@ -171,12 +148,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    50% {
-        transform: translateY(-3px);
-    }
-}
 
 .info-card .label {
     display: block;

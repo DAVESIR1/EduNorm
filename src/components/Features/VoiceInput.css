@@ -143,13 +143,7 @@
     animation-delay: 0.5s;
 }
 
-/* keyframe removed */
 
-    100% {
-        transform: scale(1.6);
-        opacity: 0;
-    }
-}
 
 .mic-hint {
     margin: 0;
@@ -191,12 +185,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    to {
-        transform: rotate(360deg);
-    }
-}
 
 .voice-error {
     display: flex;

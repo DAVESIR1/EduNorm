@@ -7,6 +7,14 @@ export default {
         welcome: 'એડ્યુનોર્મમાં આપનું સ્વાગત છે',
         copyright: '© 2026 એડ્યુનોર્મ'
     },
+    menu: {
+        school: 'શાળા',
+        hoi: 'HOI',
+        hoiFull: 'સંસ્થાના વડા',
+        teacher: 'શિક્ષક',
+        student: 'વિદ્યાર્થી',
+        other: 'અન્ય'
+    },
     nav: {
         home: 'હોમ',
         dashboard: 'ડેશબોર્ડ',
@@ -61,7 +69,19 @@ export default {
         dataBoxes: 'ડેટા બોક્સ',
         addField: 'ફીલ્ડ ઉમેરો',
         removeField: 'ફીલ્ડ દૂર કરો',
-        renameField: 'ફીલ્ડનું નામ બદલો'
+        renameField: 'ફીલ્ડનું નામ બદલો',
+        staffInfo: 'સ્ટાફ માહિતી',
+        hoiDiary: 'HOI ડાયરી',
+        deadStock: 'ડેડ સ્ટોક રજિસ્ટર',
+        auditRegister: 'ઓડિટ રજિસ્ટર',
+        billRegister: 'બિલ રજિસ્ટર',
+        salaryBook: 'પગાર બુક',
+        qaChat: 'પ્રશ્ન-ઉત્તર ચેટ',
+        newsCirculars: 'સમાચાર અને પરિપત્ર',
+        programsEvents: 'કાર્યક્રમો અને ઇવેન્ટ્સ',
+        activityGallery: 'પ્રવૃત્તિ ગેલેરી',
+        uploadLogo: 'લોગો અપલોડ કરો',
+        hoiPassword: 'પાસવર્ડ સેટ / બદલો'
     },
     form: {
         basicInfo: 'મૂળભૂત માહિતી',

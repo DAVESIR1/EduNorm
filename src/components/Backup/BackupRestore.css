@@ -23,13 +23,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 .backup-header {
     display: flex;

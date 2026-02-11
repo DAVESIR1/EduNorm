@@ -9,6 +9,16 @@ export default {
         copyright: '© 2026 EduNorm'
     },
 
+    // Main Menu Names
+    menu: {
+        school: 'School',
+        hoi: 'HOI',
+        hoiFull: 'Head of Institute',
+        teacher: 'Teacher',
+        student: 'Student',
+        other: 'Other'
+    },
+
     // Navigation & Menu
     nav: {
         home: 'Home',
@@ -66,7 +76,19 @@ export default {
         dataBoxes: 'Data Boxes',
         addField: 'Add Field',
         removeField: 'Remove Field',
-        renameField: 'Rename Field'
+        renameField: 'Rename Field',
+        staffInfo: 'Staff Info',
+        hoiDiary: 'HOI Diary',
+        deadStock: 'Dead Stock Register',
+        auditRegister: 'Audit Register',
+        billRegister: 'Bill Register',
+        salaryBook: 'Salary Book',
+        qaChat: 'Q&A Chat',
+        newsCirculars: 'News & Circulars',
+        programsEvents: 'Programs & Events',
+        activityGallery: 'Activity Gallery',
+        uploadLogo: 'Upload Logo',
+        hoiPassword: 'Set / Change Password'
     },
 
     // Data Entry Form

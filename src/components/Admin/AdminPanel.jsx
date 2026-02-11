@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
     Shield, Users, FileText, Settings, BarChart3,
-    Crown, Gift, X, ChevronRight, Star
+    Crown, Gift, X, ChevronRight, Star, Key, Copy, Trash2, Check
 } from 'lucide-react';
+import { generateSecureCode, listGeneratedCodes, revokeCode } from '../../services/ProCodeService';
 import { useUserTier } from '../../contexts/UserTierContext';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminPanel.css';
@@ -13,6 +14,51 @@ export default function AdminPanel({ onClose, totalStudents = 0, totalStandards 
     const [grantEmail, setGrantEmail] = useState('');
     const [grantMonths, setGrantMonths] = useState(1);
     const [grantMessage, setGrantMessage] = useState('');
+
+    // Pro Code Generator state
+    const [codeDuration, setCodeDuration] = useState('monthly');
+    const [generatedCode, setGeneratedCode] = useState('');
+    const [codeList, setCodeList] = useState([]);
+    const [copied, setCopied] = useState(false);
+    const [loadingCodes, setLoadingCodes] = useState(false);
+
+    // Load existing codes on mount
+    useEffect(() => {
+        loadCodes();
+    }, []);
+
+    const loadCodes = async () => {
+        setLoadingCodes(true);
+        const codes = await listGeneratedCodes();
+        setCodeList(codes);
+        setLoadingCodes(false);
+    };
+
+    const handleGenerateCode = async () => {
+        const result = await generateSecureCode(codeDuration, user?.email);
+        if (result.success) {
+            setGeneratedCode(result.code);
+            await loadCodes(); // Refresh list
+        } else {
+            alert('Error: ' + result.error);
+        }
+    };
+
+    const handleCopyCode = (code) => {
+        navigator.clipboard.writeText(code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleRevokeCode = async (codeId) => {
+        if (!confirm('Are you sure you want to revoke this code?')) return;
+        const result = await revokeCode(codeId);
+        if (result.success) {
+            await loadCodes();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    };
 
     // Only allow admin access
     if (!isAdmin) {
@@ -99,6 +145,111 @@ export default function AdminPanel({ onClose, totalStudents = 0, totalStandards 
                             <span>View Analytics</span>
                             <ChevronRight size={16} />
                         </button>
+                    </div>
+                </div>
+
+                {/* Pro Code Generator Section */}
+                <div className="admin-section">
+                    <h3>
+                        <Key size={18} />
+                        Pro Code Generator
+                    </h3>
+                    <div className="code-generator">
+                        <div className="generator-form">
+                            <select
+                                className="input-field"
+                                value={codeDuration}
+                                onChange={e => setCodeDuration(e.target.value)}
+                            >
+                                <option value="monthly">Monthly (30 days)</option>
+                                <option value="yearly">Yearly (365 days)</option>
+                            </select>
+                            <button className="btn btn-primary" onClick={handleGenerateCode}>
+                                <Key size={16} />
+                                Generate Code
+                            </button>
+                        </div>
+
+                        {generatedCode && (
+                            <div className="generated-code-display">
+                                <code className="code-text">{generatedCode}</code>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => handleCopyCode(generatedCode)}
+                                >
+                                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                                    {copied ? 'Copied!' : 'Copy'}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Code List Table */}
+                        <div className="code-list">
+                            <h4>Generated Codes ({codeList.length})</h4>
+                            {loadingCodes ? (
+                                <p>Loading codes...</p>
+                            ) : codeList.length === 0 ? (
+                                <p className="no-codes">No codes generated yet</p>
+                            ) : (
+                                <div className="code-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Duration</th>
+                                                <th>Created</th>
+                                                <th>Status</th>
+                                                <th>Used By</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {codeList.map(code => (
+                                                <tr key={code.id}>
+                                                    <td>
+                                                        <code className="code-cell">{code.code}</code>
+                                                    </td>
+                                                    <td>
+                                                        <span className="duration-badge">
+                                                            {code.duration === 'monthly' ? '30 days' : '365 days'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="date-cell">
+                                                        {new Date(code.createdAt).toLocaleDateString()}
+                                                    </td>
+                                                    <td>
+                                                        <span className={`status-badge ${code.isUsed ? 'used' : 'unused'}`}>
+                                                            {code.isUsed ? '✓ Used' : '○ Unused'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="email-cell">
+                                                        {code.usedBy || '—'}
+                                                    </td>
+                                                    <td className="actions-cell">
+                                                        <button
+                                                            className="btn-icon btn-ghost"
+                                                            onClick={() => handleCopyCode(code.code)}
+                                                            title="Copy code"
+                                                        >
+                                                            <Copy size={14} />
+                                                        </button>
+                                                        {!code.isUsed && (
+                                                            <button
+                                                                className="btn-icon btn-ghost"
+                                                                onClick={() => handleRevokeCode(code.id)}
+                                                                title="Revoke code"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 

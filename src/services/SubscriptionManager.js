@@ -138,37 +138,34 @@ export function canAddStudent(currentCount) {
     return currentCount < (sub.studentLimit || FREE_STUDENT_LIMIT);
 }
 
-// Activate Pro with code
-export function activateProCode(code, email) {
-    if (!code || code.length < 6) {
-        return { success: false, error: 'Invalid code format' };
+// Activate Pro with code (using Firestore verification)
+export async function activateProCode(code, email) {
+    if (!code || !email) {
+        return { success: false, error: 'Code and email are required' };
     }
 
-    // Validate code format: EDUNORM-XXXX-XXXX or similar
-    const validPattern = /^[A-Z0-9]{4,}-[A-Z0-9]{4,}(-[A-Z0-9]{4,})?$/i;
-    if (!validPattern.test(code) && code.length < 8) {
-        return { success: false, error: 'Invalid activation code' };
+    // Import ProCodeService dynamically to avoid circular dependency
+    const { verifyAndActivateCode } = await import('./ProCodeService');
+
+    // Verify code with Firestore
+    const verificationResult = await verifyAndActivateCode(code, email);
+
+    if (!verificationResult.success) {
+        return verificationResult;
     }
 
+    // Code verified - activate subscription
     const sub = getSubscription();
     const deviceId = generateDeviceId();
-
-    // Determine plan duration from code
-    let duration = 30; // days
-    if (code.toLowerCase().includes('year') || code.length > 16) {
-        duration = 365;
-    } else if (code.toLowerCase().includes('life')) {
-        duration = 365 * 10; // 10 years
-    }
 
     sub.plan = 'pro';
     sub.status = 'active';
     sub.startDate = new Date().toISOString();
-    sub.endDate = new Date(Date.now() + duration * 24 * 60 * 60 * 1000).toISOString();
+    sub.endDate = verificationResult.endDate;
     sub.studentLimit = Infinity;
     sub.maxDevices = MAX_DEVICES;
     sub.proCode = code;
-    sub.email = email || sub.email;
+    sub.email = email;
     sub.features = {
         cloudBackup: true,
         export: true,
@@ -192,11 +189,18 @@ export function activateProCode(code, email) {
         type: 'pro_code',
         code,
         date: new Date().toISOString(),
-        duration
+        duration: verificationResult.duration,
+        daysValid: verificationResult.daysValid
     });
 
     saveSubscription(sub);
-    return { success: true, plan: 'pro', endDate: sub.endDate, duration };
+    return {
+        success: true,
+        plan: 'pro',
+        endDate: sub.endDate,
+        duration: verificationResult.duration,
+        daysValid: verificationResult.daysValid
+    };
 }
 
 // Record UPI payment

@@ -210,12 +210,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    to {
-        transform: rotate(360deg);
-    }
-}
 
 .scanning-overlay p {
     margin: 16px 0 8px;

@@ -51,12 +51,7 @@
     /* Animation removed */
 }
 
-/* keyframe removed */
 
-    50% {
-        transform: translateY(-30px);
-    }
-}
 
 /* Container */
 .login-container {
@@ -85,12 +80,7 @@
     /* Animation removed */
 }
 
-/* keyframe removed */
 
-    50% {
-        transform: translateY(-10px);
-    }
-}
 
 .login-header h1 {
     font-family: var(--font-display);
@@ -304,12 +294,7 @@
     animation: none;
 }
 
-/* keyframe removed */
 
-    100% {
-        transform: rotate(360deg);
-    }
-}
 
 .resend-btn {
     margin-top: var(--space-2);

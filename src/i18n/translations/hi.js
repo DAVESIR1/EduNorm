@@ -7,6 +7,14 @@ export default {
         welcome: 'एडूनॉर्म में आपका स्वागत है',
         copyright: '© 2026 एडूनॉर्म'
     },
+    menu: {
+        school: 'स्कूल',
+        hoi: 'HOI',
+        hoiFull: 'संस्था प्रमुख',
+        teacher: 'शिक्षक',
+        student: 'छात्र',
+        other: 'अन्य'
+    },
     nav: {
         home: 'होम',
         dashboard: 'डैशबोर्ड',
@@ -53,7 +61,19 @@ export default {
         dataBoxes: 'डेटा बॉक्स',
         addField: 'फील्ड जोड़ें',
         removeField: 'फील्ड हटाएं',
-        renameField: 'फील्ड का नाम बदलें'
+        renameField: 'फील्ड का नाम बदलें',
+        staffInfo: 'स्टाफ जानकारी',
+        hoiDiary: 'HOI डायरी',
+        deadStock: 'डेड स्टॉक रजिस्टर',
+        auditRegister: 'ऑडिट रजिस्टर',
+        billRegister: 'बिल रजिस्टर',
+        salaryBook: 'वेतन पुस्तिका',
+        qaChat: 'प्रश्न-उत्तर चैट',
+        newsCirculars: 'समाचार और परिपत्र',
+        programsEvents: 'कार्यक्रम और इवेंट्स',
+        activityGallery: 'गतिविधि गैलरी',
+        uploadLogo: 'लोगो अपलोड करें',
+        hoiPassword: 'पासवर्ड सेट / बदलें'
     },
     form: {
         basicInfo: 'मूल जानकारी',

@@ -7,71 +7,78 @@ export const MENU_STRUCTURE = {
     school: {
         id: 'school',
         name: 'School',
+        nameKey: 'menu.school',
         icon: 'school',
         color: '#3B82F6',
         items: [
-            { id: 'school-profile', name: 'School Profile', icon: 'building', status: 'active' },
-            { id: 'general-register', name: 'General Register', icon: 'grBook', status: 'active' },
-            { id: 'student-profile', name: 'Student Profile', icon: 'studentProfile', status: 'active' },
-            { id: 'certificate', name: 'Certificate', icon: 'certificate', status: 'active' },
-            { id: 'id-card', name: 'ID Card', icon: 'idCard', status: 'active' },
-            { id: 'teachers-profile', name: 'Teachers Profile', icon: 'users', status: 'active' },
-            { id: 'custom-window', name: 'Create Custom Window', icon: 'plus', status: 'active' },
+            { id: 'school-profile', name: 'School Profile', nameKey: 'sidebar.schoolInfo', icon: 'building', status: 'active' },
+            { id: 'general-register', name: 'General Register', nameKey: 'nav.register', icon: 'grBook', status: 'active' },
+            { id: 'student-profile', name: 'Student Profile', nameKey: 'sidebar.studentProfile', icon: 'studentProfile', status: 'active' },
+            { id: 'certificate', name: 'Certificate', nameKey: 'sidebar.certificateGenerator', icon: 'certificate', status: 'active' },
+            { id: 'id-card', name: 'ID Card', nameKey: 'profile.idCard', icon: 'idCard', status: 'active' },
+            { id: 'teachers-profile', name: 'Teachers Profile', nameKey: 'sidebar.teacherName', icon: 'users', status: 'active' },
+            { id: 'custom-window', name: 'Create Custom Window', nameKey: 'sidebar.addNewDataBox', icon: 'plus', status: 'active' },
         ]
     },
     hoi: {
         id: 'hoi',
         name: 'HOI',
+        nameKey: 'menu.hoi',
         fullName: 'Head of Institute',
+        fullNameKey: 'menu.hoiFull',
         icon: 'crown',
         color: '#8B5CF6',
         protected: true,
         items: [
-            { id: 'staff-info', name: 'Staff Info', icon: 'users', status: 'active' },
-            { id: 'hoi-diary', name: 'HOI Diary', icon: 'bookOpen', status: 'active' },
-            { id: 'class-management', name: 'Class Management', icon: 'calendar', status: 'active' },
-            { id: 'custom-window-hoi', name: 'Create Custom Window', icon: 'plus', status: 'active' },
-            { id: 'dead-stock', name: 'Dead Stock Register', icon: 'fileText', status: 'coming-soon' },
-            { id: 'audit-register', name: 'Audit Register', icon: 'fileText', status: 'coming-soon' },
-            { id: 'bill-register', name: 'Bill Register', icon: 'fileText', status: 'coming-soon' },
+            { id: 'staff-info', name: 'Staff Info', nameKey: 'sidebar.staffInfo', icon: 'users', status: 'active' },
+            { id: 'hoi-diary', name: 'HOI Diary', nameKey: 'sidebar.hoiDiary', icon: 'bookOpen', status: 'active' },
+            { id: 'class-management', name: 'Class Management', nameKey: 'sidebar.classManagement', icon: 'calendar', status: 'active' },
+            { id: 'custom-window-hoi', name: 'Create Custom Window', nameKey: 'sidebar.addNewDataBox', icon: 'plus', status: 'active' },
+            { id: 'dead-stock', name: 'Dead Stock Register', nameKey: 'sidebar.deadStock', icon: 'fileText', status: 'coming-soon' },
+            { id: 'audit-register', name: 'Audit Register', nameKey: 'sidebar.auditRegister', icon: 'fileText', status: 'coming-soon' },
+            { id: 'bill-register', name: 'Bill Register', nameKey: 'sidebar.billRegister', icon: 'fileText', status: 'coming-soon' },
+            { id: 'hoi-password', name: 'Set / Change Password', nameKey: 'sidebar.hoiPassword', icon: 'shield', status: 'active' },
         ]
     },
     teacher: {
         id: 'teacher',
         name: 'Teacher',
+        nameKey: 'menu.teacher',
         icon: 'users',
         color: '#10B981',
         items: [
-            { id: 'special-features', name: 'Special Features', icon: 'sparkles', status: 'active' },
-            { id: 'class-management-teacher', name: 'Class Management', icon: 'calendar', status: 'active' },
-            { id: 'self-profile', name: 'Self Profile', icon: 'studentProfile', status: 'active' },
-            { id: 'salary-book', name: 'Salary Book', icon: 'fileText', status: 'active' },
-            { id: 'custom-window-teacher', name: 'Create Custom Window', icon: 'plus', status: 'active' },
+            { id: 'special-features', name: 'Special Features', nameKey: 'sidebar.specialFeatures', icon: 'sparkles', status: 'active' },
+            { id: 'class-management-teacher', name: 'Class Management', nameKey: 'sidebar.classManagement', icon: 'calendar', status: 'active' },
+            { id: 'self-profile', name: 'Self Profile', nameKey: 'sidebar.studentProfile', icon: 'studentProfile', status: 'active' },
+            { id: 'salary-book', name: 'Salary Book', nameKey: 'sidebar.salaryBook', icon: 'fileText', status: 'active' },
+            { id: 'custom-window-teacher', name: 'Create Custom Window', nameKey: 'sidebar.addNewDataBox', icon: 'plus', status: 'active' },
         ]
     },
     student: {
         id: 'student',
         name: 'Student',
+        nameKey: 'menu.student',
         icon: 'studentProfile',
         color: '#F59E0B',
         items: [
-            { id: 'student-login', name: 'Student Login', icon: 'shield', status: 'active' },
-            { id: 'student-view-profile', name: 'View Profile', icon: 'studentProfile', status: 'active' },
-            { id: 'download-id-card', name: 'Download ID Card', icon: 'download', status: 'active' },
-            { id: 'self-update', name: 'Self Update', icon: 'edit', status: 'coming-soon' },
-            { id: 'download-certificate', name: 'Download Certificate', icon: 'certificate', status: 'coming-soon' },
-            { id: 'qa-chat', name: 'Q&A Chat', icon: 'messageCircle', status: 'coming-soon' },
+            { id: 'student-login', name: 'Student Login', nameKey: 'auth.login', icon: 'shield', status: 'active' },
+            { id: 'student-view-profile', name: 'View Profile', nameKey: 'profile.viewProfile', icon: 'studentProfile', status: 'active' },
+            { id: 'download-id-card', name: 'Download ID Card', nameKey: 'profile.downloadPdf', icon: 'download', status: 'active' },
+            { id: 'self-update', name: 'Self Update', nameKey: 'form.update', icon: 'edit', status: 'coming-soon' },
+            { id: 'download-certificate', name: 'Download Certificate', nameKey: 'sidebar.certificateGenerator', icon: 'certificate', status: 'coming-soon' },
+            { id: 'qa-chat', name: 'Q&A Chat', nameKey: 'sidebar.qaChat', icon: 'messageCircle', status: 'coming-soon' },
         ]
     },
     other: {
         id: 'other',
         name: 'Other',
+        nameKey: 'menu.other',
         icon: 'menu',
         color: '#6B7280',
         items: [
-            { id: 'news-circulars', name: 'News & Circulars', icon: 'fileText', status: 'coming-soon' },
-            { id: 'programs-events', name: 'Programs & Events', icon: 'calendar', status: 'coming-soon' },
-            { id: 'activity-gallery', name: 'Activity Gallery', icon: 'image', status: 'coming-soon' },
+            { id: 'news-circulars', name: 'News & Circulars', nameKey: 'sidebar.newsCirculars', icon: 'fileText', status: 'coming-soon' },
+            { id: 'programs-events', name: 'Programs & Events', nameKey: 'sidebar.programsEvents', icon: 'calendar', status: 'coming-soon' },
+            { id: 'activity-gallery', name: 'Activity Gallery', nameKey: 'sidebar.activityGallery', icon: 'image', status: 'coming-soon' },
         ]
     }
 };
@@ -112,10 +119,10 @@ export function MenuProvider({ children }) {
 
     // Unlock HOI with password
     const unlockHoi = useCallback((password) => {
-        // TODO: Verify password against stored hash
-        // For now, simple check
-        const storedPassword = localStorage.getItem('hoi_password');
-        if (!storedPassword || password === storedPassword) {
+        // Get stored password or use default
+        const storedPassword = localStorage.getItem('hoi_password') || 'edunorm123';
+
+        if (password === storedPassword) {
             setHoiUnlocked(true);
             return true;
         }
