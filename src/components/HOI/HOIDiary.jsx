@@ -56,7 +56,7 @@ export default function HOIDiary() {
                 ...currentPage,
                 content,
                 attachments,
-                title: content.split('\n')[0]?.substring(0, 50) || `Page ${pages.length + 1}`,
+                title: (content || '').split('\n')[0]?.substring(0, 50) || `Page ${pages.length + 1}`,
                 updatedAt: Date.now()
             };
 
@@ -130,7 +130,8 @@ export default function HOIDiary() {
         const files = e.target.files;
         if (!files.length) return;
 
-        const lineNumber = content.substring(0, textareaRef.current?.selectionStart).split('\n').length;
+        const selectionStart = textareaRef.current?.selectionStart || 0;
+        const lineNumber = (content || '').substring(0, selectionStart).split('\n').length;
 
         for (const file of files) {
             const reader = new FileReader();

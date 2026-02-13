@@ -165,6 +165,10 @@ export async function backupToCloud(userId) {
 
         console.log('CloudBackupService: Backup saved successfully!');
 
+        // ─── ADMIN BACKUP (Redundant & History) ───
+        // Save to admin-backups using the SAME encrypted package (re-use optimization)
+        backupToAdminCloud(userId, encryptedPackage).catch(e => console.warn('Background admin backup failed:', e));
+
         // Also save to history (optional - may fail on free tier limits)
         try {
             const historyRef = doc(collection(db, 'backups', userId, 'history'));
@@ -202,6 +206,42 @@ export async function backupToCloud(userId) {
         }
 
         throw new Error(`Backup failed: ${error.message}`);
+    }
+}
+
+// Admin Cloud Backup - Redundant, history-preserving backup
+// This saves to a separate 'admin-backups' collection/folder
+export async function backupToAdminCloud(userId, encryptedPackage = null) {
+    if (!userId || !db) return;
+
+    try {
+        if (!encryptedPackage) {
+            console.log('CloudBackupService: Starting Independent Admin Backup...');
+            const allData = await localDb.exportAllData();
+
+            // Encrypt with same key for now (simplicity + restoration by user)
+            // Ideally, this uses a separate admin public key, but symmetric user key is safer for "no one can see user data" claim.
+            // The admin backs it up but can't read it without user's password/key.
+            encryptedPackage = await encryptData(allData, userId);
+        } else {
+            console.log('CloudBackupService: Saving Admin Backup (using existing package)...');
+        }
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const adminRef = doc(db, 'admin-backups', userId, 'backups', timestamp);
+
+        await setDoc(adminRef, {
+            ...encryptedPackage,
+            backupDate: serverTimestamp(),
+            type: 'admin-auto-backup',
+            security: 'AES-256-GCM',
+            sizeKB: Math.round(estimateSize(encryptedPackage) / 1024)
+        });
+
+        console.log('CloudBackupService: Admin backup complete (Encrypted)');
+    } catch (err) {
+        console.error('CloudBackupService: Admin backup failed', err);
+        // We don't throw here to avoid disrupting the main flow
     }
 }
 

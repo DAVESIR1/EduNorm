@@ -128,17 +128,43 @@
     justify-content: center;
 }
 
-/* Field Customizer Panel */
+/* Field Customizer Panel - Converted to Popup */
 .field-customizer-panel {
-    padding: var(--space-2) var(--space-4);
-    background: var(--gray-50);
+    position: absolute;
+    top: 140px;
+    /* Positioned below controls */
+    right: 20px;
+    width: 320px;
+    /* Fixed width */
+    max-height: 60vh;
+    /* Prevent overflow */
+    overflow-y: auto;
+    /* Internal scroll */
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: var(--space-3);
+    z-index: 2000;
+    /* Above everything */
+}
+
+/* Header for the popup */
+.field-customizer-panel::before {
+    content: "Select Fields";
+    display: block;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--gray-800);
     border-bottom: 1px solid var(--gray-200);
+    padding-bottom: 5px;
 }
 
 .field-customizer-panel .field-checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    display: grid;
+    grid-template-columns: 1fr;
+    /* Single column list */
+    gap: 4px;
     position: static;
     box-shadow: none;
     border: none;
@@ -146,6 +172,18 @@
     padding: 0;
     min-width: unset;
 }
+
+/* Scrollbar styling for the panel */
+.field-customizer-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.field-customizer-panel::-webkit-scrollbar-thumb {
+    background-color: var(--gray-300);
+    border-radius: 3px;
+}
+
+```
 
 /* Batch Controls */
 .batch-controls {
@@ -163,7 +201,63 @@
     min-width: 200px;
 }
 
+/* New Batch Grid List styles */
+.batch-grid-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-2);
+    max-height: 350px;
+    /* Limit height for scroll */
+    overflow-y: auto;
+    /* Enable scrolling */
+    padding: var(--space-2) var(--space-4);
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+}
 
+.batch-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.batch-item:hover {
+    background: var(--gray-100);
+    border-color: var(--primary);
+}
+
+.batch-item.selected {
+    background: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
+}
+
+.batch-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+}
+
+.batch-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.batch-info .name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.batch-info .meta {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+}
 
 .control-group {
     display: flex;
@@ -725,57 +819,89 @@
 }
 
 /* Print Styles */
+/* Print Styles */
 @media print {
-    body.printing-profile * {
-        visibility: hidden;
+    @page {
+        margin: 10mm;
+        size: A4 portrait;
     }
 
-    body.printing-profile .profile-display,
-    body.printing-profile .profile-display * {
-        visibility: visible;
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: white;
     }
 
-    body.printing-profile .profile-display {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
+    .profile-viewer-overlay,
+    .profile-viewer-container {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        border: none !important;
     }
 
-    .profile-viewer-overlay {
-        position: absolute;
-        background: none !important;
-        /* blur removed */
+    .profile-display {
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    .profile-card {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
         padding: 0 !important;
     }
 
-    .profile-viewer-container {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        max-height: none !important;
-        height: auto !important;
-        max-width: none !important;
-        width: 100% !important;
+    .profile-header {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        page-break-inside: avoid;
     }
 
+    .profile-body {
+        padding: 0 !important;
+    }
+
+    .profile-section {
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 15px;
+        background: white !important;
+    }
+
+    .section-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    /* Hide UI elements */
     .no-print,
     .profile-viewer-header,
     .profile-controls,
     .export-actions,
     .id-template-selector,
     .idcard-controls,
-    .idcard-controls-row {
+    .idcard-controls-row,
+    .batch-selection-container,
+    ::-webkit-scrollbar {
         display: none !important;
     }
 
-    .profile-display {
-        padding: 0 !important;
-        overflow: visible !important;
-        background: white !important;
-    }
-
-    .id-card-preview-wrap {
-        padding: 0 !important;
+    /* Force visibility of content */
+    body.printing-profile * {
+        visibility: visible;
     }
 }
 

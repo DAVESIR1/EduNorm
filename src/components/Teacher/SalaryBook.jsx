@@ -76,15 +76,16 @@ export default function SalaryBook() {
         try {
             const key = `salary_${selectedStaff}_${selectedYear}`;
             const saved = await db.getSetting(key) || {};
-            setSalaryData(saved);
+            setSalaryData(saved || {});
         } catch (error) {
             console.error('Failed to load salary data:', error);
+            setSalaryData({});
         }
     };
 
     const handleEditMonth = (month) => {
         setEditMonth(month);
-        setMonthData(salaryData[month] || {});
+        setMonthData((salaryData && salaryData[month]) ? salaryData[month] : {});
     };
 
     const handleFieldChange = (fieldId, value) => {
@@ -94,9 +95,10 @@ export default function SalaryBook() {
     const calculateTotals = useCallback((data) => {
         let earnings = 0;
         let deductions = 0;
+        const safeData = data || {};
 
         SALARY_FIELDS.forEach(field => {
-            const val = data[field.id] || 0;
+            const val = safeData[field.id] || 0;
             if (field.isDeduction) {
                 deductions += val;
             } else {
@@ -134,7 +136,7 @@ export default function SalaryBook() {
             });
         } catch (error) {
             console.error('Failed to save:', error);
-            alert('Failed to save salary data');
+            alert('Failed to save salary data. Please try again.');
         } finally {
             setSaving(false);
         }
@@ -164,7 +166,7 @@ export default function SalaryBook() {
 
     // Salary Slip Modal
     if (showSlip) {
-        const slipData = salaryData[showSlip] || {};
+        const slipData = (salaryData && salaryData[showSlip]) || {};
         const totals = calculateTotals(slipData);
 
         return (
@@ -236,7 +238,7 @@ export default function SalaryBook() {
                         <option value="">Select Staff...</option>
                         {staffList.map(staff => (
                             <option key={staff.id} value={staff.id}>
-                                {staff.data?.name} - {staff.data?.designation}
+                                {staff.data?.name || 'Unknown'} - {staff.data?.designation || 'No Designation'}
                             </option>
                         ))}
                     </select>
@@ -263,7 +265,7 @@ export default function SalaryBook() {
                 <div className="month-edit-form">
                     <div className="form-header">
                         <h3>📝 {editMonth} {selectedYear}</h3>
-                        <span className="staff-name">{activeStaff?.data?.name}</span>
+                        <span className="staff-name">{activeStaff?.data?.name || 'Staff Member'}</span>
                     </div>
 
                     <div className="salary-grid">
@@ -347,7 +349,7 @@ export default function SalaryBook() {
                         </thead>
                         <tbody>
                             {MONTHS.map(month => {
-                                const data = salaryData[month] || {};
+                                const data = (salaryData && salaryData[month]) || {};
                                 const totals = calculateTotals(data);
                                 const hasData = Object.keys(data).length > 0;
 
@@ -389,13 +391,13 @@ export default function SalaryBook() {
                             <tr className="annual-total">
                                 <td><strong>Annual Total</strong></td>
                                 <td className="amount earnings">
-                                    <strong>₹{MONTHS.reduce((sum, m) => sum + calculateTotals(salaryData[m] || {}).earnings, 0).toLocaleString()}</strong>
+                                    <strong>₹{MONTHS.reduce((sum, m) => sum + calculateTotals((salaryData && salaryData[m]) || {}).earnings, 0).toLocaleString()}</strong>
                                 </td>
                                 <td className="amount deductions">
-                                    <strong>₹{MONTHS.reduce((sum, m) => sum + calculateTotals(salaryData[m] || {}).deductions, 0).toLocaleString()}</strong>
+                                    <strong>₹{MONTHS.reduce((sum, m) => sum + calculateTotals((salaryData && salaryData[m]) || {}).deductions, 0).toLocaleString()}</strong>
                                 </td>
                                 <td className="amount net">
-                                    <strong>₹{MONTHS.reduce((sum, m) => sum + calculateTotals(salaryData[m] || {}).net, 0).toLocaleString()}</strong>
+                                    <strong>₹{MONTHS.reduce((sum, m) => sum + calculateTotals((salaryData && salaryData[m]) || {}).net, 0).toLocaleString()}</strong>
                                 </td>
                                 <td></td>
                             </tr>

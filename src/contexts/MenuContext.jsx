@@ -34,6 +34,7 @@ export const MENU_STRUCTURE = {
             { id: 'staff-info', name: 'Staff Info', nameKey: 'sidebar.staffInfo', icon: 'users', status: 'active' },
             { id: 'hoi-diary', name: 'HOI Diary', nameKey: 'sidebar.hoiDiary', icon: 'bookOpen', status: 'active' },
             { id: 'class-management', name: 'Class Management', nameKey: 'sidebar.classManagement', icon: 'calendar', status: 'active' },
+            { id: 'correction-requests', name: 'Correction Requests', nameKey: 'sidebar.correctionRequests', icon: 'edit', status: 'active' },
             { id: 'custom-window-hoi', name: 'Create Custom Window', nameKey: 'sidebar.addNewDataBox', icon: 'plus', status: 'active' },
             { id: 'dead-stock', name: 'Dead Stock Register', nameKey: 'sidebar.deadStock', icon: 'fileText', status: 'coming-soon' },
             { id: 'audit-register', name: 'Audit Register', nameKey: 'sidebar.auditRegister', icon: 'fileText', status: 'coming-soon' },

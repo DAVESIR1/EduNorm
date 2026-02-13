@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Save, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, Check, ScanLine } from 'lucide-react';
+import SmartFormScanner from '../Features/SmartFormScanner';
 import DataStep from './DataStep';
 import './StepWizard.css';
 
@@ -105,6 +106,12 @@ export default function StepWizard({
     const [formData, setFormData] = useState(initialData);
     const [saving, setSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
+
+    const handleSmartScan = (scannedData) => {
+        setFormData(prev => ({ ...prev, ...scannedData }));
+        setShowScanner(false);
+    };
 
     // Update form data when initialData changes (e.g. selecting different student)
     React.useEffect(() => {
@@ -171,6 +178,11 @@ export default function StepWizard({
 
     return (
         <div className="step-wizard">
+            <SmartFormScanner
+                isOpen={showScanner}
+                onClose={() => setShowScanner(false)}
+                onDataExtracted={handleSmartScan}
+            />
             {/* Header with progress */}
             <div className="wizard-header">
                 <div className="wizard-title">
@@ -180,6 +192,14 @@ export default function StepWizard({
                         <p className="wizard-subtitle">Step {currentStep} of {totalSteps}</p>
                     </div>
                 </div>
+
+                <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => setShowScanner(true)}
+                    style={{ marginLeft: 'auto', marginRight: '20px', display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}
+                >
+                    <ScanLine size={16} /> Auto-Fill Form
+                </button>
 
                 <div className="wizard-progress">
                     <div className="progress-bar">

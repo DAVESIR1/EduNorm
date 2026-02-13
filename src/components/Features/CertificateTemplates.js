@@ -13,6 +13,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#dbeafe',
         borderStyle: 'double',
         background: 'linear-gradient(135deg, #f0f9ff 0%, #dbeafe 50%, #bfdbfe 100%)',
+        backgroundImage: '/certificate-bg/academic.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Cinzel', serif",
         pattern: 'diploma',
         defaultTitle: 'Certificate of Academic Excellence'
     },
@@ -26,6 +29,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fef3c7',
         borderStyle: 'ornate',
         background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)',
+        backgroundImage: '/certificate-bg/vintage.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.7)',
+        fontFamily: "'Playfair Display', serif",
         pattern: 'classic',
         defaultTitle: 'Merit Scholar Certificate'
     },
@@ -39,6 +45,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#dcfce7',
         borderStyle: 'elegant',
         background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)',
+        backgroundImage: '/certificate-bg/vintage.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.6)',
+        fontFamily: "'Merriweather', serif",
         pattern: 'laurel',
         defaultTitle: 'Honor Roll Certificate'
     },
@@ -52,6 +61,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#f3e8ff',
         borderStyle: 'modern',
         background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%)',
+        backgroundImage: '/certificate-bg/academic.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Lora', serif",
         pattern: 'stars',
         defaultTitle: 'Subject Excellence Award'
     },
@@ -67,6 +79,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fef2f2',
         borderStyle: 'athletic',
         background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%)',
+        backgroundImage: '/certificate-bg/sports.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Oswald', sans-serif",
         pattern: 'trophy',
         defaultTitle: 'Sports Champion Certificate'
     },
@@ -80,6 +95,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#e0f2fe',
         borderStyle: 'sporty',
         background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+        backgroundImage: '/certificate-bg/sports.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Roboto', sans-serif",
         pattern: 'track',
         defaultTitle: 'Athletic Achievement Award'
     },
@@ -93,6 +111,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#dcfce7',
         borderStyle: 'badge',
         background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+        backgroundImage: '/certificate-bg/sports.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.9)',
+        fontFamily: "'Oswald', sans-serif",
         pattern: 'cricket',
         defaultTitle: 'Cricket Championship Certificate'
     },
@@ -106,6 +127,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#dbeafe',
         borderStyle: 'dynamic',
         background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        backgroundImage: '/certificate-bg/sports.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Montserrat', sans-serif",
         pattern: 'football',
         defaultTitle: 'Football Excellence Award'
     },
@@ -119,6 +143,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#ffedd5',
         borderStyle: 'bold',
         background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+        backgroundImage: '/certificate-bg/sports.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Oswald', sans-serif",
         pattern: 'kabaddi',
         defaultTitle: 'Kabaddi Champion Certificate'
     },
@@ -134,6 +161,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fce7f3',
         borderStyle: 'graceful',
         background: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%)',
+        backgroundImage: '/certificate-bg/yoga_nature.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Dancing Script', cursive",
         pattern: 'ribbon',
         defaultTitle: 'Gymnastics Excellence Award'
     },
@@ -147,6 +177,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#d1fae5',
         borderStyle: 'zen',
         background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+        backgroundImage: '/certificate-bg/yoga_nature.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.7)',
+        fontFamily: "'Lato', sans-serif",
         pattern: 'mandala',
         defaultTitle: 'Yoga Excellence Certificate'
     },
@@ -160,6 +193,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#dbeafe',
         borderStyle: 'military',
         background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        backgroundImage: '/certificate-bg/academic.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Oswald', sans-serif",
         pattern: 'stripes',
         defaultTitle: 'March Past Excellence Award'
     },
@@ -175,6 +211,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#ede9fe',
         borderStyle: 'artistic',
         background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #ddd6fe 100%)',
+        backgroundImage: '/certificate-bg/cultural.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Playfair Display', serif",
         pattern: 'rangoli',
         defaultTitle: 'Cultural Excellence Certificate'
     },
@@ -188,6 +227,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fce7f3',
         borderStyle: 'flowing',
         background: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)',
+        backgroundImage: '/certificate-bg/cultural.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Great Vibes', cursive",
         pattern: 'dance',
         defaultTitle: 'Dance Excellence Award'
     },
@@ -201,6 +243,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#cffafe',
         borderStyle: 'melodic',
         background: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)',
+        backgroundImage: '/certificate-bg/cultural.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Dancing Script', cursive",
         pattern: 'notes',
         defaultTitle: 'Music Excellence Certificate'
     },
@@ -214,6 +259,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#ede9fe',
         borderStyle: 'theatrical',
         background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+        backgroundImage: '/certificate-bg/cultural.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Cinzel', serif",
         pattern: 'curtain',
         defaultTitle: 'Drama Excellence Award'
     },
@@ -227,6 +275,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#ffedd5',
         borderStyle: 'traditional',
         background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+        backgroundImage: '/certificate-bg/cultural.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Playfair Display', serif",
         pattern: 'folk',
         defaultTitle: 'Folk Dance Achievement'
     },
@@ -242,6 +293,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fae8ff',
         borderStyle: 'creative',
         background: 'linear-gradient(135deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%)',
+        backgroundImage: '/certificate-bg/arts.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Dancing Script', cursive",
         pattern: 'palette',
         defaultTitle: 'Art Excellence Certificate'
     },
@@ -255,6 +309,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#f3f4f6',
         borderStyle: 'sketch',
         background: 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+        backgroundImage: '/certificate-bg/arts.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.9)',
+        fontFamily: "'Montserrat', sans-serif",
         pattern: 'pencil',
         defaultTitle: 'Drawing Excellence Award'
     },
@@ -268,6 +325,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#d1fae5',
         borderStyle: 'crafty',
         background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+        backgroundImage: '/certificate-bg/arts.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Lato', sans-serif",
         pattern: 'craft',
         defaultTitle: 'Craft Excellence Certificate'
     },
@@ -283,6 +343,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#ccfbf1',
         borderStyle: 'simple',
         background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)',
+        backgroundImage: '/certificate-bg/special.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Roboto', sans-serif",
         pattern: 'waves',
         defaultTitle: 'Certificate of Participation'
     },
@@ -296,6 +359,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fef3c7',
         borderStyle: 'royal',
         background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)',
+        backgroundImage: '/certificate-bg/vintage.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.7)',
+        fontFamily: "'Cinzel', serif",
         pattern: 'crown',
         defaultTitle: 'Best Student Award'
     },
@@ -309,6 +375,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#fee2e2',
         borderStyle: 'powerful',
         background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+        backgroundImage: '/certificate-bg/academic.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.8)',
+        fontFamily: "'Oswald', sans-serif",
         pattern: 'shield',
         defaultTitle: 'Leadership Excellence Award'
     },
@@ -322,6 +391,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#ccfbf1',
         borderStyle: 'strict',
         background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)',
+        backgroundImage: '/certificate-bg/special.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Lato', sans-serif",
         pattern: 'order',
         defaultTitle: 'Discipline Excellence Certificate'
     },
@@ -335,6 +407,9 @@ export const CERTIFICATE_TEMPLATES = [
         accentColor: '#e0e7ff',
         borderStyle: 'clean',
         background: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
+        backgroundImage: '/certificate-bg/special.png',
+        backgroundOverlay: 'rgba(255, 255, 255, 0.85)',
+        fontFamily: "'Roboto', sans-serif",
         pattern: 'calendar',
         defaultTitle: 'Perfect Attendance Certificate'
     },

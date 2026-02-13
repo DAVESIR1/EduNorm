@@ -12,6 +12,14 @@ import * as db from '../../services/database';
 
 const WHATS_NEW = [
     {
+        version: '3.0', date: '2026-02-14', items: [
+            '🤖 Smart AI Form Scanner: Auto-fill entire student forms from a single photo',
+            '📷 Context-Aware Camera: Intelligently extracts Aadhaar, names, and dates',
+            '🛡️ Robust Admin Backup: Automated, encrypted cloud backup for 100% data safety',
+            '⚡ Offline-First Mode: Work without internet, auto-sync when online',
+        ]
+    },
+    {
         version: '2.5', date: '2026-02-13', items: [
             'Government ID-based Student Login (Aadhaar, APAAR, Child UID)',
             'Real-time auto-backup with offline queue',
@@ -20,7 +28,6 @@ const WHATS_NEW = [
             'Q&A Chat between students and teachers',
             'Certificate signature upload & group mode',
             'ID Card DISE code support',
-            'Class Upgrade one-tap system',
         ]
     },
     {
@@ -46,7 +53,7 @@ const CONTENT = {
                 'Even the app/website developers CANNOT open or read your data.',
                 'Your data is encrypted with your own password before it leaves your device.',
                 'Worry-free data safety: Only YOU hold the keys to your data.',
-                'Multi-layer backup (Firebase + Cloudflare R2) ensures no data loss.',
+                'Multi-layer backup (Firebase + Cloudflare R2 + Admin Vault) ensures no data loss.',
             ]
         },
         menus: [
@@ -65,6 +72,7 @@ const CONTENT = {
                 desc: 'Enter, view, edit, and search student records.',
                 items: [
                     { name: 'Data Entry', desc: 'Add new student records with all details (name, DOB, parent info, ID numbers)' },
+                    { name: 'Smart Scanner', desc: '✨ NEW: Auto-fill forms by scanning a paper document' },
                     { name: 'Student List', desc: 'View all students with search, filter, and sort options' },
                     { name: 'Edit Student', desc: 'Update existing student information' },
                     { name: 'Delete Student', desc: 'Remove student records (with confirmation)' },

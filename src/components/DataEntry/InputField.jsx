@@ -162,6 +162,24 @@ export default function InputField({ field, value, onChange }) {
         );
     }
 
+    // Helper to determine parsing type
+    const getParsingType = () => {
+        if (field.parsingType) return field.parsingType; // Manual override
+        const label = (field.label || '').toLowerCase();
+        const name = (field.name || '').toLowerCase();
+        const type = (field.type || '').toLowerCase();
+
+        if (name.includes('aadhaar') || label.includes('aadhaar')) return 'aadhaar';
+        if (name.includes('pan') || label.includes('pan')) return 'pan';
+        if (type === 'date' || name.includes('date') || label.includes('date') || name.includes('dob')) return 'date';
+        if (type === 'number' || name.includes('mobile') || name.includes('phone') || name.includes('pin') || label.includes('mobile')) return 'number';
+        if (name.includes('name') || label.includes('name')) return 'name';
+
+        return ''; // Default text
+    };
+
+    const parsingType = getParsingType();
+
     // Render textarea
     if (field.type === 'textarea') {
         return (
@@ -170,8 +188,8 @@ export default function InputField({ field, value, onChange }) {
                     {field.label}
                     <OcrCamera
                         onResult={(text) => onChange(value ? value + '\n' + text : text)}
-                        lang="eng+hin"
                         label={field.label}
+                        parsingType={parsingType}
                     />
                 </label>
                 <textarea
@@ -188,7 +206,9 @@ export default function InputField({ field, value, onChange }) {
     }
 
     // Render standard input
-    const isTextLike = !field.type || field.type === 'text' || field.type === 'number';
+    // We add AI Camera to text, number, date inputs
+    const isTextLike = !field.type || ['text', 'number', 'date', 'email', 'tel'].includes(field.type);
+
     return (
         <div className={`input-group ${isFocused ? 'focused' : ''}`}>
             <label className="input-label">
@@ -196,8 +216,8 @@ export default function InputField({ field, value, onChange }) {
                 {isTextLike && (
                     <OcrCamera
                         onResult={(text) => onChange(text)}
-                        lang="eng+hin"
                         label={field.label}
+                        parsingType={parsingType}
                     />
                 )}
             </label>

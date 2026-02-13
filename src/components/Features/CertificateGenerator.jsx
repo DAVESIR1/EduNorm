@@ -15,6 +15,8 @@ export default function CertificateGenerator({ isOpen, onClose, student, student
     const [eventName, setEventName] = useState('');
     const [signatureImage, setSignatureImage] = useState(null);
     const [certMode, setCertMode] = useState('individual'); // 'individual' or 'group'
+    const [pageSize, setPageSize] = useState('A4');
+    const [orientation, setOrientation] = useState('landscape');
     const [helperTeachers, setHelperTeachers] = useState([]);
     const [newHelper, setNewHelper] = useState('');
     const certificateRef = useRef(null);
@@ -49,93 +51,176 @@ export default function CertificateGenerator({ isOpen, onClose, student, student
 
     if (!isOpen) return null;
 
-    const handlePrint = () => {
-        const printContent = certificateRef.current;
+    const handlePrint = async () => {
         const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Please allow popups for this site to print certificates.');
+            return;
+        }
+
         printWindow.document.write(`
+            <html>
+                <body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;">
+                    <h2>Generating High-Quality Print... Please Wait...</h2>
+                </body>
+            </html>
+        `);
+
+        // Prepare Background Image
+        let bgImage = '';
+        const isImage = selectedTemplate.backgroundImage ? true : false;
+
+        if (selectedTemplate.backgroundImage) {
+            try {
+                const response = await fetch(selectedTemplate.backgroundImage);
+                const blob = await response.blob();
+                bgImage = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                bgImage = new URL(selectedTemplate.backgroundImage, window.location.origin).href;
+            }
+        } else {
+            bgImage = selectedTemplate.background;
+        }
+
+        // Calculate Dimensions (Standard real-world sizes in mm)
+        const pageDims = {
+            'A4': { w: 297, h: 210 },       // International Standard
+            'Letter': { w: 279.4, h: 215.9 }, // US Standard (8.5 x 11 in)
+            'Legal': { w: 355.6, h: 215.9 },  // Legal (8.5 x 14 in)
+            'Diploma11x14': { w: 355.6, h: 279.4 }, // Large Diploma (11 x 14 in)
+            'Frame8x10': { w: 254, h: 203.2 } // Standard Frame (8 x 10 in)
+        };
+        const dim = pageDims[pageSize] || pageDims['A4'];
+        const width = orientation === 'landscape' ? dim.w : dim.h;
+        const height = orientation === 'landscape' ? dim.h : dim.w;
+
+        const printContent = certificateRef.current;
+        const fontLink = "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Lato:wght@400;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Merriweather:wght@300;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700&display=swap";
+
+        const printHTML = `
+            <!DOCTYPE html>
             <html>
                 <head>
                     <title>Certificate - ${student?.studentFirstName || 'Student'}</title>
-                    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+                    <link href="${fontLink}" rel="stylesheet">
                     <style>
                         @page {
-                            size: A4 landscape;
-                            margin: 15mm;
+                            size: ${pageSize} ${orientation};
+                            margin: 0;
                         }
                         
                         body { 
                             margin: 0; 
                             padding: 0; 
-                            font-family: 'Montserrat', sans-serif;
+                            font-family: ${selectedTemplate.fontFamily || "'Montserrat', sans-serif"};
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
+                            background: white;
                         }
                         
+                        .print-container {
+                            width: ${width}mm;
+                            height: ${height}mm;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            box-sizing: border-box;
+                            overflow: hidden; /* Prevent spillover */
+                        }
+
                         .certificate-print {
                             width: 100%;
-                            max-width: 900px;
-                            margin: 0 auto;
-                            padding: 50px;
-                            border: 12px ${selectedTemplate.borderStyle === 'double' ? 'double' : 'solid'} ${selectedTemplate.primaryColor};
-                            background: ${selectedTemplate.background};
-                            text-align: center;
+                            height: 100%;
                             position: relative;
                             box-sizing: border-box;
+                            border: 12px ${selectedTemplate.borderStyle === 'double' ? 'double' : 'solid'} ${selectedTemplate.primaryColor};
+                            /* Gradient fallback if no image */
+                            background: ${!isImage ? bgImage : 'white'} !important;
+                            text-align: center;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            padding: 40px;
+                            overflow: hidden;
                         }
+
+                        /* 1. Background Image using img tag (see HTML below) */
                         
-                        .certificate-print::before {
-                            content: '';
+                        /* 2. Overlay Layer */
+                        .bg-overlay {
+                            position: absolute;
+                            inset: 0;
+                            background: ${selectedTemplate.backgroundOverlay || 'rgba(255, 255, 255, 0.85)'};
+                            z-index: 1;
+                        }
+
+                        /* 3. Inner Border */
+                        .inner-border {
                             position: absolute;
                             inset: 8px;
                             border: 2px solid ${selectedTemplate.secondaryColor};
                             pointer-events: none;
+                            z-index: 2;
+                        }
+
+                        /* 4. Content Content */
+                        .cert-content-layer {
+                            position: relative;
+                            z-index: 10;
                         }
                         
-                        .cert-header { margin-bottom: 30px; }
-                        .cert-icon { font-size: 60px; margin-bottom: 10px; }
+                        .cert-header { margin-bottom: 20px; }
+                        .cert-icon { font-size: 50px; margin-bottom: 8px; }
                         .cert-category { 
                             font-size: 14px; 
                             text-transform: uppercase; 
                             letter-spacing: 4px; 
                             color: ${selectedTemplate.secondaryColor};
-                            margin-bottom: 10px;
+                            margin-bottom: 8px;
                         }
                         .cert-title { 
                             font-size: 42px; 
-                            font-family: 'Playfair Display', serif;
+                            font-family: ${selectedTemplate.fontFamily || "'Playfair Display', serif"};
                             color: ${selectedTemplate.primaryColor}; 
                             margin: 10px 0;
                             font-weight: 700;
+                            line-height: 1.2;
                         }
                         .cert-school { 
                             font-size: 18px; 
                             color: #666; 
                             margin: 0;
                         }
-                        .cert-body { margin: 50px 0; }
+                        
+                        .cert-body { margin: 30px 0; }
                         .presented-to { 
                             font-size: 16px; 
                             color: #888; 
                             font-style: italic;
-                            margin-bottom: 15px;
+                            margin-bottom: 10px;
                         }
                         .student-name { 
-                            font-size: 36px; 
-                            font-family: 'Playfair Display', serif;
+                            font-size: 48px; 
+                            font-family: ${selectedTemplate.fontFamily || "'Playfair Display', serif"};
                             font-weight: 700; 
                             color: ${selectedTemplate.primaryColor};
                             border-bottom: 3px solid ${selectedTemplate.secondaryColor};
                             display: inline-block;
-                            padding: 10px 50px;
-                            margin: 15px 0 25px;
+                            padding: 5px 40px;
+                            margin: 10px 0 20px;
+                            white-space: nowrap;
                         }
                         .class-info { 
                             font-size: 16px; 
                             color: #666; 
-                            margin-bottom: 20px;
+                            margin-bottom: 15px;
                         }
                         .event-name {
-                            font-size: 18px;
+                            font-size: 20px;
                             font-weight: 600;
                             color: ${selectedTemplate.secondaryColor};
                             margin-bottom: 15px;
@@ -143,20 +228,22 @@ export default function CertificateGenerator({ isOpen, onClose, student, student
                         .achievement-text { 
                             font-size: 18px; 
                             color: #444; 
-                            line-height: 1.8;
-                            max-width: 600px;
+                            line-height: 1.6;
+                            max-width: 80%;
                             margin: 0 auto;
                         }
+                        
                         .cert-footer { 
                             display: flex; 
                             justify-content: space-between; 
                             align-items: flex-end;
-                            margin-top: 60px;
-                            padding-top: 30px;
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            width: 100%;
                         }
-                        .signature-block { text-align: center; }
+                        .signature-block { text-align: center; min-width: 150px; }
                         .signature-line { 
-                            width: 180px; 
+                            width: 100%; 
                             border-top: 2px solid ${selectedTemplate.primaryColor}; 
                             margin: 0 auto 8px;
                         }
@@ -176,13 +263,47 @@ export default function CertificateGenerator({ isOpen, onClose, student, student
                             height: 80px;
                             object-fit: contain;
                         }
+
+                        /* Hide original overlay elements */
+                        .certificate-print::before, .certificate-print::after {
+                            display: none;
+                        }
                     </style>
                 </head>
-                <body>${printContent.innerHTML}</body>
+                <body>
+                    <div class="print-container">
+                        <div class="certificate-print">
+                            <!-- 1. IMAGE TAG for Background (Zero issues with printing) -->
+                            ${isImage ? `<img src="${bgImage}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 0;" />` : ''}
+
+                            <!-- 2. Overlay Div -->
+                            ${isImage ? `<div class="bg-overlay"></div>` : ''}
+
+                            <!-- 3. Inner Border -->
+                            <div class="inner-border"></div>
+                            
+                            <!-- 4. Content -->
+                            <div class="cert-content-layer">
+                                ${printContent.querySelector('.cert-header').outerHTML}
+                                ${printContent.querySelector('.cert-body').outerHTML}
+                                ${printContent.querySelector('.cert-footer').outerHTML}
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 1000);
+                        };
+                    </script>
+                </body>
             </html>
-        `);
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(printHTML);
         printWindow.document.close();
-        printWindow.print();
     };
 
     const handleDownloadPDF = async () => {
@@ -407,6 +528,31 @@ export default function CertificateGenerator({ isOpen, onClose, student, student
                                 )}
                             </div>
 
+                            <div className="form-group">
+                                <label>Print Settings</label>
+                                <div className="form-row">
+                                    <select
+                                        value={pageSize}
+                                        onChange={(e) => setPageSize(e.target.value)}
+                                        style={{ padding: '10px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', width: '100%' }}
+                                    >
+                                        <option value="A4">A4 (Standard)</option>
+                                        <option value="Letter">Letter (8.5" x 11")</option>
+                                        <option value="Frame8x10">Frame (8" x 10")</option>
+                                        <option value="Diploma11x14">Diploma (11" x 14")</option>
+                                        <option value="Legal">Legal</option>
+                                    </select>
+                                    <select
+                                        value={orientation}
+                                        onChange={(e) => setOrientation(e.target.value)}
+                                        style={{ padding: '10px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', width: '100%' }}
+                                    >
+                                        <option value="landscape">Landscape</option>
+                                        <option value="portrait">Portrait</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <div className="cert-action-btns">
                                 <button className="print-btn-new" onClick={handlePrint}>
                                     <PrinterIcon size={20} />
@@ -426,59 +572,78 @@ export default function CertificateGenerator({ isOpen, onClose, student, student
                             ref={certificateRef}
                             className="certificate-print"
                             style={{
-                                background: selectedTemplate.background,
+                                width: (orientation === 'landscape'
+                                    ? ({ 'A4': 297, 'Letter': 279, 'Legal': 356, 'Frame8x10': 254, 'Diploma11x14': 356 }[pageSize] || 297)
+                                    : ({ 'A4': 210, 'Letter': 216, 'Legal': 216, 'Frame8x10': 203, 'Diploma11x14': 279 }[pageSize] || 210)) * 2.4 + 'px',
+                                height: (orientation === 'landscape'
+                                    ? ({ 'A4': 210, 'Letter': 216, 'Legal': 216, 'Frame8x10': 203, 'Diploma11x14': 279 }[pageSize] || 210)
+                                    : ({ 'A4': 297, 'Letter': 279, 'Legal': 356, 'Frame8x10': 254, 'Diploma11x14': 356 }[pageSize] || 297)) * 2.4 + 'px',
+                                background: selectedTemplate.backgroundImage ? 'none' : selectedTemplate.background,
+                                backgroundImage: selectedTemplate.backgroundImage ? `url('${selectedTemplate.backgroundImage}')` : 'none',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
                                 borderColor: selectedTemplate.primaryColor,
                                 '--primary': selectedTemplate.primaryColor,
                                 '--secondary': selectedTemplate.secondaryColor
                             }}
                         >
-                            <div className="cert-header">
-                                {schoolLogo && <img src={schoolLogo} alt="Logo" className="cert-logo" />}
-                                <div className="cert-icon">{selectedTemplate.icon}</div>
-                                <div className="cert-category">{selectedTemplate.category}</div>
-                                <h1 className="cert-title" style={{ color: selectedTemplate.primaryColor }}>{title}</h1>
-                                <p className="cert-school">{schoolName || 'School Name'}</p>
-                            </div>
-
-                            <div className="cert-body">
-                                <p className="presented-to">This certificate is proudly presented to</p>
-                                <h2 className="student-name" style={{
-                                    color: selectedTemplate.primaryColor,
-                                    borderColor: selectedTemplate.secondaryColor
-                                }}>
-                                    {getStudentName()}
-                                </h2>
-                                <p className="class-info">Class: {student?.standard || 'N/A'}</p>
-                                {eventName && <p className="event-name" style={{ color: selectedTemplate.secondaryColor }}>{eventName}</p>}
-                                {achievement && <p className="achievement-text">{achievement}</p>}
-                            </div>
-
-                            <div className="cert-footer">
-                                <div className="signature-block">
-                                    {signatureImage ? (
-                                        <img src={signatureImage} alt="Signature" style={{ maxWidth: '120px', maxHeight: '35px', objectFit: 'contain' }} />
-                                    ) : (
-                                        <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>
-                                    )}
-                                    <p className="signature-label">Class Teacher</p>
+                            {/* Overlay for Preview */}
+                            {selectedTemplate.backgroundImage && (
+                                <div style={{
+                                    position: 'absolute', inset: 0,
+                                    background: selectedTemplate.backgroundOverlay || 'rgba(255, 255, 255, 0.85)',
+                                    zIndex: 0
+                                }} />
+                            )}
+                            <div style={{ position: 'relative', zIndex: 2 }}>
+                                <div className="cert-header">
+                                    {schoolLogo && <img src={schoolLogo} alt="Logo" className="cert-logo" />}
+                                    <div className="cert-icon">{selectedTemplate.icon}</div>
+                                    <div className="cert-category">{selectedTemplate.category}</div>
+                                    <h1 className="cert-title" style={{ color: selectedTemplate.primaryColor }}>{title}</h1>
+                                    <p className="cert-school">{schoolName || 'School Name'}</p>
                                 </div>
-                                <div className="date-block">
-                                    <p className="cert-date" style={{ color: selectedTemplate.primaryColor }}>
-                                        {new Date(date).toLocaleDateString('en-IN', {
-                                            day: 'numeric',
-                                            month: 'long',
-                                            year: 'numeric'
-                                        })}
-                                    </p>
-                                    {helperTeachers.length > 0 && (
-                                        <p style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>
-                                            Helpers: {helperTeachers.join(', ')}
+
+                                <div className="cert-body">
+                                    <p className="presented-to">This certificate is proudly presented to</p>
+                                    <h2 className="student-name" style={{
+                                        color: selectedTemplate.primaryColor,
+                                        borderColor: selectedTemplate.secondaryColor
+                                    }}>
+                                        {getStudentName()}
+                                    </h2>
+                                    <p className="class-info">Class: {student?.standard || 'N/A'}</p>
+                                    {eventName && <p className="event-name" style={{ color: selectedTemplate.secondaryColor }}>{eventName}</p>}
+                                    {achievement && <p className="achievement-text">{achievement}</p>}
+                                </div>
+
+                                <div className="cert-footer">
+                                    <div className="signature-block">
+                                        {signatureImage ? (
+                                            <img src={signatureImage} alt="Signature" style={{ maxWidth: '120px', maxHeight: '35px', objectFit: 'contain' }} />
+                                        ) : (
+                                            <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>
+                                        )}
+                                        <p className="signature-label">Class Teacher</p>
+                                    </div>
+                                    <div className="date-block">
+                                        <p className="cert-date" style={{ color: selectedTemplate.primaryColor }}>
+                                            {new Date(date).toLocaleDateString('en-IN', {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric'
+                                            })}
                                         </p>
-                                    )}
-                                </div>
-                                <div className="signature-block">
-                                    <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>
-                                    <p className="signature-label">{signatory || 'Principal'}</p>
+                                        {helperTeachers.length > 0 && (
+                                            <p style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>
+                                                Helpers: {helperTeachers.join(', ')}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="signature-block">
+                                        <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>
+                                        <p className="signature-label">{signatory || 'Principal'}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

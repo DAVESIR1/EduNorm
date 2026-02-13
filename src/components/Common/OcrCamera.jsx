@@ -8,7 +8,7 @@ import { ScanLine, Image as ImageIcon, X, Camera } from 'lucide-react';
  * - File upload option moved INSIDE the camera modal
  * - Auto-detects English & Hindi
  */
-export default function OcrCamera({ onResult, label = '', style = {} }) {
+export default function OcrCamera({ onResult, label = '', style = {}, parsingType = '' }) {
     const [scanning, setScanning] = useState(false);
     const [progress, setProgress] = useState(0);
     const [showCamera, setShowCamera] = useState(false);
@@ -24,10 +24,12 @@ export default function OcrCamera({ onResult, label = '', style = {} }) {
     const processImage = useCallback(async (imageSrc) => {
         setScanning(true);
         setProgress(0);
+        setCameraError(''); // Clear error on new scan
         try {
             // Dynamic import to speed up app initial load
             const Tesseract = (await import('tesseract.js')).default;
 
+            // Should we use 'hin' only for regional names? For now 'eng+hin' is safest.
             const result = await Tesseract.recognize(imageSrc, 'eng+hin', {
                 logger: (m) => {
                     if (m.status === 'recognizing text') {
@@ -37,19 +39,25 @@ export default function OcrCamera({ onResult, label = '', style = {} }) {
             });
 
             let text = result.data.text.trim();
-            // Smart cleanup
-            text = text
-                .replace(/[|}{[\]\\<>]/g, '')
-                .replace(/\n{3,}/g, '\n\n')
-                .replace(/  +/g, ' ')
-                .trim();
+
+            // ─── Smart Parsing Logic ───
+            // Apply specific regex/cleaning based on the target field type
+            if (parsingType) {
+                text = parseText(text, parsingType);
+            } else {
+                // Default cleanup
+                text = text
+                    .replace(/[|}{[\]\\<>]/g, '')
+                    .replace(/\n{3,}/g, '\n\n')
+                    .replace(/  +/g, ' ')
+                    .trim();
+            }
 
             if (text && onResult) {
                 onResult(text);
-                // Close camera if open
                 stopCamera();
             } else if (!text) {
-                alert('No text found. Try a clearer image.');
+                alert('No relevant text found. Try a clearer image or closer view.');
             }
         } catch (err) {
             console.error('OCR error:', err);
@@ -58,7 +66,43 @@ export default function OcrCamera({ onResult, label = '', style = {} }) {
             setScanning(false);
             setProgress(0);
         }
-    }, [onResult]);
+    }, [onResult, parsingType]);
+
+    // ─── Helper: Parse Text based on Type ───
+    const parseText = (text, type) => {
+        switch (type) {
+            case 'aadhaar':
+                // Extract 12 digits, ignoring spaces/hyphens
+                const aadhaarMatch = text.match(/\d{4}\s?\d{4}\s?\d{4}/);
+                return aadhaarMatch ? aadhaarMatch[0].replace(/\D/g, '') : '';
+
+            case 'pan':
+                // Extract PAN format: 5 letters, 4 digits, 1 letter
+                const panMatch = text.match(/[A-Z]{5}[0-9]{4}[A-Z]{1}/);
+                return panMatch ? panMatch[0] : '';
+
+            case 'date':
+                // Attempt to find DD/MM/YYYY or DD-MM-YYYY
+                const dateMatch = text.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
+                if (dateMatch) {
+                    const [_, d, m, y] = dateMatch;
+                    // Return as YYYY-MM-DD for input[type="date"]
+                    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+                }
+                return '';
+
+            case 'number':
+                // Extract only numbers
+                return text.replace(/\D/g, '');
+
+            case 'name':
+                // Remove common prefixes/suffixes, keep text
+                return text.replace(/(Mr\.|Mrs\.|Shri|Smt\.|Dr\.)/gi, '').replace(/[0-9]/g, '').trim();
+
+            default:
+                return text;
+        }
+    };
 
     // ─── Open real camera ───
     const openCamera = useCallback(async () => {

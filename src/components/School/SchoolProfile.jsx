@@ -35,6 +35,10 @@ export default function SchoolProfile({
     const [newFieldName, setNewFieldName] = useState('');
     const [showAddField, setShowAddField] = useState(false);
     const [schoolLandline, setSchoolLandline] = useState('');
+    const [indexNumber, setIndexNumber] = useState('');
+    const [udiseNumber, setUdiseNumber] = useState('');
+    const [boardName, setBoardName] = useState('');
+    const [principalSignature, setPrincipalSignature] = useState('');
     const { recordAction } = useUndo();
 
     // Split contact into mobile and landline on load
@@ -55,6 +59,10 @@ export default function SchoolProfile({
                 if (saved.facilities) setFacilities(saved.facilities);
                 if (saved.customFields) setCustomFields(saved.customFields);
                 if (saved.schoolLandline) setSchoolLandline(saved.schoolLandline);
+                if (saved.indexNumber) setIndexNumber(saved.indexNumber);
+                if (saved.udiseNumber) setUdiseNumber(saved.udiseNumber);
+                if (saved.boardName) setBoardName(saved.boardName);
+                if (saved.principalSignature) setPrincipalSignature(saved.principalSignature);
             }
         } catch (error) {
             console.error('Failed to load school profile:', error);
@@ -79,6 +87,16 @@ export default function SchoolProfile({
         reader.onload = (event) => {
             onSchoolLogoChange?.(event.target.result);
         };
+        reader.readAsDataURL(file);
+    };
+
+    const handleSignatureUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('Please use an image file'); return; }
+
+        const reader = new FileReader();
+        reader.onload = (ev) => setPrincipalSignature(ev.target.result);
         reader.readAsDataURL(file);
     };
 
@@ -161,6 +179,10 @@ export default function SchoolProfile({
                 facilities,
                 customFields,
                 schoolLandline,
+                indexNumber,
+                udiseNumber,
+                boardName,
+                principalSignature,
                 updatedAt: Date.now()
             });
             // Also save school info to main settings
@@ -364,6 +386,69 @@ export default function SchoolProfile({
                             onChange={(e) => onSchoolEmailChange?.(e.target.value)}
                             placeholder="school@example.com"
                         />
+                    </div>
+
+                    {/* UDISE Number */}
+                    <div className="info-field-card">
+                        <label>🔢 UDISE Number</label>
+                        <input
+                            type="text"
+                            className="field-input"
+                            value={udiseNumber}
+                            onChange={(e) => setUdiseNumber(e.target.value)}
+                            placeholder="e.g. 24010100101"
+                        />
+                    </div>
+
+                    {/* Index Number */}
+                    <div className="info-field-card">
+                        <label>📊 Index Number</label>
+                        <input
+                            type="text"
+                            className="field-input"
+                            value={indexNumber}
+                            onChange={(e) => setIndexNumber(e.target.value)}
+                            placeholder="e.g. 12.34.56"
+                        />
+                    </div>
+
+                    {/* Board */}
+                    <div className="info-field-card">
+                        <label>🏛️ Board</label>
+                        <input
+                            type="text"
+                            className="field-input"
+                            value={boardName}
+                            onChange={(e) => setBoardName(e.target.value)}
+                            placeholder="e.g. GSEB / CBSE"
+                        />
+                    </div>
+
+                    {/* Principal Signature */}
+                    <div className="logo-upload-card">
+                        <label>Principal Signature</label>
+                        <div className="logo-upload-area" style={{ height: '100px' }}>
+                            {principalSignature ? (
+                                <div className="logo-preview">
+                                    <img src={principalSignature} alt="Principal Signature" style={{ objectFit: 'contain' }} />
+                                    <button className="change-logo-btn" onClick={() => document.getElementById('sig-upload-input').click()}>
+                                        Change
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="logo-placeholder" onClick={() => document.getElementById('sig-upload-input').click()}>
+                                    <span style={{ fontSize: '24px' }}>✍️</span>
+                                    <span>Upload Signature</span>
+                                </div>
+                            )}
+                            <input
+                                id="sig-upload-input"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleSignatureUpload}
+                                style={{ display: 'none' }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

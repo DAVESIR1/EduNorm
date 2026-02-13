@@ -1,10 +1,14 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { X, Download, Printer, Image, Search, Plus, Minus, Maximize2, Minimize2, ChevronDown, Settings } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ProfileCard from './ProfileCard';
-import IdCard, { TEMPLATES, AVAILABLE_FIELDS, DEFAULT_VISIBLE_FIELDS } from './IdCard';
+import IdCard, { TEMPLATES, ID_CARD_FIELDS, DEFAULT_VISIBLE_FIELDS } from './IdCard';
+import PrintFrame from '../Common/PrintFrame';
 import TemplateSelector from './TemplateSelector';
+import PrintPortal from '../Common/PrintPortal';
+import DocumentPrintView from './DocumentPrintView';
+import IdCardPrintDocument from './IdCardPrintDocument';
 import './ProfileViewer.css';
 
 // Paper size configurations with cards per page
@@ -38,9 +42,29 @@ export default function ProfileViewer({
     const [showFieldCustomizer, setShowFieldCustomizer] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
     const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+    const [showBackSide, setShowBackSide] = useState(false);
+    const [isPrinting, setIsPrinting] = useState(false);
     const profileRef = useRef(null);
     const idCardRef = useRef(null);
     const batchPrintRef = useRef(null);
+    const optionsMenuRef = useRef(null); // Ref for options menu
+    const fieldCustomizerRef = useRef(null); // Ref for field customizer
+
+    // Close Menus on Click Outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Close Options Menu
+            if (optionsMenuRef.current && !optionsMenuRef.current.contains(event.target)) {
+                setShowOptionsMenu(false);
+            }
+            // Close Field Customizer
+            if (fieldCustomizerRef.current && !fieldCustomizerRef.current.contains(event.target)) {
+                setShowFieldCustomizer(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     // Calculate filtered students (needs to be before useMemo that depends on it)
     const filteredStudents = useMemo(() => {
@@ -221,7 +245,7 @@ export default function ProfileViewer({
 
                     {/* Options Menu for ID Card */}
                     {viewMode === 'idcard' && (
-                        <div className="options-menu-container">
+                        <div className="options-menu-container" ref={optionsMenuRef}>
                             <button
                                 className="btn btn-ghost btn-sm options-trigger"
                                 onClick={() => setShowOptionsMenu(!showOptionsMenu)}
@@ -271,9 +295,22 @@ export default function ProfileViewer({
                                         </label>
                                     </div>
                                     <div className="option-item">
+                                        <label className="checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={showBackSide}
+                                                onChange={(e) => setShowBackSide(e.target.checked)}
+                                            />
+                                            🔄 Print Back Side
+                                        </label>
+                                    </div>
+                                    <div className="option-item">
                                         <button
                                             className="btn btn-ghost btn-sm full-width"
-                                            onClick={() => setShowFieldCustomizer(!showFieldCustomizer)}
+                                            onClick={() => {
+                                                setShowFieldCustomizer(!showFieldCustomizer);
+                                                setShowOptionsMenu(false); // Close parent menu
+                                            }}
                                         >
                                             ⚙️ Customize Fields
                                         </button>
@@ -286,9 +323,9 @@ export default function ProfileViewer({
 
                 {/* Field Customizer Popup */}
                 {showFieldCustomizer && (
-                    <div className="field-customizer-panel no-print">
+                    <div className="field-customizer-panel no-print" ref={fieldCustomizerRef}>
                         <div className="field-checkboxes">
-                            {AVAILABLE_FIELDS.map(field => (
+                            {ID_CARD_FIELDS.map(field => (
                                 <label key={field.id} className="field-checkbox">
                                     <input
                                         type="checkbox"
@@ -308,53 +345,75 @@ export default function ProfileViewer({
                     </div>
                 )}
 
-                {/* GR Number Selection (Batch Mode) */}
+                {/* Batch Student Selection (Replaces Search) */}
                 {viewMode === 'idcard' && batchMode && (
-                    <div className="batch-controls no-print">
-                        <div className="gr-search-wrap">
-                            <Search size={16} />
-                            <input
-                                type="text"
-                                className="input-field"
-                                placeholder="Search GR No. or Name..."
-                                value={grSearchQuery}
-                                onChange={(e) => setGrSearchQuery(e.target.value)}
-                            />
+                    <div className="batch-selection-container no-print">
+                        <div className="batch-toolbar">
+                            <div className="search-box">
+                                <Search size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Search students..."
+                                    value={grSearchQuery}
+                                    onChange={(e) => setGrSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <div className="selection-actions">
+                                <button
+                                    className="btn btn-xs btn-outline"
+                                    onClick={() => setSelectedGrNumbers(filteredStudents.map(s => s.grNo))}
+                                >
+                                    Select All ({filteredStudents.length})
+                                </button>
+                                <button
+                                    className="btn btn-xs btn-outline"
+                                    onClick={() => setSelectedGrNumbers([])}
+                                >
+                                    Clear Selection
+                                </button>
+                                <button
+                                    className="btn btn-xs btn-outline btn-error"
+                                    onClick={() => {
+                                        setBatchMode(false);
+                                        setSelectedGrNumbers([]);
+                                    }}
+                                >
+                                    Exit Batch
+                                </button>
+                                <span className="selection-count">
+                                    {selectedGrNumbers.length} Selected
+                                </span>
+                            </div>
                         </div>
 
-                        {grSearchResults.length > 0 && (
-                            <div className="gr-search-results">
-                                {grSearchResults.map(s => (
-                                    <button
-                                        key={s.grNo}
-                                        className="gr-result-item"
-                                        onClick={() => addToGrSelection(s.grNo)}
-                                    >
-                                        <Plus size={14} />
-                                        <span className="gr-no">{s.grNo}</span>
-                                        <span className="gr-name">{s.name || s.nameEnglish}</span>
-                                    </button>
+                        <div className="batch-grid-list">
+                            {/* Filter based on search query if exists, else show all filteredStudents */}
+                            {filteredStudents
+                                .filter(s => !grSearchQuery ||
+                                    (s.name && s.name.toLowerCase().includes(grSearchQuery.toLowerCase())) ||
+                                    (s.nameEnglish && s.nameEnglish.toLowerCase().includes(grSearchQuery.toLowerCase())) ||
+                                    (s.grNo && s.grNo.includes(grSearchQuery))
+                                )
+                                .map(s => (
+                                    <label key={s.id} className={`batch-item ${selectedGrNumbers.includes(s.grNo) ? 'selected' : ''}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedGrNumbers.includes(s.grNo)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedGrNumbers(prev => [...prev, s.grNo]);
+                                                } else {
+                                                    setSelectedGrNumbers(prev => prev.filter(g => g !== s.grNo));
+                                                }
+                                            }}
+                                        />
+                                        <div className="batch-info">
+                                            <div className="name">{s.name || s.nameEnglish}</div>
+                                            <div className="meta">GR: {s.grNo} | Roll: {s.rollNo}</div>
+                                        </div>
+                                    </label>
                                 ))}
-                            </div>
-                        )}
-
-                        {selectedGrNumbers.length > 0 && (
-                            <div className="selected-gr-list">
-                                <span className="selected-count">
-                                    Selected: {selectedGrNumbers.length} / {maxCardsPerPage}
-                                </span>
-                                <div className="gr-chips">
-                                    {selectedGrNumbers.map(gr => (
-                                        <span key={gr} className="gr-chip">
-                                            {gr}
-                                            <button onClick={() => removeFromGrSelection(gr)}>
-                                                <Minus size={12} />
-                                            </button>
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        </div>
                     </div>
                 )}
 
@@ -383,8 +442,10 @@ export default function ProfileViewer({
                                     schoolName={schoolName}
                                     schoolLogo={schoolLogo}
                                     schoolContact={schoolContact}
+                                    schoolAddress={settings?.schoolAddress}
                                     template={idCardTemplate}
                                     visibleFields={visibleIdFields}
+                                    backSide={showBackSide}
                                 />
                             ))}
                         </div>
@@ -397,8 +458,10 @@ export default function ProfileViewer({
                                     schoolName={schoolName}
                                     schoolLogo={schoolLogo}
                                     schoolContact={schoolContact}
+                                    schoolAddress={settings?.schoolAddress}
                                     template={idCardTemplate}
                                     visibleFields={visibleIdFields}
+                                    backSide={showBackSide}
                                 />
                             </div>
                         ) : (
@@ -427,7 +490,7 @@ export default function ProfileViewer({
                 {/* Export Actions */}
                 {(selectedStudent || (batchMode && batchStudents.length > 0)) && (
                     <div className="export-actions no-print">
-                        <button className="btn btn-secondary" onClick={handlePrint}>
+                        <button className="btn btn-secondary" onClick={() => setIsPrinting(true)}>
                             <Printer size={18} />
                             Print
                         </button>
@@ -442,6 +505,46 @@ export default function ProfileViewer({
                     </div>
                 )}
             </div>
+
+            {/* IN-PAGE PRINT OVERLAY (Replaces Portal) */}
+            {/* IN-PAGE PRINT FRAME (Invisible) */}
+            {isPrinting && (
+                <PrintFrame
+                    onAfterPrint={() => setIsPrinting(false)}
+                    title={`Print_${viewMode}_${new Date().getTime()}`}
+                >
+                    <div className="print-content-root">
+                        {viewMode === 'idcard' ? (
+                            <IdCardPrintDocument
+                                students={
+                                    viewMode === 'idcard' && batchMode
+                                        ? (selectedGrNumbers.length > 0
+                                            ? batchStudents.filter(s => selectedGrNumbers.includes(s.grNo))
+                                            : batchStudents)
+                                        : [selectedStudent].filter(Boolean)
+                                }
+                                template={idCardTemplate}
+                                visibleFields={visibleIdFields}
+                                schoolName={schoolName}
+                                schoolLogo={schoolLogo}
+                                schoolContact={schoolContact}
+                                schoolEmail={settings?.email}
+                                schoolAddress={settings?.address || settings?.schoolAddress}
+                            />
+                        ) : (
+                            <DocumentPrintView
+                                student={selectedStudent}
+                                schoolName={schoolName}
+                                schoolLogo={schoolLogo}
+                                schoolContact={schoolContact}
+                                schoolEmail={settings?.email}
+                            />
+                        )}
+                    </div>
+                </PrintFrame>
+            )}
         </div>
     );
 }
+
+// Force Rebuild 123
