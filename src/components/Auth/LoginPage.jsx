@@ -34,6 +34,10 @@ export default function LoginPage() {
 
     const recaptchaRef = useRef(null);
 
+    // School registration fields
+    const [schoolContact, setSchoolContact] = useState('');
+    const [govtSchoolCode, setGovtSchoolCode] = useState('');
+
     // Handle Email Login/Register
     const handleEmailSubmit = async (e) => {
         e.preventDefault();
@@ -213,24 +217,55 @@ export default function LoginPage() {
                         </div>
 
                         {mode === 'register' && (
-                            <div className="input-group">
-                                <label className="input-label">
-                                    <Lock size={16} />
-                                    Confirm Password
-                                </label>
-                                <input
-                                    type="password"
-                                    className="input-field"
-                                    placeholder="••••••••"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                    minLength={6}
-                                />
-                                {confirmPassword && password !== confirmPassword && (
-                                    <span className="input-error">Passwords don't match</span>
-                                )}
-                            </div>
+                            <>
+                                <div className="input-group">
+                                    <label className="input-label">
+                                        <Phone size={16} />
+                                        School Contact (Mobile)
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        className="input-field"
+                                        placeholder="School mobile number"
+                                        value={schoolContact}
+                                        onChange={(e) => setSchoolContact(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                        required
+                                        maxLength={10}
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label className="input-label">
+                                        🏛️ Government School Code (DISE/UDISE)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="input-field"
+                                        placeholder="Enter DISE/UDISE code"
+                                        value={govtSchoolCode}
+                                        onChange={(e) => setGovtSchoolCode(e.target.value)}
+                                        required
+                                    />
+                                    <span className="input-hint" style={{ fontSize: '11px', color: 'var(--gray-500)' }}>Your school's official government identification code</span>
+                                </div>
+                                <div className="input-group">
+                                    <label className="input-label">
+                                        <Lock size={16} />
+                                        Confirm Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className="input-field"
+                                        placeholder="••••••••"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        required
+                                        minLength={6}
+                                    />
+                                    {confirmPassword && password !== confirmPassword && (
+                                        <span className="input-error">Passwords don't match</span>
+                                    )}
+                                </div>
+                            </>
                         )}
 
                         <button

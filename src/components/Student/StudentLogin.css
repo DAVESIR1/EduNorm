@@ -32,32 +32,74 @@
     font-size: 14px;
 }
 
-.login-method-tabs {
+.id-type-selector {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    background: var(--bg-main, #f3f4f6);
-    border-radius: 10px;
-    padding: 4px;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
-.method-tab {
+.id-type-btn {
     flex: 1;
-    padding: 10px 16px;
-    border: none;
-    background: transparent;
-    border-radius: 8px;
+    min-width: 100px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border, #d1d5db);
+    background: var(--bg-main, #f9fafb);
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary, #6b7280);
-    transition: all 0.05s;
+    transition: all 0.2s;
+    text-align: center;
 }
 
-.method-tab.active {
-    background: var(--bg-card, #fff);
+.id-type-btn.active {
+    background: var(--primary, #7C3AED);
+    color: white;
+    border-color: var(--primary, #7C3AED);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.id-type-btn:hover:not(.active) {
+    border-color: var(--primary, #7C3AED);
     color: var(--primary, #7C3AED);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.input-hint {
+    font-size: 11px;
+    color: var(--text-secondary, #9ca3af);
+    margin-top: 2px;
+}
+
+.id-input {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: 2px;
+}
+
+.otp-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: #1e40af;
+}
+
+.otp-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.verified-badge {
+    display: inline-block;
+    font-size: 11px;
+    color: #059669;
+    font-weight: 600;
+    margin-top: 2px;
 }
 
 .login-error {

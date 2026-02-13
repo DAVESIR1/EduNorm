@@ -519,6 +519,27 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                             />
                         ))}
                     </div>
+
+                    {/* Help & Suggestions - always at bottom */}
+                    {isOpen && (
+                        <div className="sidebar-bottom-actions">
+                            <button
+                                className={`sidebar-help-btn ${activeSubItem === 'usage-instructions' ? 'active' : ''}`}
+                                onClick={() => handleItemClick('other', 'usage-instructions')}
+                                style={{ marginBottom: '8px' }}
+                            >
+                                <IconMap.bookOpen size={18} />
+                                <span>Usage Instructions</span>
+                            </button>
+                            <button
+                                className={`sidebar-help-btn ${activeSubItem === 'help-support' ? 'active' : ''}`}
+                                onClick={() => handleItemClick('other', 'help-support')}
+                            >
+                                <IconMap.messageCircle size={18} />
+                                <span>Help & Suggestions</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <PasswordModal

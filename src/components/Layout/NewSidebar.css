@@ -537,3 +537,38 @@
 .new-sidebar-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+/* Bottom Actions (Help & Suggestions) */
+.sidebar-bottom-actions {
+    padding: var(--space-3) var(--space-4);
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-help-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar-help-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-help-btn.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-color: var(--primary);
+}

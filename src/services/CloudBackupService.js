@@ -217,9 +217,9 @@ export async function restoreFromCloud(userId) {
     }
 
     try {
-        // Get backup from Firestore
+        // Get backup from Firestore (with retry for transient errors)
         const backupRef = doc(db, 'backups', userId);
-        const backupSnap = await getDoc(backupRef);
+        const backupSnap = await retryOperation(() => getDoc(backupRef));
 
         if (!backupSnap.exists()) {
             throw new Error('No backup found in cloud. Please create a backup first.');
@@ -244,7 +244,7 @@ export async function restoreFromCloud(userId) {
                 orderBy('index'),
                 limit(storedData.totalChunks)
             );
-            const chunksSnap = await getDocs(chunksQuery);
+            const chunksSnap = await retryOperation(() => getDocs(chunksQuery));
             let reassembled = '';
             chunksSnap.forEach(chunkDoc => {
                 reassembled += chunkDoc.data().data;
@@ -313,6 +313,22 @@ export async function restoreFromCloud(userId) {
         };
     } catch (error) {
         console.error('Cloud restore error:', error);
+
+        // Provide specific, actionable error messages
+        if (error.code === 'permission-denied' || error.message?.includes('insufficient permissions') || error.message?.includes('Missing or insufficient permissions')) {
+            throw new Error(
+                'Permission denied. Your Firebase security rules need to be updated. ' +
+                'Go to Firebase Console → Firestore → Rules, and ensure authenticated users ' +
+                'can read/write their own backup documents under the "backups" collection.'
+            );
+        } else if (error.code === 'unauthenticated' || error.message?.includes('unauthenticated')) {
+            throw new Error('Your session has expired. Please log out and log back in, then try again.');
+        } else if (error.code === 'unavailable' || error.message?.includes('offline') || !navigator.onLine) {
+            throw new Error('Cannot connect to cloud server. Please check your internet connection and try again.');
+        } else if (error.message?.includes('No backup found')) {
+            throw error; // Pass through as-is
+        }
+
         throw new Error(`Restore failed: ${error.message}`);
     }
 }

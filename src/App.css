@@ -663,3 +663,5 @@
         justify-content: center;
     }
 }
+/* Global spin animation for loading spinners */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

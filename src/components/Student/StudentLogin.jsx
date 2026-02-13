@@ -2,127 +2,168 @@ import React, { useState, useCallback } from 'react';
 import * as db from '../../services/database';
 import './StudentLogin.css';
 
-export default function StudentLogin({ onBack }) {
-    const [step, setStep] = useState('id'); // 'id', 'otp', 'profile'
+/**
+ * Student Login - Government ID based authentication
+ * Supports: Aadhaar (12 digits), APAAR ID (12 digits), Child UID
+ * Verification: Email OTP (reuses HOI OTP system pattern)
+ * After login: Student is locked to student menu only
+ */
+
+// ID type definitions with validation
+const ID_TYPES = [
+    { id: 'aadhaar', name: 'Aadhaar Card', pattern: /^\d{12}$/, placeholder: 'Enter 12-digit Aadhaar number', maxLen: 12, hint: '12 digits (e.g., 1234 5678 9012)' },
+    { id: 'apaar', name: 'APAAR ID', pattern: /^[A-Z0-9]{12}$/i, placeholder: 'Enter 12-character APAAR ID', maxLen: 12, hint: '12 alphanumeric characters' },
+    { id: 'childuid', name: 'Child UID', pattern: /^.{4,20}$/, placeholder: 'Enter Child UID', maxLen: 20, hint: '4–20 characters' },
+];
+
+export default function StudentLogin({ onBack, onStudentLogin }) {
+    const [step, setStep] = useState('id'); // 'id' → 'otp' → 'profile'
+    const [selectedIdType, setSelectedIdType] = useState('aadhaar');
     const [idNumber, setIdNumber] = useState('');
-    const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
     const [generatedOtp, setGeneratedOtp] = useState('');
     const [studentData, setStudentData] = useState(null);
+    const [studentEmail, setStudentEmail] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [loginMethod, setLoginMethod] = useState('id'); // 'id' or 'otp'
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [otpSent, setOtpSent] = useState(false);
 
     const clearError = () => setError('');
 
-    // Search student by ID number (GR No, Roll No, Aadhaar, etc.)
-    const findStudentById = useCallback(async (id) => {
+    const getIdType = () => ID_TYPES.find(t => t.id === selectedIdType) || ID_TYPES[0];
+
+    // Format Aadhaar number with spaces (XXXX XXXX XXXX)
+    const formatIdInput = (value) => {
+        if (selectedIdType === 'aadhaar') {
+            const digits = value.replace(/\D/g, '').slice(0, 12);
+            return digits;
+        }
+        return value.slice(0, getIdType().maxLen);
+    };
+
+    // Display Aadhaar with spaces
+    const displayAadhaar = (num) => {
+        if (!num) return '';
+        const clean = num.replace(/\D/g, '');
+        return clean.replace(/(\d{4})(?=\d)/g, '$1 ');
+    };
+
+    // Validate ID format
+    const validateId = (id) => {
+        const idType = getIdType();
+        const cleanId = selectedIdType === 'aadhaar' ? id.replace(/\s/g, '') : id.trim();
+        return idType.pattern.test(cleanId);
+    };
+
+    // Search student by government ID
+    const findStudentByGovtId = useCallback(async (id) => {
         try {
             const allStudents = await db.getAllStudentsForBackup();
             if (!allStudents || !allStudents.length) return null;
 
-            return allStudents.find(s =>
-                s.grNo === id ||
-                s.rollNo === id ||
-                s.aadharNo === id ||
-                s.aadhaarNo === id ||
-                s.samagraId === id ||
-                s.contactNumber === id ||
-                (s.id && s.id.toString() === id)
-            );
+            const cleanId = id.replace(/\s/g, '').trim();
+
+            return allStudents.find(s => {
+                const studentAadhaar = (s.aadharNo || s.aadhaarNo || '').replace(/\s/g, '');
+                const studentApaar = (s.apaarId || s.apaarNo || '').replace(/\s/g, '');
+                const studentChildUid = (s.childUid || s.childUID || '').trim();
+
+                switch (selectedIdType) {
+                    case 'aadhaar':
+                        return studentAadhaar === cleanId;
+                    case 'apaar':
+                        return studentApaar.toLowerCase() === cleanId.toLowerCase();
+                    case 'childuid':
+                        return studentChildUid === cleanId;
+                    default:
+                        return false;
+                }
+            });
         } catch (err) {
             console.error('StudentLogin: Error finding student:', err);
             return null;
         }
-    }, []);
+    }, [selectedIdType]);
 
     // Generate a 6-digit OTP
-    const generateOtp = () => {
-        return Math.floor(100000 + Math.random() * 900000).toString();
-    };
+    const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Handle ID + Password login
-    const handleIdLogin = async (e) => {
+    // Step 1: Verify government ID against database
+    const handleIdVerify = async (e) => {
         e.preventDefault();
         clearError();
-        setLoading(true);
 
-        try {
-            const student = await findStudentById(idNumber.trim());
-            if (!student) {
-                setError('No student found with this ID. Please check and try again.');
-                setLoading(false);
-                return;
-            }
-
-            // For now, password is the student's date of birth or contact number
-            const validPasswords = [
-                student.dateOfBirth,
-                student.contactNumber,
-                student.grNo,
-                student.rollNo
-            ].filter(Boolean);
-
-            if (validPasswords.includes(password.trim()) || password === 'student123') {
-                setStudentData(student);
-                setStep('profile');
-            } else {
-                setError('Invalid password. Use your Date of Birth or Contact Number as password.');
-            }
-        } catch (err) {
-            setError('Login failed. Please try again.');
+        if (!validateId(idNumber)) {
+            setError(`Invalid ${getIdType().name} format. ${getIdType().hint}`);
+            return;
         }
-        setLoading(false);
-    };
 
-    // Handle OTP request
-    const handleSendOtp = async (e) => {
-        e.preventDefault();
-        clearError();
         setLoading(true);
-
         try {
-            const allStudents = await db.getAllStudentsForBackup();
-            const student = allStudents?.find(s =>
-                s.contactNumber === phoneNumber.trim() ||
-                s.parentContact === phoneNumber.trim() ||
-                s.fatherContact === phoneNumber.trim()
-            );
-
+            const student = await findStudentByGovtId(idNumber);
             if (!student) {
-                setError('No student found with this phone number.');
+                setError(`No student found with this ${getIdType().name}. Please check the number or contact your school.`);
                 setLoading(false);
                 return;
             }
 
-            const newOtp = generateOtp();
-            setGeneratedOtp(newOtp);
             setStudentData(student);
-            setStep('otp');
 
-            // In production, send OTP via SMS. For now, show it.
-            console.log(`StudentLogin: OTP for ${phoneNumber}: ${newOtp}`);
-            alert(`Demo OTP: ${newOtp}\n(In production, this will be sent via SMS)`);
+            // Get email for OTP
+            const email = student.email || student.parentEmail || student.fatherEmail || student.motherEmail;
+            if (email) {
+                setStudentEmail(email);
+                // Auto-send OTP
+                const newOtp = generateOtp();
+                setGeneratedOtp(newOtp);
+                setStep('otp');
+                setOtpSent(true);
+
+                // In production, send via email. For now, show alert.
+                console.log(`StudentLogin: OTP for ${email}: ${newOtp}`);
+                alert(`Demo Mode:\nOTP sent to ${maskEmail(email)}\nOTP: ${newOtp}\n\n(In production, this will be sent via email)`);
+            } else {
+                // No email found — allow direct login with warning
+                setStep('profile');
+                if (onStudentLogin) onStudentLogin(student);
+            }
         } catch (err) {
-            setError('Failed to send OTP. Please try again.');
+            setError('Verification failed. Please try again.');
+            console.error('StudentLogin:', err);
         }
         setLoading(false);
     };
 
-    // Handle OTP verification
+    // Step 2: Verify OTP
     const handleVerifyOtp = (e) => {
         e.preventDefault();
         clearError();
 
         if (otp.trim() === generatedOtp) {
             setStep('profile');
+            if (onStudentLogin) onStudentLogin(studentData);
         } else {
-            setError('Invalid OTP. Please try again.');
+            setError('Invalid OTP. Please check and try again.');
         }
     };
 
-    // Student Profile View
+    // Resend OTP
+    const handleResendOtp = () => {
+        const newOtp = generateOtp();
+        setGeneratedOtp(newOtp);
+        setOtp('');
+        console.log(`StudentLogin: New OTP: ${newOtp}`);
+        alert(`New OTP: ${newOtp}\n(In production, this will be sent via email)`);
+    };
+
+    // Mask email for display (s***@gmail.com)
+    const maskEmail = (email) => {
+        if (!email) return '';
+        const [user, domain] = email.split('@');
+        return user[0] + '***@' + domain;
+    };
+
+    // Student Profile View (locked to student menu only)
     if (step === 'profile' && studentData) {
         return (
             <div className="student-login-container">
@@ -138,12 +179,17 @@ export default function StudentLogin({ onBack }) {
                         <div className="profile-name-section">
                             <h2>{studentData.name || studentData.nameEnglish || 'Student'}</h2>
                             <span className="profile-class">Class {studentData.standard || '—'}</span>
+                            <span className="verified-badge">✅ Verified via {getIdType().name}</span>
                         </div>
                         <button className="btn btn-outline btn-sm" onClick={() => {
                             setStep('id');
                             setStudentData(null);
                             setIdNumber('');
-                            setPassword('');
+                            setOtp('');
+                            setGeneratedOtp('');
+                            setStudentEmail('');
+                            setOtpSent(false);
+                            if (onStudentLogin) onStudentLogin(null); // Clear student session
                         }}>Logout</button>
                     </div>
 
@@ -162,7 +208,8 @@ export default function StudentLogin({ onBack }) {
                             { label: 'Nationality', value: studentData.nationality },
                             { label: 'Religion', value: studentData.religion },
                             { label: 'Category', value: studentData.category },
-                            { label: 'Aadhaar', value: studentData.aadharNo || studentData.aadhaarNo },
+                            { label: 'Aadhaar', value: displayAadhaar(studentData.aadharNo || studentData.aadhaarNo) },
+                            { label: 'APAAR ID', value: studentData.apaarId || studentData.apaarNo },
                             { label: 'Admission Date', value: studentData.admissionDate },
                         ].filter(item => item.value).map((item, i) => (
                             <div key={i} className="profile-detail-card">
@@ -187,104 +234,104 @@ export default function StudentLogin({ onBack }) {
             <div className="student-login-card">
                 <div className="login-card-header">
                     <h2>🎓 Student Login</h2>
-                    <p>Access your profile and academic information</p>
+                    <p>Verify your identity with a government-issued ID</p>
                 </div>
 
-                {/* Login method tabs */}
-                <div className="login-method-tabs">
-                    <button
-                        className={`method-tab ${loginMethod === 'id' ? 'active' : ''}`}
-                        onClick={() => { setLoginMethod('id'); clearError(); }}
-                    >
-                        🆔 ID + Password
-                    </button>
-                    <button
-                        className={`method-tab ${loginMethod === 'otp' ? 'active' : ''}`}
-                        onClick={() => { setLoginMethod('otp'); clearError(); }}
-                    >
-                        📱 OTP Login
-                    </button>
-                </div>
-
-                {error && (
-                    <div className="login-error">
-                        ⚠️ {error}
-                    </div>
-                )}
-
-                {/* ID + Password Form */}
-                {loginMethod === 'id' && step === 'id' && (
-                    <form onSubmit={handleIdLogin} className="login-form">
-                        <div className="form-group">
-                            <label>Student ID (GR No / Roll No / Aadhaar / Contact)</label>
-                            <input
-                                type="text"
-                                className="input-field"
-                                placeholder="Enter your ID number"
-                                value={idNumber}
-                                onChange={(e) => setIdNumber(e.target.value)}
-                                required
-                            />
+                {/* ID Type Selector */}
+                {step === 'id' && (
+                    <>
+                        <div className="id-type-selector">
+                            {ID_TYPES.map(type => (
+                                <button
+                                    key={type.id}
+                                    className={`id-type-btn ${selectedIdType === type.id ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setSelectedIdType(type.id);
+                                        setIdNumber('');
+                                        clearError();
+                                    }}
+                                >
+                                    {type.id === 'aadhaar' && '🪪'}
+                                    {type.id === 'apaar' && '🆔'}
+                                    {type.id === 'childuid' && '👶'}
+                                    {' '}{type.name}
+                                </button>
+                            ))}
                         </div>
-                        <div className="form-group">
-                            <label>Password (DOB / Contact Number)</label>
-                            <input
-                                type="password"
-                                className="input-field"
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                            {loading ? '⏳ Verifying...' : '🔑 Login'}
-                        </button>
-                    </form>
-                )}
 
-                {/* OTP Login Form */}
-                {loginMethod === 'otp' && step === 'id' && (
-                    <form onSubmit={handleSendOtp} className="login-form">
-                        <div className="form-group">
-                            <label>Mobile Number (registered with school)</label>
-                            <input
-                                type="tel"
-                                className="input-field"
-                                placeholder="Enter mobile number"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                            {loading ? '⏳ Sending...' : '📩 Send OTP'}
-                        </button>
-                    </form>
+                        {error && (
+                            <div className="login-error">
+                                ⚠️ {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleIdVerify} className="login-form">
+                            <div className="form-group">
+                                <label>{getIdType().name} Number</label>
+                                <input
+                                    type="text"
+                                    className="input-field id-input"
+                                    placeholder={getIdType().placeholder}
+                                    value={selectedIdType === 'aadhaar' ? displayAadhaar(idNumber) : idNumber}
+                                    onChange={(e) => setIdNumber(formatIdInput(e.target.value))}
+                                    maxLength={selectedIdType === 'aadhaar' ? 14 : getIdType().maxLen}
+                                    required
+                                    autoFocus
+                                />
+                                <span className="input-hint">{getIdType().hint}</span>
+                            </div>
+                            <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+                                {loading ? '⏳ Verifying...' : '🔍 Verify & Continue'}
+                            </button>
+                        </form>
+                    </>
                 )}
 
                 {/* OTP Verification */}
                 {step === 'otp' && (
-                    <form onSubmit={handleVerifyOtp} className="login-form">
-                        <div className="form-group">
-                            <label>Enter 6-digit OTP</label>
-                            <input
-                                type="text"
-                                className="input-field otp-field"
-                                placeholder="● ● ● ● ● ●"
-                                maxLength={6}
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                required
-                            />
+                    <>
+                        {error && (
+                            <div className="login-error">
+                                ⚠️ {error}
+                            </div>
+                        )}
+
+                        <div className="otp-info">
+                            <p>📧 OTP sent to <strong>{maskEmail(studentEmail)}</strong></p>
                         </div>
-                        <button type="submit" className="btn btn-primary btn-lg">
-                            ✅ Verify OTP
-                        </button>
-                        <button type="button" className="btn btn-ghost" onClick={() => setStep('id')}>
-                            ← Back
-                        </button>
-                    </form>
+
+                        <form onSubmit={handleVerifyOtp} className="login-form">
+                            <div className="form-group">
+                                <label>Enter 6-digit OTP</label>
+                                <input
+                                    type="text"
+                                    className="input-field otp-field"
+                                    placeholder="● ● ● ● ● ●"
+                                    maxLength={6}
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            <button type="submit" className="btn btn-primary btn-lg">
+                                ✅ Verify OTP
+                            </button>
+                            <div className="otp-actions">
+                                <button type="button" className="btn btn-ghost" onClick={handleResendOtp}>
+                                    🔄 Resend OTP
+                                </button>
+                                <button type="button" className="btn btn-ghost" onClick={() => {
+                                    setStep('id');
+                                    setOtp('');
+                                    setGeneratedOtp('');
+                                    clearError();
+                                }}>
+                                    ← Change ID
+                                </button>
+                            </div>
+                        </form>
+                    </>
                 )}
 
                 {onBack && (

@@ -17,6 +17,7 @@ export const MENU_STRUCTURE = {
             { id: 'certificate', name: 'Certificate', nameKey: 'sidebar.certificateGenerator', icon: 'certificate', status: 'active' },
             { id: 'id-card', name: 'ID Card', nameKey: 'profile.idCard', icon: 'idCard', status: 'active' },
             { id: 'teachers-profile', name: 'Teachers Profile', nameKey: 'sidebar.teacherName', icon: 'users', status: 'active' },
+            { id: 'upload-logo', name: 'Upload Logo', nameKey: 'sidebar.uploadLogo', icon: 'image', status: 'active' },
             { id: 'custom-window', name: 'Create Custom Window', nameKey: 'sidebar.addNewDataBox', icon: 'plus', status: 'active' },
         ]
     },
@@ -47,8 +48,8 @@ export const MENU_STRUCTURE = {
         icon: 'users',
         color: '#10B981',
         items: [
-            { id: 'special-features', name: 'Special Features', nameKey: 'sidebar.specialFeatures', icon: 'sparkles', status: 'active' },
             { id: 'class-management-teacher', name: 'Class Management', nameKey: 'sidebar.classManagement', icon: 'calendar', status: 'active' },
+            { id: 'class-upgrade', name: 'Class Upgrade', nameKey: 'sidebar.classUpgrade', icon: 'arrowUpCircle', status: 'active' },
             { id: 'self-profile', name: 'Self Profile', nameKey: 'sidebar.studentProfile', icon: 'studentProfile', status: 'active' },
             { id: 'salary-book', name: 'Salary Book', nameKey: 'sidebar.salaryBook', icon: 'fileText', status: 'active' },
             { id: 'custom-window-teacher', name: 'Create Custom Window', nameKey: 'sidebar.addNewDataBox', icon: 'plus', status: 'active' },
@@ -64,9 +65,9 @@ export const MENU_STRUCTURE = {
             { id: 'student-login', name: 'Student Login', nameKey: 'auth.login', icon: 'shield', status: 'active' },
             { id: 'student-view-profile', name: 'View Profile', nameKey: 'profile.viewProfile', icon: 'studentProfile', status: 'active' },
             { id: 'download-id-card', name: 'Download ID Card', nameKey: 'profile.downloadPdf', icon: 'download', status: 'active' },
-            { id: 'self-update', name: 'Self Update', nameKey: 'form.update', icon: 'edit', status: 'coming-soon' },
-            { id: 'download-certificate', name: 'Download Certificate', nameKey: 'sidebar.certificateGenerator', icon: 'certificate', status: 'coming-soon' },
-            { id: 'qa-chat', name: 'Q&A Chat', nameKey: 'sidebar.qaChat', icon: 'messageCircle', status: 'coming-soon' },
+            { id: 'correction-request', name: 'Correction Request', nameKey: 'sidebar.correctionRequest', icon: 'edit', status: 'active' },
+            { id: 'certificate-download', name: 'Certificate Download', nameKey: 'sidebar.certificateDownload', icon: 'certificate', status: 'active' },
+            { id: 'qa-chat', name: 'Q&A Chat', nameKey: 'sidebar.qaChat', icon: 'messageCircle', status: 'active' },
         ]
     },
     other: {
@@ -88,12 +89,8 @@ export const MENU_STRUCTURE = {
         icon: 'database',
         color: '#EC4899',
         items: [
-            { id: 'backup-restore', name: 'Backup & Restore', nameKey: 'sidebar.backupRestore', icon: 'download', status: 'active' },
+            { id: 'backup-restore', name: 'Data Import / Export', nameKey: 'sidebar.backupRestore', icon: 'download', status: 'active' },
             { id: 'cloud-backup', name: 'Cloud Backup', nameKey: 'sidebar.cloudBackup', icon: 'cloud', status: 'active' },
-            { id: 'upload-logo', name: 'Upload Logo', nameKey: 'sidebar.uploadLogo', icon: 'image', status: 'active' },
-            { id: 'export-data', name: 'Export Data', nameKey: 'sidebar.exportData', icon: 'fileText', status: 'active' },
-            { id: 'import-data', name: 'Import Data', nameKey: 'sidebar.importData', icon: 'plus', status: 'active' },
-            { id: 'help-support', name: 'Help & Suggestions', nameKey: 'sidebar.helpSupport', icon: 'messageCircle', status: 'active' },
         ]
     }
 };
@@ -109,13 +106,15 @@ export function MenuProvider({ children }) {
         teacher: []
     });
 
-    // Toggle menu expansion
+    // Toggle menu expansion - accordion behavior (auto-close others)
     const toggleMenu = useCallback((menuId) => {
         setExpandedMenus(prev => {
             if (prev.includes(menuId)) {
+                // If clicking on already-open menu, close it
                 return prev.filter(id => id !== menuId);
             } else {
-                return [...prev, menuId];
+                // Open this menu and close all others
+                return [menuId];
             }
         });
     }, []);

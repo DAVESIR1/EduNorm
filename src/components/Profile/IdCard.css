@@ -285,6 +285,21 @@
     opacity: 0.6;
 }
 
+.id-dise-code {
+    display: block;
+    font-size: 1.5mm;
+    opacity: 0.6;
+    margin-top: 0.5mm;
+    letter-spacing: 0.1mm;
+}
+
+.id-signature-img {
+    width: 15mm;
+    height: 5mm;
+    object-fit: contain;
+    margin-bottom: 0.5mm;
+}
+
 /* ================================================================
    TEMPLATE 1: CLASSIC ELEGANT - Navy Blue with Gold
    ================================================================ */

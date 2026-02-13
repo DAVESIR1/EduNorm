@@ -49,7 +49,8 @@ export async function initDB() {
 // Settings operations
 export async function getSetting(key) {
     const db = await initDB();
-    return db.get('settings', key);
+    const record = await db.get('settings', key);
+    return record?.value ?? null;
 }
 
 export async function setSetting(key, value) {

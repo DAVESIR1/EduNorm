@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import './CertificateGenerator.css';
 
-export default function CertificateGenerator({ isOpen, onClose, student, schoolName, schoolLogo }) {
+export default function CertificateGenerator({ isOpen, onClose, student, students = [], schoolName, schoolLogo }) {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedTemplate, setSelectedTemplate] = useState(CERTIFICATE_TEMPLATES[0]);
     const [title, setTitle] = useState(CERTIFICATE_TEMPLATES[0].defaultTitle);
@@ -13,7 +13,12 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [signatory, setSignatory] = useState('');
     const [eventName, setEventName] = useState('');
+    const [signatureImage, setSignatureImage] = useState(null);
+    const [certMode, setCertMode] = useState('individual'); // 'individual' or 'group'
+    const [helperTeachers, setHelperTeachers] = useState([]);
+    const [newHelper, setNewHelper] = useState('');
     const certificateRef = useRef(null);
+    const signatureInputRef = useRef(null);
 
     const categories = getCategories();
     const filteredTemplates = getTemplatesByCategory(selectedCategory);
@@ -22,6 +27,25 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
         setSelectedTemplate(template);
         setTitle(template.defaultTitle);
     };
+
+    // Handle signature image upload
+    const handleSignatureUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => setSignatureImage(ev.target.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Helper teacher management
+    const addHelper = () => {
+        if (newHelper.trim() && !helperTeachers.includes(newHelper.trim())) {
+            setHelperTeachers(prev => [...prev, newHelper.trim()]);
+            setNewHelper('');
+        }
+    };
+    const removeHelper = (name) => setHelperTeachers(prev => prev.filter(t => t !== name));
 
     if (!isOpen) return null;
 
@@ -301,6 +325,88 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
                                 </div>
                             </div>
 
+                            {/* Signature Upload */}
+                            <div className="form-group">
+                                <label>Signature Image (optional)</label>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <button
+                                        type="button"
+                                        className="print-btn-new"
+                                        style={{ fontSize: '12px', padding: '6px 12px' }}
+                                        onClick={() => signatureInputRef.current?.click()}
+                                    >
+                                        📷 Upload Signature
+                                    </button>
+                                    {signatureImage && (
+                                        <button
+                                            type="button"
+                                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#ef4444' }}
+                                            onClick={() => setSignatureImage(null)}
+                                        >
+                                            ✕ Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <input
+                                    ref={signatureInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleSignatureUpload}
+                                />
+                                {signatureImage && (
+                                    <img src={signatureImage} alt="Signature" style={{ maxWidth: '120px', maxHeight: '40px', marginTop: '4px', border: '1px solid #e2e8f0', borderRadius: '4px' }} />
+                                )}
+                            </div>
+
+                            {/* Group / Individual Mode */}
+                            <div className="form-group">
+                                <label>Certificate Mode</label>
+                                <select
+                                    value={certMode}
+                                    onChange={(e) => setCertMode(e.target.value)}
+                                    style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px' }}
+                                >
+                                    <option value="individual">Individual Student</option>
+                                    <option value="group">Group / Class</option>
+                                </select>
+                            </div>
+
+                            {/* Helper Teachers */}
+                            <div className="form-group">
+                                <label>Event Helper Teachers</label>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                    <input
+                                        type="text"
+                                        value={newHelper}
+                                        onChange={(e) => setNewHelper(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addHelper())}
+                                        placeholder="Teacher name"
+                                        style={{ flex: 1 }}
+                                    />
+                                    <button type="button" className="print-btn-new" style={{ fontSize: '12px', padding: '6px 10px' }} onClick={addHelper}>+ Add</button>
+                                </div>
+                                {helperTeachers.length > 0 && (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+                                        {helperTeachers.map(t => (
+                                            <span key={t} style={{
+                                                display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                                background: '#f0fdf4', color: '#166534', padding: '3px 8px',
+                                                borderRadius: '12px', fontSize: '11px', fontWeight: 600,
+                                                border: '1px solid #bbf7d0'
+                                            }}>
+                                                {t}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeHelper(t)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '12px', padding: 0, lineHeight: 1 }}
+                                                >−</button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="cert-action-btns">
                                 <button className="print-btn-new" onClick={handlePrint}>
                                     <PrinterIcon size={20} />
@@ -349,7 +455,11 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
 
                             <div className="cert-footer">
                                 <div className="signature-block">
-                                    <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>
+                                    {signatureImage ? (
+                                        <img src={signatureImage} alt="Signature" style={{ maxWidth: '120px', maxHeight: '35px', objectFit: 'contain' }} />
+                                    ) : (
+                                        <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>
+                                    )}
                                     <p className="signature-label">Class Teacher</p>
                                 </div>
                                 <div className="date-block">
@@ -360,6 +470,11 @@ export default function CertificateGenerator({ isOpen, onClose, student, schoolN
                                             year: 'numeric'
                                         })}
                                     </p>
+                                    {helperTeachers.length > 0 && (
+                                        <p style={{ fontSize: '10px', color: '#888', marginTop: '4px' }}>
+                                            Helpers: {helperTeachers.join(', ')}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="signature-block">
                                     <div className="signature-line" style={{ borderColor: selectedTemplate.primaryColor }}></div>

@@ -54,6 +54,8 @@ const IdCard = forwardRef(({
     schoolLogo,
     schoolContact,
     schoolEmail,
+    diseCode,
+    signatureImage,
     template = 'classic-elegant',
     visibleFields = DEFAULT_VISIBLE_FIELDS
 }, ref) => {
@@ -175,9 +177,16 @@ const IdCard = forwardRef(({
                     <div className="id-validity">
                         <span className="validity-label">Valid:</span>
                         <span className="validity-year">{new Date().getFullYear()}-{new Date().getFullYear() + 1}</span>
+                        {diseCode && (
+                            <span className="id-dise-code">DISE: {diseCode}</span>
+                        )}
                     </div>
                     <div className="id-auth">
-                        <div className="auth-line"></div>
+                        {signatureImage ? (
+                            <img src={signatureImage} alt="Signature" className="id-signature-img" />
+                        ) : (
+                            <div className="auth-line"></div>
+                        )}
                         <span className="auth-text">Authorized Signature</span>
                     </div>
                 </footer>

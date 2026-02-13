@@ -1,38 +1,45 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import NewSidebar from './components/Layout/NewSidebar';
-import StepWizard, { DATA_FIELDS } from './components/DataEntry/StepWizard';
-import ProfileViewer from './components/Profile/ProfileViewer';
-import GeneralRegister from './components/Ledger/GeneralRegister';
-import BackupRestore from './components/Backup/BackupRestore';
-import CloudBackup from './components/Backup/CloudBackup';
 import LoginPage from './components/Auth/LoginPage';
-import AdminPanel from './components/Admin/AdminPanel';
-import CertificateGenerator from './components/Features/CertificateGenerator';
-import AnalyticsDashboard from './components/Features/AnalyticsDashboard';
-import QRAttendance from './components/Features/QRAttendance';
-import SmartSearch from './components/Features/SmartSearch';
-import DocumentScanner from './components/Features/DocumentScanner';
-import VoiceInput from './components/Features/VoiceInput';
-import FamilyTree from './components/Features/FamilyTree';
-import ProgressTimeline from './components/Features/ProgressTimeline';
-import WhatsAppMessenger from './components/Features/WhatsAppMessenger';
-import PhotoEnhancement from './components/Features/PhotoEnhancement';
 import { AdPlacement } from './components/Ads/AdBanner';
-import UpgradeModal from './components/Premium/UpgradeModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { UserTierProvider, useUserTier } from './contexts/UserTierContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import UndoRedoBar from './components/Common/UndoRedoBar';
 import { useMenu } from './contexts/MenuContext';
-import SchoolProfile from './components/School/SchoolProfile';
-import StaffInfo from './components/HOI/StaffInfo';
-import HOIDiary from './components/HOI/HOIDiary';
-import CustomWindowCreator from './components/Common/CustomWindowCreator';
-import ComingSoonPage from './components/Common/ComingSoonPage';
-import SalaryBook from './components/Teacher/SalaryBook';
-import TeacherProfile from './components/Teacher/TeacherProfile';
-import TeachersProfileList from './components/School/TeachersProfileList';
-import StudentLogin from './components/Student/StudentLogin';
+import ComponentErrorBoundary from './components/Common/ErrorBoundary';
+
+// Lazy-loaded components for code splitting
+const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
+import { DATA_FIELDS } from './components/DataEntry/StepWizard';
+const ProfileViewer = lazy(() => import('./components/Profile/ProfileViewer'));
+const GeneralRegister = lazy(() => import('./components/Ledger/GeneralRegister'));
+const BackupRestore = lazy(() => import('./components/Backup/BackupRestore'));
+const CloudBackup = lazy(() => import('./components/Backup/CloudBackup'));
+const AdminPanel = lazy(() => import('./components/Admin/AdminPanel'));
+const CertificateGenerator = lazy(() => import('./components/Features/CertificateGenerator'));
+const AnalyticsDashboard = lazy(() => import('./components/Features/AnalyticsDashboard'));
+const QRAttendance = lazy(() => import('./components/Features/QRAttendance'));
+const SmartSearch = lazy(() => import('./components/Features/SmartSearch'));
+const DocumentScanner = lazy(() => import('./components/Features/DocumentScanner'));
+const VoiceInput = lazy(() => import('./components/Features/VoiceInput'));
+const FamilyTree = lazy(() => import('./components/Features/FamilyTree'));
+const ProgressTimeline = lazy(() => import('./components/Features/ProgressTimeline'));
+const WhatsAppMessenger = lazy(() => import('./components/Features/WhatsAppMessenger'));
+const PhotoEnhancement = lazy(() => import('./components/Features/PhotoEnhancement'));
+const UpgradeModal = lazy(() => import('./components/Premium/UpgradeModal'));
+const SchoolProfile = lazy(() => import('./components/School/SchoolProfile'));
+const StaffInfo = lazy(() => import('./components/HOI/StaffInfo'));
+const HOIDiary = lazy(() => import('./components/HOI/HOIDiary'));
+const CustomWindowCreator = lazy(() => import('./components/Common/CustomWindowCreator'));
+const ComingSoonPage = lazy(() => import('./components/Common/ComingSoonPage'));
+const SalaryBook = lazy(() => import('./components/Teacher/SalaryBook'));
+const TeacherProfile = lazy(() => import('./components/Teacher/TeacherProfile'));
+const TeachersProfileList = lazy(() => import('./components/School/TeachersProfileList'));
+const StudentLogin = lazy(() => import('./components/Student/StudentLogin'));
+const CorrectionRequest = lazy(() => import('./components/Student/CorrectionRequest'));
+const QAChat = lazy(() => import('./components/Student/QAChat'));
+const UsageInstructions = lazy(() => import('./components/Features/UsageInstructions'));
 import {
     useSettings,
     useStudents,
@@ -45,6 +52,7 @@ import * as db from './services/database';
 import * as LocalBackupService from './services/LocalBackupService';
 import * as MandatoryBackupService from './services/MandatoryBackupService';
 import * as CloudSyncService from './services/CloudSyncService';
+import * as RealTimeBackup from './services/RealTimeBackupService';
 import { selfRepairCheck, isIPBlocked } from './services/SecurityManager';
 import { Menu, Users, FileSpreadsheet, Sparkles, Download, Share2, Maximize2, Minimize2, Cloud, CloudOff, Check, Loader } from 'lucide-react';
 import './App.css';
@@ -133,12 +141,31 @@ function AppContent() {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isFormMaximized, showMenuContent]);
 
-    // Auto-sync on login (like Google Contacts)
+    // Auto-sync on login + Initialize real-time backup
     useEffect(() => {
         const performAutoSync = async () => {
             if (user?.uid && isReady && !user.isOffline) {
                 console.log('Starting auto-sync on login...');
                 setSyncStatus({ type: 'syncing', message: 'Syncing with cloud...' });
+
+                // Initialize real-time backup system
+                RealTimeBackup.init(user.uid);
+
+                // Listen for real-time backup status changes
+                RealTimeBackup.onStatusChange((status) => {
+                    if (status.type === 'syncing') {
+                        setSyncStatus({ type: 'syncing', message: status.message });
+                    } else if (status.type === 'success') {
+                        setSyncStatus({ type: 'success', message: status.message });
+                        setTimeout(() => setSyncStatus(null), 2000);
+                    } else if (status.type === 'offline' || status.type === 'queued') {
+                        setSyncStatus({ type: 'warning', message: status.message });
+                        setTimeout(() => setSyncStatus(null), 3000);
+                    } else if (status.type === 'error') {
+                        setSyncStatus({ type: 'error', message: status.message });
+                        setTimeout(() => setSyncStatus(null), 4000);
+                    }
+                });
 
                 try {
                     const result = await CloudSyncService.autoSyncOnLogin(user.uid);
@@ -170,6 +197,10 @@ function AppContent() {
         };
 
         performAutoSync();
+
+        return () => {
+            RealTimeBackup.cleanup();
+        };
     }, [user?.uid, isReady]);
 
     // Initialize mandatory backup system
@@ -229,10 +260,8 @@ function AppContent() {
         await updateSetting('schoolEmail', schoolEmail);
         await updateSetting('teacherName', teacherName);
         await updateSetting('selectedStandard', selectedStandard);
-        // Trigger backup after settings change
-        MandatoryBackupService.triggerBackupOnChange();
-        // Schedule cloud backup
-        if (user?.uid) CloudSyncService.scheduleBackup(user.uid);
+        // Trigger real-time backup
+        RealTimeBackup.onDataChanged('settings');
         alert('Settings saved successfully!');
     }, [schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard, updateSetting, user?.uid]);
 
@@ -250,10 +279,8 @@ function AppContent() {
         }
         await refreshStudents();
         await refreshLedger();
-        // Trigger backup after student data change
-        MandatoryBackupService.triggerBackupOnChange();
-        // Schedule cloud backup
-        if (user?.uid) CloudSyncService.scheduleBackup(user.uid);
+        // Trigger real-time backup
+        RealTimeBackup.onDataChanged('student');
     }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger, user?.uid]);
 
     // Class upgrade
@@ -328,7 +355,7 @@ function AppContent() {
         switch (menuContentType) {
             // School menu items
             case 'school-profile':
-                return <SchoolProfile
+                return <ComponentErrorBoundary componentName="School Profile"><SchoolProfile
                     schoolName={schoolName}
                     schoolContact={schoolContact}
                     schoolEmail={schoolEmail}
@@ -338,7 +365,7 @@ function AppContent() {
                     onSchoolEmailChange={setSchoolEmail}
                     onSchoolLogoChange={setSchoolLogo}
                     onSaveSettings={handleSaveSettings}
-                />;
+                /></ComponentErrorBoundary>;
             case 'general-register':
                 setShowLedger(true);
                 setShowMenuContent(false);
@@ -357,7 +384,7 @@ function AppContent() {
                 setShowMenuContent(false);
                 return null;
             case 'teachers-profile':
-                return <TeachersProfileList />;
+                return <ComponentErrorBoundary componentName="Teachers Profile List"><TeachersProfileList /></ComponentErrorBoundary>;
             case 'custom-window':
             case 'custom-window-hoi':
             case 'custom-window-teacher':
@@ -369,43 +396,74 @@ function AppContent() {
 
             // HOI menu items
             case 'staff-info':
-                return <StaffInfo />;
+                return <ComponentErrorBoundary componentName="Staff Info"><StaffInfo /></ComponentErrorBoundary>;
             case 'hoi-diary':
-                return <HOIDiary />;
+                return <ComponentErrorBoundary componentName="HOI Diary"><HOIDiary /></ComponentErrorBoundary>;
 
             // Teacher menu items
             case 'self-profile':
-                return <TeacherProfile />;
+                return <ComponentErrorBoundary componentName="Teacher Profile"><TeacherProfile /></ComponentErrorBoundary>;
             case 'salary-book':
-                return <SalaryBook />;
-            case 'special-features':
+                return <ComponentErrorBoundary componentName="Salary Book"><SalaryBook /></ComponentErrorBoundary>;
+            case 'class-upgrade':
                 return (
-                    <div style={{ padding: '20px' }}>
-                        <h2 style={{ marginBottom: '16px', fontSize: '1.5rem' }}>✨ Special Features</h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
-                            {[
-                                { icon: '📷', name: 'Document Scanner', key: 'doc-scanner', onClick: () => { setShowDocScanner(true); setShowMenuContent(false); } },
-                                { icon: '🎙️', name: 'Voice Input', key: 'voice', onClick: () => { setShowVoiceInput(true); setShowMenuContent(false); } },
-                                { icon: '📊', name: 'Analytics Dashboard', key: 'analytics', onClick: () => { setShowAnalytics(true); setShowMenuContent(false); } },
-                                { icon: '📱', name: 'QR Attendance', key: 'qr', onClick: () => { setShowQRAttendance(true); setShowMenuContent(false); } },
-                                { icon: '🔍', name: 'Smart Search', key: 'search', onClick: () => { setShowSmartSearch(true); setShowMenuContent(false); } },
-                                { icon: '🖼️', name: 'Photo Enhancement', key: 'photo', onClick: () => { setShowPhotoEnhance(true); setShowMenuContent(false); } },
-                                { icon: '👨‍👩‍👧', name: 'Family Tree', key: 'family', onClick: () => { setShowFamilyTree(true); setShowMenuContent(false); } },
-                                { icon: '📈', name: 'Progress Timeline', key: 'timeline', onClick: () => { setShowTimeline(true); setShowMenuContent(false); } },
-                                { icon: '💬', name: 'WhatsApp Messenger', key: 'whatsapp', onClick: () => { setShowWhatsApp(true); setShowMenuContent(false); } },
-                            ].map(f => (
-                                <button key={f.key} onClick={f.onClick} style={{
-                                    display: 'flex', alignItems: 'center', gap: '10px', padding: '16px',
-                                    borderRadius: '12px', border: '1px solid var(--border-color, #e2e8f0)',
-                                    background: 'var(--bg-secondary, #f8fafc)', cursor: 'pointer',
-                                    fontSize: '0.95rem', transition: 'all 0.2s',
-                                }}>
-                                    <span style={{ fontSize: '1.5rem' }}>{f.icon}</span>
-                                    {f.name}
-                                </button>
-                            ))}
+                    <ComponentErrorBoundary componentName="Class Upgrade">
+                        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+                            <h2 style={{ marginBottom: '8px', fontSize: '1.3rem' }}>⬆️ Class Upgrade</h2>
+                            <p style={{ color: 'var(--gray-600)', marginBottom: '16px', fontSize: '0.9rem' }}>
+                                One-tap upgrade your class to the next level. All students will be moved automatically.
+                            </p>
+                            {standards.length === 0 ? (
+                                <p style={{ color: 'var(--gray-500)', textAlign: 'center', padding: '40px 0' }}>
+                                    No classes found. Please create a class first in Class Management.
+                                </p>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {standards.map(std => {
+                                        const name = std.name || std.id;
+                                        // Try to extract the number for auto-suggestion
+                                        const numMatch = name.match(/(\d+)/);
+                                        const nextNum = numMatch ? parseInt(numMatch[1]) + 1 : null;
+                                        const suggestedNext = nextNum ? name.replace(/\d+/, nextNum) : '';
+                                        return (
+                                            <div key={std.id} style={{
+                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                padding: '14px 16px', borderRadius: '12px',
+                                                background: 'var(--bg-secondary, #f8fafc)',
+                                                border: '1px solid var(--border-color, #e2e8f0)'
+                                            }}>
+                                                <span style={{ fontWeight: 600 }}>{name}</span>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ fontSize: '0.85rem', padding: '8px 16px' }}
+                                                    onClick={async () => {
+                                                        const newName = prompt(
+                                                            `Upgrade "${name}" to:`,
+                                                            suggestedNext || ''
+                                                        );
+                                                        if (newName && newName.trim()) {
+                                                            try {
+                                                                const count = await db.upgradeClass(std.id, newName.trim());
+                                                                await addStandard({ id: newName.trim(), name: newName.trim() });
+                                                                alert(`✅ Upgraded ${count} students from "${name}" → "${newName.trim()}"`);
+                                                                setSelectedStandard(newName.trim());
+                                                                await refreshStudents();
+                                                                RealTimeBackup.onDataChanged('class_upgrade');
+                                                            } catch (err) {
+                                                                alert('Upgrade failed: ' + err.message);
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    ⬆️ {suggestedNext ? `→ ${suggestedNext}` : 'Upgrade'}
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    </ComponentErrorBoundary>
                 );
             case 'class-management':
             case 'class-management-teacher':
@@ -415,7 +473,7 @@ function AppContent() {
 
             // Student menu items
             case 'student-login':
-                return <StudentLogin onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
+                return <ComponentErrorBoundary componentName="Student Login"><StudentLogin onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
             case 'student-view-profile':
                 setShowProfile(true);
                 setShowMenuContent(false);
@@ -425,6 +483,13 @@ function AppContent() {
                 setShowProfile(true);
                 setShowMenuContent(false);
                 return null;
+            case 'correction-request':
+                return <ComponentErrorBoundary componentName="Correction Request"><CorrectionRequest studentData={null} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
+            case 'certificate-download':
+                // Show certificate generator for student downloads
+                return <ComponentErrorBoundary componentName="Certificate Download"><CertificateGenerator onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
+            case 'qa-chat':
+                return <ComponentErrorBoundary componentName="Q&A Chat"><QAChat studentData={null} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
 
             // Coming Soon items
             case 'dead-stock':
@@ -433,9 +498,6 @@ function AppContent() {
             case 'news-circulars':
             case 'programs-events':
             case 'activity-gallery':
-            case 'self-update':
-            case 'download-certificate':
-            case 'qa-chat':
                 return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
 
             // Data Management items
@@ -467,6 +529,10 @@ function AppContent() {
                 setShowMenuContent(false);
                 setMenuContentType(null);
                 return null;
+
+            // Usage Instructions
+            case 'usage-instructions':
+                return <UsageInstructions onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
 
             // Help & Support
             case 'help-support':
@@ -500,6 +566,7 @@ function AppContent() {
                         </form>
                     </div>
                 );
+
 
             default:
                 return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
@@ -761,7 +828,9 @@ function AppContent() {
                         >
                             ← Back to Main
                         </button>
-                        {renderMenuContent()}
+                        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', gap: '10px' }}><span style={{ width: '24px', height: '24px', border: '3px solid #e2e8f0', borderTopColor: 'var(--primary, #7C3AED)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />Loading...</div>}>
+                            {renderMenuContent()}
+                        </Suspense>
                     </div>
                 ) : (
                     /* Data Entry Form */

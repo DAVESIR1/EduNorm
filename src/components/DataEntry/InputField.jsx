@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Image, X, Plus, File, Eye, Download } from 'lucide-react';
+import OcrCamera from '../Common/OcrCamera';
 import './InputField.css';
 
 export default function InputField({ field, value, onChange }) {
@@ -165,7 +166,14 @@ export default function InputField({ field, value, onChange }) {
     if (field.type === 'textarea') {
         return (
             <div className={`input-group ${isFocused ? 'focused' : ''}`}>
-                <label className="input-label">{field.label}</label>
+                <label className="input-label">
+                    {field.label}
+                    <OcrCamera
+                        onResult={(text) => onChange(value ? value + '\n' + text : text)}
+                        lang="eng+hin"
+                        label={field.label}
+                    />
+                </label>
                 <textarea
                     className="input-field textarea"
                     value={value}
@@ -180,9 +188,19 @@ export default function InputField({ field, value, onChange }) {
     }
 
     // Render standard input
+    const isTextLike = !field.type || field.type === 'text' || field.type === 'number';
     return (
         <div className={`input-group ${isFocused ? 'focused' : ''}`}>
-            <label className="input-label">{field.label}</label>
+            <label className="input-label">
+                {field.label}
+                {isTextLike && (
+                    <OcrCamera
+                        onResult={(text) => onChange(text)}
+                        lang="eng+hin"
+                        label={field.label}
+                    />
+                )}
+            </label>
             <input
                 type={field.type || 'text'}
                 className="input-field"
