@@ -96,7 +96,12 @@ export const MENU_STRUCTURE = {
     }
 };
 
+import { useAuth } from './AuthContext';
+
+// ... (MENU_STRUCTURE remains same)
+
 export function MenuProvider({ children }) {
+    const { user } = useAuth();
     const [activeMenu, setActiveMenu] = useState(null);
     const [activeSubItem, setActiveSubItem] = useState(null);
     const [expandedMenus, setExpandedMenus] = useState(['school']);
@@ -106,6 +111,51 @@ export function MenuProvider({ children }) {
         hoi: [],
         teacher: []
     });
+
+    // Auto-unlock HOI menu if user role is 'hoi'
+    React.useEffect(() => {
+        if (user?.role === 'hoi') {
+            setHoiUnlocked(true);
+        }
+    }, [user]);
+
+    // Filter menus based on role
+    const getFilteredMenus = useCallback(() => {
+        if (!user) return MENU_STRUCTURE; // Or return empty if strictly requiring login
+
+        const role = user.role;
+        const filtered = {};
+
+        Object.keys(MENU_STRUCTURE).forEach(key => {
+            const menu = MENU_STRUCTURE[key];
+
+            // Logic for visibility
+            let isVisible = true;
+
+            if (role === 'student') {
+                // Student sees only 'student' menu
+                if (key !== 'student') isVisible = false;
+            } else if (role === 'teacher') {
+                // Teacher sees everything EXCEPT 'hoi'
+                if (key === 'hoi') isVisible = false;
+            } else if (role === 'hoi') {
+                // HOI sees everything
+                isVisible = true;
+            } else {
+                // Fallback for no role or unknown role (maybe show basic or all if in dev)
+                // For now, let's show all to avoid locking out existing users without role
+                isVisible = true;
+            }
+
+            if (isVisible) {
+                filtered[key] = menu;
+            }
+        });
+
+        return filtered;
+    }, [user]);
+
+    const menus = getFilteredMenus();
 
     // Toggle menu expansion - accordion behavior (auto-close others)
     const toggleMenu = useCallback((menuId) => {
@@ -123,14 +173,15 @@ export function MenuProvider({ children }) {
     // Select a sub-item
     const selectSubItem = useCallback((menuId, itemId) => {
         // Check if HOI menu requires password
-        if (menuId === 'hoi' && !hoiUnlocked) {
+        // Bypass password if user is HOI role or already unlocked
+        if (menuId === 'hoi' && !hoiUnlocked && user?.role !== 'hoi') {
             return { requiresPassword: true };
         }
 
         setActiveMenu(menuId);
         setActiveSubItem(itemId);
         return { success: true };
-    }, [hoiUnlocked]);
+    }, [hoiUnlocked, user]);
 
     // Unlock HOI with password
     const unlockHoi = useCallback((password) => {
@@ -185,7 +236,7 @@ export function MenuProvider({ children }) {
 
     return (
         <MenuContext.Provider value={{
-            menus: MENU_STRUCTURE,
+            menus,
             activeMenu,
             activeSubItem,
             expandedMenus,

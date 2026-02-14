@@ -131,3 +131,48 @@
         width: 100%;
     }
 }
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+[data-theme="neon"] .step-wizard {
+    background: #000000;
+    box-shadow: none;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    /* #D3D3D380 */
+}
+
+[data-theme="neon"] .wizard-header {
+    background: #000000;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .wizard-title h2 {
+    color: #FFFDD0;
+    /* Cream Accent */
+}
+
+[data-theme="neon"] .wizard-subtitle {
+    color: #A0A0A0;
+    /* Muted Grey */
+}
+
+[data-theme="neon"] .progress-text {
+    color: #D3D3D3;
+    /* Light Grey */
+}
+
+[data-theme="neon"] .wizard-footer {
+    background: #000000;
+    border-top: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .success-overlay {
+    background: rgba(0, 0, 0, 0.95);
+}
+
+[data-theme="neon"] .success-content h3 {
+    color: #FFFDD0;
+}
+
+[data-theme="neon"] .success-content p {
+    color: #D3D3D3;
+}

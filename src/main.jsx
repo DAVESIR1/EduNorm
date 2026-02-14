@@ -85,13 +85,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ErrorBoundary>
             <BrowserRouter>
                 <UndoProvider>
-                    <MenuProvider>
-                        <Routes>
-                            <Route path="/" element={<App />} />
-                            <Route path="/privacy" element={<PrivacyPolicy />} />
-                            <Route path="/terms" element={<TermsOfService />} />
-                        </Routes>
-                    </MenuProvider>
+                    <Routes>
+                        <Route path="/" element={<App />} />
+                        <Route path="/privacy" element={<PrivacyPolicy />} />
+                        <Route path="/terms" element={<TermsOfService />} />
+                    </Routes>
                 </UndoProvider>
             </BrowserRouter>
         </ErrorBoundary>

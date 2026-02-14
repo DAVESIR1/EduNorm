@@ -23,7 +23,29 @@
 
 ---
 
-## 🆕 Latest Updates (Feb 5, 2026 - Evening)
+## 🆕 Latest Updates (Feb 14, 2026 - Neon & Branding Overhaul)
+### 🎨 Theme System Redesign
+- **Simplified Theme Engine:** Removed legacy (Classic/Modern) and unused (Visionary/Academic) themes.
+- **Three Core Pillars:**
+    1.  **EduTech Pro:** Standard professional blue/white theme.
+    2.  **Vibrant Burst:** Mesh gradient backgrounds with colorful typography.
+    3.  **Neon OLED:** Pure black (`#000000`) background for AMOLED screens.
+- **GUI Theme Selector:** Replaced dropdown with visual icon row (Sun, Palette, Moon).
+
+### 🌑 Neon OLED Theme Polish
+- **True Black Mode:** Forced pure black on Cards, Modals, and Tables.
+- **High Contrast:** Fixed visibility issues in "Expanded Rows" and "Profile Viewer".
+- **Neon Accents:** Applied Neon Green/Cyan highlights to headers and active states.
+- **Smart Scoping:** Ensured "Classic" profile template becomes Black in Neon mode, while preserving "Rainbow/Nature" colored templates.
+
+### 🖼️ Branding & Sidebar
+- **Dynamic Logo:** Animated "EduNorm" logo with tiered color letters.
+- **Sidebar Contrast:** Enhanced accessibility with clean text and glow effects.
+- **Layout:** Fixed bottom button alignment and removed white box artifacts.
+
+---
+
+## 📅 Previous Updates (Feb 5, 2026)
 
 ### Profile Viewer UI Enhancements
 - **Maximize Button:** Added to expand modal to full screen

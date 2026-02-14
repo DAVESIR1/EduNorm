@@ -44,16 +44,17 @@
     width: 100%;
     padding: 14px 16px;
     border: none;
-    background: linear-gradient(135deg, var(--menu-color, #3B82F6)08, transparent);
+    background: var(--bg-surface);
     cursor: pointer;
     font-size: 15px;
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary);
     border-left: 4px solid var(--menu-color, #3B82F6);
+    transition: background 0.2s;
 }
 
 .menu-header:hover {
-    background: linear-gradient(135deg, var(--menu-color, #3B82F6)15, rgba(0, 0, 0, 0.02));
+    background: var(--gray-100);
 }
 
 .menu-header-left {
@@ -110,13 +111,14 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary);
     text-align: left;
     width: 100%;
+    transition: all 0.2s;
 }
 
 .menu-item:hover:not(.disabled) {
-    background: var(--hover-bg, #f3f4f6);
+    background: var(--gray-100);
 }
 
 .menu-item.active {
@@ -238,21 +240,34 @@
 
 /* Dark Theme */
 [data-theme="dark"] .menu-section {
-    background: var(--surface-color, #1f2937);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: var(--bg-surface);
+    border-color: var(--border-color);
 }
 
 [data-theme="dark"] .menu-header {
-    color: var(--text-primary, #f9fafb);
+    color: var(--text-primary);
+    background: transparent;
+}
+
+[data-theme="dark"] .menu-header:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="dark"] .menu-item {
-    color: var(--text-primary, #f9fafb);
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .menu-item:hover:not(.disabled) {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
 }
+
+/* Modern Theme - Inherits from parent Sidebar Scope */
+[data-theme="modern"] .menu-section {
+    background: transparent;
+    border: none;
+}
+
+/* No explicit text color needed here - inherited from .new-sidebar scope */
 
 [data-theme="dark"] .password-modal {
     background: #1f2937;

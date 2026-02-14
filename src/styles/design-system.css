@@ -1,7 +1,12 @@
 /* ===========================================
    STUDENT DATA ENTRY SYSTEM - DESIGN SYSTEM
    Beautiful Pastel Theme with Fluffy Design
+   Beautiful Pastel Theme with Fluffy Design
    =========================================== */
+
+/* Import Stylish Fonts for Neon Theme */
+/* Import Stylish Fonts for Themes */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@400;600;700&family=Cabin+Sketch:wght@400;700&family=Comfortaa:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* ===== PASTEL COLOR PALETTE ===== */
@@ -66,9 +71,12 @@
   --info: var(--pastel-sky);
 
   /* ===== TEXT COLORS ===== */
-  --text-primary: #1F2937;
-  --text-secondary: #4B5563;
-  --text-muted: #9CA3AF;
+  --text-primary: #111827;
+  /* Darker gray (almost black) for sharp primary text */
+  --text-secondary: #374151;
+  /* Dark gray for secondary (was too light) */
+  --text-muted: #6b7280;
+  /* Medium gray for muted */
   --border-color: #E5E7EB;
 
   /* ===== BACKGROUND ===== */
@@ -135,52 +143,288 @@
   --z-toast: 500;
 }
 
+/* ===== EDUTECH PRO THEME (SaaS / Professional) ===== */
+[data-theme="edutech"] {
+  --bg-main: #f3f4f6;
+  /* Cool Gray 50 */
+  --bg-card: #ffffff;
+  --bg-sidebar: #f9fafb;
+  /* Very Light Gray (distinct from Classic's Pastel) */
+  --bg-input: #ffffff;
+  --bg-surface: #ffffff;
+
+  --primary: #2563EB;
+  /* Royal Blue (Interish) */
+  --primary-light: #dbeafe;
+  /* Blue 100 */
+  --primary-dark: #1d4ed8;
+  /* Blue 700 */
+
+  --secondary: #475569;
+  /* Slate 600 */
+
+  --text-primary: #0f172a;
+  /* Slate 900 (Sharp) */
+  --text-secondary: #334155;
+  /* Slate 700 */
+  --text-muted: #64748b;
+  /* Slate 500 */
+  --border-color: #e2e8f0;
+  /* Slate 200 */
+
+  --shadow-soft: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  /* Focus ring style glow */
+}
+
+/* ===== VIBRANT BURST THEME (Colorful / Unique) ===== */
+[data-theme="colorful"] {
+  /* 1. Very Very Colorful Background (Mesh Gradient style) */
+  --bg-main: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 25%, #E0C3FC 50%, #A6C0FE 75%, #F68084 100%);
+
+  /* 2. Glassy Cards to let background show through */
+  --bg-card: rgba(255, 255, 255, 0.85);
+
+  /* 3. Sidebar matches the vibrant energy */
+  --bg-sidebar: linear-gradient(180deg, #E0C3FC 0%, #8EC5FC 100%);
+
+  --bg-input: rgba(255, 255, 255, 0.9);
+  --bg-surface: rgba(255, 255, 255, 0.9);
+
+  /* 4. Contrast Matching Colorful Fonts */
+  --primary: #6366f1;
+  /* Indigo-500 */
+  --primary-light: #e0e7ff;
+  --primary-dark: #4338ca;
+
+  --secondary: #ec4899;
+  /* Pink-500 */
+  --accent: #8b5cf6;
+  /* Violet-500 */
+
+  /* Text is NOT black. It is Deep Indigo/Purple for "Colorful Contrast" */
+  --text-primary: #1e1b4b;
+  /* Deep Indigo (almost black but colored) */
+  --text-secondary: #4c1d95;
+  /* Deep Violet */
+  --text-muted: #6d28d9;
+  /* Violet-700 */
+
+  /* Unique Borders */
+  --border-color: rgba(255, 255, 255, 0.6);
+
+  --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --shadow-medium: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+  --shadow-large: 0 8px 32px 0 rgba(31, 38, 135, 0.35);
+  --shadow-glow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+/* ===== NEON OLED THEME (Strict 4-Color Palette) ===== */
+[data-theme="neon"] {
+  /* 1. COMPLETELY BLACK Backgrounds */
+  --bg-main: #000000;
+  --bg-card: #000000;
+  --bg-sidebar: #000000;
+  --bg-input: #000000;
+  --bg-surface: #000000;
+
+  /* 2. Fonts */
+  --font-heading: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+
+  /* 3. Palette - Cream Accents */
+  --primary: #FFFDD0;
+  /* Cream */
+  --primary-light: #FFFDD0;
+  --primary-dark: #EBE9BC;
+
+  --secondary: #FFFDD0;
+  /* Use Cream for consistency */
+  --accent: #FFFDD0;
+
+  --warning: #FFFDD0;
+  --error: #FF6B6B;
+  /* Keep error distinct for safety, or make it Cream per strict request? User said "any thing else use cream". I will use Cream for consistency but maybe keep a slight tint if needed. Let's stick to strict 4-color: Cream for everything active. */
+
+  /* Text Colors - Light Grey */
+  --text-primary: #D3D3D3;
+  /* Light Grey */
+  --text-secondary: #D3D3D3;
+  --text-muted: #A0A0A0;
+
+  /* Borders - Light Grey 50% */
+  --border-color: rgba(211, 211, 211, 0.5);
+  /* #D3D3D380 */
+
+  /* Shadows - Subtle Cream Glow */
+  --shadow-soft: 0 0 10px rgba(255, 253, 208, 0.05);
+  --shadow-medium: 0 0 20px rgba(255, 253, 208, 0.1);
+  --shadow-large: 0 0 30px rgba(255, 253, 208, 0.15);
+  --shadow-glow: 0 0 15px rgba(255, 253, 208, 0.2);
+}
+
+/* =========================================
+   THEME-SPECIFIC TYPOGRAPHY & COLORS
+   ========================================= */
+
+/* --- 1. RAINBOW / VIBRANT THEME --- */
+/* "First image colorful fonts" - Sketchy & Colorful */
+[data-theme="vibrant"] {
+  --font-heading: 'Cabin Sketch', cursive;
+  --font-display: 'Cabin Sketch', cursive;
+  --primary: #FF6B6B;
+  /* Vibrant Red/Pink */
+}
+
+/* Apply colorful sketch effect to headings */
+[data-theme="vibrant"] h1,
+[data-theme="vibrant"] h2,
+[data-theme="vibrant"] h3,
+[data-theme="vibrant"] h4,
+[data-theme="vibrant"] .display-font {
+  background: linear-gradient(90deg, #FF0000, #FF7F00, #CCCC00, #00FF00, #0000FF, #4B0082, #9400D3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* --- 2. LIGHT THEME --- */
+/* "Circle fonts" - Geometric, Rounded */
+[data-theme="light"],
+[data-theme="classic"] {
+  /* Assuming 'classic' might be the default light */
+  --font-body: 'Comfortaa', cursive;
+  --font-heading: 'Comfortaa', cursive;
+  --font-display: 'Comfortaa', cursive;
+}
+
+[data-theme="light"] body,
+[data-theme="classic"] body {
+  font-family: 'Comfortaa', cursive;
+}
+
+/* --- 3. OLED / NEON THEME --- */
+/* "Button colors always be cream" - Exclusive of Sidebar */
+[data-theme="neon"] .btn,
+[data-theme="neon"] .action-btn,
+[data-theme="neon"] .upload-more-btn {
+  background: #FFFDD0 !important;
+  /* Cream */
+  color: #000000 !important;
+  /* Black Text */
+  border: none !important;
+  box-shadow: 0 0 10px rgba(255, 253, 208, 0.4) !important;
+  /* Cream Glow */
+}
+
+[data-theme="neon"] .btn:hover,
+[data-theme="neon"] button:hover {
+  background: #FFF8E7 !important;
+  /* Lighter Cream */
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(255, 253, 208, 0.6) !important;
+}
+
+/* Enforce black background for buttons that might have been transparent/outlined */
+[data-theme="neon"] .btn-outline,
+[data-theme="neon"] .btn-ghost {
+  background: transparent !important;
+  border: 1px solid #FFFDD0 !important;
+  color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .btn-outline:hover,
+[data-theme="neon"] .btn-ghost:hover {
+  background: #FFFDD0 !important;
+  color: #000000 !important;
+}
+
+/* ===== DARK THEME ===== */
+/* ===== DARK THEME ===== */
 /* ===== DARK THEME ===== */
 [data-theme="dark"] {
-  --bg-main: linear-gradient(135deg, #1a1625 0%, #1e1e2e 50%, #251a20 100%);
-  --bg-card: rgba(40, 35, 50, 0.9);
-  --bg-sidebar: linear-gradient(180deg, #2d2640 0%, #352530 100%);
-  --bg-input: rgba(60, 55, 75, 0.95);
-  --bg-surface: rgba(45, 40, 60, 0.95);
+  --bg-main: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  /* Deeper blue-gray */
+  --bg-card: #1e293b;
+  --bg-sidebar: #0f172a;
+  --bg-input: #334155;
+  --bg-surface: #1e293b;
 
-  --primary: #A088C8;
-  --primary-light: #C0A8E8;
-  --primary-dark: #8068A8;
+  --primary: #818cf8;
+  /* Indigo-400 */
+  --primary-light: #a5b4fc;
+  --primary-dark: #6366f1;
 
   /* Dark theme inverts grays for text visibility */
-  --gray-50: #1a1a2e;
-  --gray-100: #252540;
-  --gray-200: #353555;
-  --gray-300: #454570;
-  --gray-400: #7575A0;
-  --gray-500: #9595B8;
-  --gray-600: #B5B5D0;
-  --gray-700: #D5D5E8;
-  --gray-800: #EAEAF5;
-  --gray-900: #FAFAFF;
+  --gray-50: #0f172a;
+  --gray-100: #1e293b;
+  --gray-200: #334155;
+  --gray-300: #475569;
+  --gray-400: #94a3b8;
+  --gray-500: #cbd5e1;
+  --gray-600: #e2e8f0;
+  --gray-700: #f1f5f9;
+  --gray-800: #f8fafc;
+  --gray-900: #ffffff;
 
-  /* Explicit text colors for dark theme */
-  --text-primary: #FAFAFF;
-  --text-secondary: #B5B5D0;
-  --text-muted: #9595B8;
-  --border-color: rgba(255, 255, 255, 0.12);
+  /* Explicit text colors for dark theme - HIGH CONTRAST */
+  --text-primary: #ffffff;
+  /* Pure White */
+  --text-secondary: #e2e8f0;
+  /* Gray-200 */
+  --text-muted: #cbd5e1;
+  /* Gray-300 */
+  --border-color: #334155;
 
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.5);
-  --shadow-large: 0 12px 40px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 30px rgba(160, 136, 200, 0.3);
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: none;
 }
 
-/* ===== COLORFUL THEME ===== */
-[data-theme="colorful"] {
-  --bg-main: linear-gradient(135deg, #FFE5EC 0%, #E5F0FF 25%, #E5FFE5 50%, #FFF5E5 75%, #FFE5FF 100%);
-  --bg-card: rgba(255, 255, 255, 0.75);
-  --bg-sidebar: linear-gradient(180deg, #FFB5C5 0%, #B5D4FF 50%, #B5F5D8 100%);
+/* ===== MODERN THEME (Hybrid: Dark Sidebar, Light Content) ===== */
+[data-theme="modern"] {
+  /* Clean, professional light background */
+  --bg-main: #f3f4f6;
+  --bg-card: #ffffff;
 
-  --primary: #FF88A0;
-  --secondary: #88C0FF;
-  --accent: #88FFB0;
+  /* Dark Sidebar for contrast */
+  --bg-sidebar: #111827;
+  /* Gray-900 */
+
+  --bg-input: #ffffff;
+  --bg-surface: #ffffff;
+
+  /* Professional Color Palette (Indigo/Teal) */
+  --primary: #4f46e5;
+  /* Indigo-600 */
+  --primary-light: #e0e7ff;
+  --primary-dark: #3730a3;
+
+  --secondary: #10b981;
+  /* Emerald-500 */
+  --accent: #f59e0b;
+  /* Amber-500 */
+
+  --text-primary: #111827;
+  /* Dark text for light main content */
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+
+  --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-glow: none;
 }
+
+
 
 /* ===== BASE STYLES ===== */
 *,
@@ -200,7 +444,8 @@ body {
   font-family: var(--font-body);
   font-weight: 400;
   line-height: 1.6;
-  color: var(--gray-800);
+  color: var(--text-primary);
+  /* CHANGED: Use text-primary instead of gray-800 */
   background: var(--bg-main);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -326,19 +571,23 @@ h6 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  background: var(--primary);
+  /* Flat minimal color */
   color: white;
+  border: 1px solid transparent;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-soft);
 }
 
 .btn-secondary {
-  background: var(--gray-100, #f3f4f6);
-  color: var(--gray-700, #374151);
+  background: transparent;
+  color: var(--gray-700);
   box-shadow: none;
-  border: 1px solid var(--gray-200, #e5e7eb);
+  border: 1px solid var(--gray-300);
+  /* Explicit lining */
 }
 
 .btn-secondary:hover {
@@ -726,6 +975,16 @@ select.input-field {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+}
+
+/* OLED 4-Color Rule Override */
+[data-theme="neon"] .gradient-text {
+  background: none;
+  -webkit-text-fill-color: #FFFDD0;
+  /* Cream Accent */
+  color: #FFFDD0;
+  filter: none;
+  text-shadow: none;
 }
 
 /* ===== DECORATIVE ELEMENTS ===== */

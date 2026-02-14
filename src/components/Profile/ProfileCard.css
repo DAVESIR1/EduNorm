@@ -330,3 +330,83 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+/* Only apply to "Classic" template in Neon Mode */
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic {
+    background: #000000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.5) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-header {
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5) !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-name,
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-title {
+    color: #D3D3D3 !important;
+    text-shadow: none !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-contact {
+    color: #A0A0A0 !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-logo,
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-photo {
+    border-color: rgba(211, 211, 211, 0.5) !important;
+    background: #000000 !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-logo-placeholder,
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-photo-placeholder {
+    background: #000000 !important;
+    border-color: rgba(211, 211, 211, 0.5) !important;
+    color: #D3D3D3 !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic {
+    background: #000000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.5) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-header {
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5) !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-name {
+    color: #FFFDD0 !important;
+    /* Cream Accent */
+    text-shadow: none !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-id {
+    background: rgba(211, 211, 211, 0.1) !important;
+    color: #D3D3D3 !important;
+    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .section-title {
+    color: #FFFDD0 !important;
+    /* Cream Accent */
+    border-bottom: 2px solid rgba(211, 211, 211, 0.5) !important;
+    background: transparent !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .detail-item {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.1) !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .detail-label {
+    color: #A0A0A0 !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .detail-value {
+    color: #D3D3D3 !important;
+}

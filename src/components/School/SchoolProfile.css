@@ -380,6 +380,54 @@
     color: #f9fafb;
 }
 
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+[data-theme="neon"] .school-profile {
+    background: #000000;
+}
+
+[data-theme="neon"] .school-info-section,
+[data-theme="neon"] .facility-item,
+[data-theme="neon"] .logo-upload-card,
+[data-theme="neon"] .info-field-card {
+    background: #000000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.5) !important;
+    /* Light Grey 50% */
+    box-shadow: none !important;
+}
+
+[data-theme="neon"] .school-info h1,
+[data-theme="neon"] .school-info-section h2,
+[data-theme="neon"] .facilities-section h2 {
+    color: #D3D3D3 !important;
+    /* Light Grey */
+    text-shadow: none;
+}
+
+[data-theme="neon"] .field-input {
+    background: #000000;
+    color: #D3D3D3;
+    /* Light Grey */
+    border: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .field-input:focus {
+    border-color: #FFFDD0;
+    /* Cream Accent */
+    box-shadow: 0 0 5px rgba(255, 253, 208, 0.3);
+}
+
+[data-theme="neon"] .logo-placeholder {
+    background: #000000;
+    border: 1px dashed rgba(211, 211, 211, 0.5);
+    color: #A0A0A0;
+}
+
+[data-theme="neon"] .logo-placeholder:hover {
+    border-color: #FFFDD0;
+    background: rgba(255, 253, 208, 0.05);
+    /* Cream low opacity */
+}
+
 /* Mobile */
 @media (max-width: 768px) {
     .school-profile {

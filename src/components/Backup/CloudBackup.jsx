@@ -4,97 +4,103 @@ import { backupToCloud, restoreFromCloud, checkBackupExists, getProviderInfo, ge
 import { useAuth } from '../../contexts/AuthContext';
 import './CloudBackup.css';
 
+import { uploadToMega } from '../../services/MegaBackupService';
+import * as localDb from '../../services/database';
+
 export default function CloudBackup({ isOpen, onClose, onRestoreComplete }) {
     const { user } = useAuth();
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [message, setMessage] = useState('');
     const [backupInfo, setBackupInfo] = useState(null);
-    const [action, setAction] = useState(null); // 'backup' or 'restore'
-    const [isChecking, setIsChecking] = useState(false);
+    const [action, setAction] = useState('none'); // backup, restore
 
-    // Check backup status when modal opens - only once
     useEffect(() => {
-        if (isOpen && user && !isChecking && backupInfo === null) {
+        if (isOpen) {
             checkExistingBackup();
-        }
-        // Reset state when modal closes
-        if (!isOpen) {
             setStatus('idle');
             setMessage('');
-            setBackupInfo(null);
         }
     }, [isOpen, user]);
 
     const checkExistingBackup = async () => {
-        if (isChecking) return;
-        setIsChecking(true);
+        if (!user) return;
         try {
-            const info = await checkBackupExists(user?.uid);
-            console.log('Backup info:', info);
-            setBackupInfo(info || { exists: false });
+            const info = await checkBackupExists(user.uid);
+            setBackupInfo(info);
         } catch (error) {
             console.error('Failed to check backup:', error);
-            setBackupInfo({ exists: false, error: error.message });
-        } finally {
-            setIsChecking(false);
         }
     };
 
     const handleBackup = async () => {
         if (!user) {
             setStatus('error');
-            setMessage('Please login to use cloud backup');
+            setMessage('Please login to backup data');
             return;
         }
 
         setAction('backup');
         setStatus('loading');
-        setMessage('Backing up your data to cloud...');
-
-        // Set a timeout of 30 seconds for cloud backup
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('timeout')), 30000);
-        });
+        setMessage('Encrypting and uploading data...');
 
         try {
-            console.log('Starting backup for user:', user.uid);
+            // Export all data
+            const allData = await localDb.exportAllData();
 
-            // Race between actual backup and timeout
-            const result = await Promise.race([
-                backupToCloud(user.uid),
-                timeoutPromise
-            ]);
+            // Upload to Cloud
+            const result = await backupToCloud(user.uid, allData);
 
-            console.log('Backup result:', result);
-
-            if (result && result.success) {
+            if (result.success) {
                 setStatus('success');
-                setMessage(result.message || 'Backup completed successfully!');
-                // Refresh backup info after short delay
-                setTimeout(() => {
-                    setBackupInfo(null);
-                    checkExistingBackup();
-                }, 500);
+                setMessage('Backup completed successfully!');
+                checkExistingBackup(); // Refresh info
             } else {
-                setStatus('error');
-                setMessage(result?.message || 'Backup failed');
+                throw new Error(result.error);
             }
         } catch (error) {
-            console.error('Backup error:', error);
+            console.error('Backup failed:', error);
+            setStatus('error');
+            setMessage(error.message || 'Backup failed');
+        }
+    };
 
-            if (error.message === 'timeout') {
-                // Timeout occurred - show local backup message with more detail
+    // NEW: Handle Mega Backup
+    const handleMegaBackup = async () => {
+        if (!user) {
+            setStatus('error');
+            setMessage('Please login to use analytics.');
+            return;
+        }
+
+        setStatus('loading');
+        setMessage('Connecting to Mega.nz Secure Cloud...');
+
+        try {
+            // 1. Gather Data
+            const allData = await localDb.exportAllData();
+
+            // 2. Get School Info (for folder naming)
+            const schoolName = await localDb.getSetting('schoolName') || 'My_School';
+            const schoolId = user.uid.slice(0, 6); // Use part of UID for uniqueness
+
+            // 3. Upload
+            setMessage(`Uploading to folder: ${schoolName}...`);
+            const result = await uploadToMega(allData, schoolName, schoolId);
+
+            if (result.success) {
                 setStatus('success');
-                setMessage('Data saved locally. Cloud sync is taking longer than expected - it may complete in the background.');
-            } else if (error.message?.includes('permission') || error.message?.includes('PERMISSION')) {
+                setMessage(`Saved to Mega! Path: ${result.path}`);
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Mega Upload Failed:', error);
+            if (error.message?.includes('megajs')) {
                 setStatus('error');
-                setMessage('Cloud backup failed: Permission denied. Please contact support.');
-            } else if (error.message?.includes('not configured')) {
-                setStatus('error');
-                setMessage('Firebase is not configured properly. Please contact support.');
+                setMessage('Missing Dependency: Please run "npm install megajs"');
             } else {
                 setStatus('error');
-                setMessage(error.message || 'Backup failed. Please try again.');
+                setMessage('Mega Upload Failed: ' + error.message);
             }
         }
     };
@@ -128,12 +134,54 @@ export default function CloudBackup({ isOpen, onClose, onRestoreComplete }) {
             const result = await restoreFromCloud(user.uid);
             console.log('CloudBackup: Restore result:', result);
             setStatus('success');
-            setMessage(result.message + ' Reloading page...');
+            setMessage(result.message + ' Auto-Syncing to Live Server...');
 
-            // Reload the page after 1.5 seconds to refresh all data
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            // AUTO-RELAY to Live Server (Autonomous Sync)
+            try {
+                const { migrateToLiveServer } = await import('../../services/MigrationService');
+                const migrationResult = await migrateToLiveServer();
+                console.log('CloudBackup: Auto-Sync Success:', migrationResult);
+                setMessage('Restore & Live Sync Complete! Reloading...');
+            } catch (syncErr) {
+                console.warn('CloudBackup: Auto-Sync Failed:', syncErr);
+
+                // FALLBACK: If missing profile, ask user manually
+                if (syncErr.message.includes('No School Profile') || syncErr.message.includes('configure school details')) {
+                    const manualCode = prompt("Backup is missing School Code. Please enter it to finish Sync (e.g. 240...):");
+                    if (manualCode) {
+                        const manualName = prompt("Enter School Name:") || "My School";
+
+                        try {
+                            const db = await import('../../services/database');
+                            await db.setSetting('school_profile', {
+                                schoolName: manualName,
+                                schoolCode: manualCode,
+                                createdAt: new Date().toISOString()
+                            });
+                            setMessage('Saved School Details. Retrying Sync...');
+
+                            // Retry Sync
+                            const { migrateToLiveServer } = await import('../../services/MigrationService');
+                            await migrateToLiveServer();
+                            setMessage('Restore & Live Sync Complete! Reloading...');
+
+                        } catch (retryErr) {
+                            setMessage(`Sync Failed after manual entry: ${retryErr.message}`);
+                            await new Promise(r => setTimeout(r, 4000));
+                        }
+                    } else {
+                        setMessage(`Restore Complete but Sync Skipped (No Code).`);
+                        await new Promise(r => setTimeout(r, 4000));
+                    }
+                } else {
+                    // Show the ACTUAL error to the user so we can debug
+                    setMessage(`Restore Complete but Sync Failed: ${syncErr.message}`);
+                    await new Promise(r => setTimeout(r, 4000));
+                }
+            }
+
+            // Reload the page
+            window.location.reload();
         } catch (error) {
             console.error('CloudBackup: Restore error:', error);
             setStatus('error');
@@ -207,10 +255,12 @@ export default function CloudBackup({ isOpen, onClose, onRestoreComplete }) {
                                 <button className="action-btn backup-btn" onClick={handleBackup}>
                                     <Upload size={22} />
                                     <div className="btn-text">
-                                        <span className="btn-title">Backup</span>
-                                        <span className="btn-desc">Save to cloud</span>
+                                        <span className="btn-title">Firebase Backup</span>
+                                        <span className="btn-desc">Fast • Encrypted</span>
                                     </div>
                                 </button>
+
+                                {/* Mega Backup Integration Removed - Now Automatic on Registration */}
 
                                 <button
                                     className={`action-btn restore-btn ${!backupInfo?.exists ? 'disabled' : ''}`}
@@ -221,15 +271,14 @@ export default function CloudBackup({ isOpen, onClose, onRestoreComplete }) {
                                     <div className="btn-text">
                                         <span className="btn-title">Restore</span>
                                         <span className="btn-desc">
-                                            {backupInfo?.exists ? 'Get data' : 'No backup'}
+                                            {backupInfo?.exists ? 'Get from Cloud' : 'No backup'}
                                         </span>
                                     </div>
                                 </button>
                             </div>
 
                             <p className="cloud-note">
-                                Your data is securely stored in Firebase Cloud.
-                                You can access it from any device by logging in with the same account.
+                                Your data is securely stored. Use <b>Mega.nz</b> for long-term folder-based storage.
                             </p>
                         </>
                     )}

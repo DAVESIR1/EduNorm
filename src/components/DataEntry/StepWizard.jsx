@@ -12,14 +12,14 @@ export const DATA_FIELDS = [
         title: 'Basic Information',
         icon: '👤',
         fields: [
-            { key: 'grNo', label: 'GR No.', type: 'text', placeholder: '4-8 digits (e.g. 2205)' },
-            { key: 'name', label: 'Name (Local)', type: 'text', placeholder: 'Student full name' },
+            { key: 'grNo', label: 'GR No.', type: 'text', placeholder: '4-8 digits (e.g. 2205)', required: true },
+            { key: 'name', label: 'Name (Local)', type: 'text', placeholder: 'Student full name', required: true },
             { key: 'aaparIdNote', label: 'Aapar ID Note', type: 'text', placeholder: 'Aapar ID note' },
-            { key: 'nameEnglish', label: 'Name in English', type: 'text', placeholder: 'Name in English' },
+            { key: 'nameEnglish', label: 'Name in English', type: 'text', placeholder: 'Name in English', required: true },
             { key: 'udiasEnglishName', label: 'Udias English Name', type: 'text', placeholder: 'Udias English name' },
-            { key: 'studentFirstName', label: 'Student First Name', type: 'text', placeholder: 'First name' },
+            { key: 'studentFirstName', label: 'Student First Name', type: 'text', placeholder: 'First name', required: true },
             { key: 'studentMiddleName', label: 'Student Middle Name (Father)', type: 'text', placeholder: 'Father name' },
-            { key: 'studentLastName', label: 'Student Last Name (Surname)', type: 'text', placeholder: 'Surname' },
+            { key: 'studentLastName', label: 'Student Last Name (Surname)', type: 'text', placeholder: 'Surname', required: true },
             { key: 'cast', label: 'Cast', type: 'text', placeholder: 'Cast' },
         ]
     },
@@ -34,7 +34,7 @@ export const DATA_FIELDS = [
             { key: 'motherAadharName', label: 'Mother Aadhar Name', type: 'text', placeholder: 'As on Aadhar' },
             { key: 'fatherAadharNumber', label: 'Father Aadhar Number', type: 'text', placeholder: '12 digit Aadhar' },
             { key: 'motherAadharNumber', label: 'Mother Aadhar Number', type: 'text', placeholder: '12 digit Aadhar' },
-            { key: 'contactNumber', label: 'Contact Number', type: 'tel', placeholder: 'Mobile number' },
+            { key: 'contactNumber', label: 'Contact Number', type: 'tel', placeholder: 'Mobile number', required: true },
             { key: 'fatherMotherDeathNote', label: 'Father/Mother Death Note', type: 'text', placeholder: 'If applicable' },
         ]
     },
@@ -44,10 +44,10 @@ export const DATA_FIELDS = [
         title: 'Identification',
         icon: '🪪',
         fields: [
-            { key: 'studentBirthdate', label: 'Student Birthdate', type: 'date', placeholder: '' },
+            { key: 'studentBirthdate', label: 'Student Birthdate', type: 'date', placeholder: '', required: true },
             { key: 'studentAadharBirthdate', label: 'Student Aadhar Birthdate', type: 'date', placeholder: '' },
             { key: 'udiasNumber', label: 'Udias Number', type: 'text', placeholder: 'Udias number' },
-            { key: 'aadharNumber', label: 'Aadhar Number', type: 'text', placeholder: '12 digit Aadhar' },
+            { key: 'aadharNumber', label: 'Aadhar Number', type: 'text', placeholder: '12 digit Aadhar', required: true },
             { key: 'studentAadharEnglishName', label: 'Student Aadhar English Name', type: 'text', placeholder: 'As on Aadhar' },
             { key: 'studentAadharGujaratiName', label: 'Student Aadhar Gujarati Name', type: 'text', placeholder: 'As on Aadhar' },
             { key: 'penNumber', label: 'Pen Number', type: 'text', placeholder: 'PEN' },
@@ -143,6 +143,20 @@ export default function StepWizard({
     };
 
     const handleNext = () => {
+        // Validation Logic
+        const currentFields = activeStepData?.fields || [];
+        const missingFields = currentFields.filter(field => {
+            if (field.required && !formData[field.key]) {
+                return true;
+            }
+            return false;
+        });
+
+        if (missingFields.length > 0) {
+            alert(`Please fill in required fields: ${missingFields.map(f => f.label).join(', ')}`);
+            return;
+        }
+
         if (currentStep < totalSteps) {
             setCurrentStep(prev => prev + 1);
         }

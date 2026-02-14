@@ -5,7 +5,9 @@ import { SaveIcon, EditIcon, TrashIcon, PlusIcon, SearchIcon, PrinterIcon } from
 import './TeachersProfileList.css';
 
 const DEFAULT_FIELDS = [
+    { id: 'teacherCode', label: 'Teacher Code / ID', type: 'text', required: true },
     { id: 'name', label: 'Full Name', type: 'text', required: true },
+    { id: 'govId', label: 'Government ID (Aadhar/PAN)', type: 'text', required: true },
     { id: 'designation', label: 'Designation', type: 'text' },
     { id: 'subject', label: 'Subject', type: 'text' },
     { id: 'qualification', label: 'Qualification', type: 'text' },
@@ -213,7 +215,7 @@ export default function TeachersProfileList() {
                                 )}
                             </div>
                             <div className="card-info">
-                                <h4>{teacher.data?.name || 'Unknown'}</h4>
+                                <h4>{teacher.data?.name || 'Unknown'} <span className="teacher-code-badge">{teacher.data?.teacherCode}</span></h4>
                                 <p className="card-designation">{teacher.data?.designation || 'Teacher'}</p>
                                 {teacher.data?.subject && <p className="card-subject">📚 {teacher.data.subject}</p>}
                                 {teacher.data?.mobile && <p className="card-mobile">📱 {teacher.data.mobile}</p>}

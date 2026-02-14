@@ -165,7 +165,7 @@
 
 .edit-mode-label {
     font-weight: 600;
-    color: var(--gray-700);
+    color: var(--text-primary);
 }
 
 .edit-mode-bar .input-field {
@@ -197,7 +197,48 @@
     background: #1a1625;
 }
 
+[data-theme="neon"] .form-container.maximized {
+    background: #000000;
+}
 
+/* [data-theme="neon"] - 4-Color OLED Rule */
+[data-theme="neon"] {
+    /* 1. Background: Pure Black */
+    --bg-primary: #000000;
+    --bg-secondary: #000000;
+    --bg-sidebar: #000000;
+    --bg-card: #000000;
+    --bg-input: #000000;
+    --bg-surface: #000000;
+
+    /* 2. Text: Light Grey */
+    --text-primary: #D3D3D3;
+    --text-secondary: #D3D3D3;
+    --text-muted: #A0A0A0;
+    /* Slightly darker grey for muted */
+
+    /* 3. Borders: Light Grey (50% Opacity) */
+    --border-color: rgba(211, 211, 211, 0.5);
+    /* #D3D3D380 */
+    --input-border: rgba(211, 211, 211, 0.5);
+
+    /* 4. Accents: Cream */
+    --primary: #FFFDD0;
+    /* Cream */
+    --primary-light: #FFFDD0;
+    --primary-dark: #EBE9BC;
+    /* Slightly darker cream */
+    --accent: #FFFDD0;
+    --success: #FFFDD0;
+    /* Force success to cream to stick to 4 colors? Or keep slightly distinct? User said "any thing else use cream color". So yes. */
+    --warning: #FFFDD0;
+    --error: #FF6B6B;
+    /* Maybe keep error distinct for safety? Or force cream? "any thing else use cream color" -> Let's use cream but maybe a variant or keep error red for usability. I'll stick to cream for 'primary' interactions. */
+
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: 0 0 10px rgba(255, 253, 208, 0.1);
+}
 
 .form-maximize-btn {
     position: absolute;
@@ -447,43 +488,75 @@
 }
 
 /* ===== DARK THEME ===== */
+/* ===== DARK THEME ===== */
 [data-theme="dark"] .empty-state h2 {
-    color: #FAFAFF;
+    color: var(--text-primary);
 }
 
 [data-theme="dark"] .empty-state p {
-    color: #B5B5D0;
+    color: var(--text-secondary);
 }
 
 [data-theme="dark"] .step-item {
     background: linear-gradient(135deg, rgba(160, 136, 200, 0.25) 0%, rgba(200, 100, 150, 0.2) 100%);
-    color: #EAEAF5;
+    color: var(--text-primary);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="neon"] .step-item {
+    background: #000000;
+    color: #00ff9d;
+    /* Neon Mint Text */
+    border: 1px solid #333333;
+    box-shadow: 0 0 5px rgba(0, 255, 157, 0.2);
+    /* Subtle Glow */
+}
+
+[data-theme="neon"] .step-item:hover {
+    border-color: #00ff9d;
+    box-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
 }
 
 [data-theme="dark"] .step-num {
     background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+}
+
+[data-theme="neon"] .step-num {
+    background: #000000;
+    color: #00ff9d;
+    border: 1px solid #00ff9d;
+    box-shadow: 0 0 5px #00ff9d;
+}
+
+[data-theme="neon"] .fluffy-card {
+    background: #000000 !important;
+    border-color: #333333;
 }
 
 [data-theme="dark"] .fluffy-card {
-    background: rgba(40, 35, 55, 0.85);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: var(--bg-card);
+    border-color: var(--border-color);
 }
 
-[data-theme="dark"] .app-footer {
-    background: rgba(30, 30, 45, 0.98);
-    border-color: rgba(255, 255, 255, 0.1);
+[data-theme="dark"] .app-footer,
+[data-theme="neon"] .app-footer {
+    background: var(--bg-card);
+    border-color: var(--border-color);
 }
 
-[data-theme="dark"] .footer-content {
-    color: #9CA3AF;
+[data-theme="dark"] .footer-content,
+[data-theme="neon"] .footer-content {
+    color: var(--text-muted);
 }
 
-[data-theme="dark"] .footer-links a {
-    color: #B5B5D0;
+[data-theme="dark"] .footer-links a,
+[data-theme="neon"] .footer-links a {
+    color: var(--text-secondary);
 }
 
-[data-theme="dark"] .footer-links a:hover {
+[data-theme="dark"] .footer-links a:hover,
+[data-theme="neon"] .footer-links a:hover {
     color: var(--primary);
 }
 
@@ -599,6 +672,23 @@
     border-top-color: var(--gray-700);
 }
 
+/* === NEON OLED FOOTER === */
+[data-theme="neon"] .app-footer {
+    background: #000000 !important;
+    border-top: 1px solid rgba(211, 211, 211, 0.5) !important;
+}
+
+[data-theme="neon"] .footer-row,
+[data-theme="neon"] .footer-row a {
+    color: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .footer-row a:hover {
+    color: #FFFDD0 !important;
+    /* Cream on hover */
+    text-decoration: none;
+}
+
 
 /* ============================================
    Main Menu (5-menu accordion) Integration
@@ -638,13 +728,15 @@
     color: var(--text-primary, #1f2937);
 }
 
-[data-theme="dark"] .menu-back-btn {
+[data-theme="dark"] .menu-back-btn,
+[data-theme="neon"] .menu-back-btn {
     background: #1f2937;
     border-color: #374151;
     color: #9ca3af;
 }
 
-[data-theme="dark"] .menu-back-btn:hover {
+[data-theme="dark"] .menu-back-btn:hover,
+[data-theme="neon"] .menu-back-btn:hover {
     background: #374151;
     color: #f9fafb;
 }
@@ -663,5 +755,14 @@
         justify-content: center;
     }
 }
+
 /* Global spin animation for loading spinners */
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

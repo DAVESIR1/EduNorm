@@ -316,3 +316,76 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+[data-theme="neon"] .analytics-modal,
+[data-theme="neon"] .metric-card,
+[data-theme="neon"] .chart-card {
+    background: #000000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.5) !important;
+    box-shadow: none !important;
+    color: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .analytics-header {
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5);
+    color: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .analytics-header .close-btn {
+    background: transparent !important;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    color: #FFFDD0 !important;
+    /* Cream Icon */
+}
+
+/* Metrics - Remove Gradients, Use Black/Cream */
+[data-theme="neon"] .metric-icon {
+    background: transparent !important;
+    border: 1px solid #FFFDD0 !important;
+    /* Cream Border */
+    color: #FFFDD0 !important;
+    /* Cream Icon */
+}
+
+[data-theme="neon"] .metric-value {
+    color: #FFFDD0 !important;
+    /* Cream Value */
+}
+
+[data-theme="neon"] .metric-label,
+[data-theme="neon"] .chart-card h3,
+[data-theme="neon"] .class-name,
+[data-theme="neon"] .class-count,
+[data-theme="neon"] .legend-item {
+    color: #D3D3D3 !important;
+}
+
+/* Bars & Charts */
+[data-theme="neon"] .bar-container,
+[data-theme="neon"] .gender-visual {
+    background: #111 !important;
+    /* Dark Grey track */
+}
+
+[data-theme="neon"] .bar-fill,
+[data-theme="neon"] .gender-segment {
+    background: #FFFDD0 !important;
+    /* Cream Fill */
+}
+
+/* Category Tags */
+[data-theme="neon"] .category-tag {
+    background: #000000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .cat-name {
+    color: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .cat-count {
+    background: #FFFDD0 !important;
+    color: #000000 !important;
+}

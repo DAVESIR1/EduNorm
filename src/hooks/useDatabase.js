@@ -209,21 +209,6 @@ export function useStudentSearch() {
     return { results, loading, query, search };
 }
 
-// Hook for theme
-export function useTheme() {
-    const [theme, setTheme] = useState('light');
+// Theme hooking is now handled by contexts/ThemeContext.jsx
+// export function useTheme() { ... } moved
 
-    useEffect(() => {
-        const saved = localStorage.getItem('theme') || 'light';
-        setTheme(saved);
-        document.documentElement.setAttribute('data-theme', saved);
-    }, []);
-
-    const changeTheme = useCallback((newTheme) => {
-        setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
-    }, []);
-
-    return { theme, changeTheme };
-}

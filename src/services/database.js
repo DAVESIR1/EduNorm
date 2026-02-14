@@ -1,46 +1,74 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'StudentDataEntry';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incremented for Migration Support
 
-// Initialize the database
+// Schema Migrations Definition
+const MIGRATIONS = {
+    2: (db, tx) => {
+        // v2 Migration: Ensure 'backups' store exists (locally) if we want local snapshots
+        if (!db.objectStoreNames.contains('local_backups')) {
+            db.createObjectStore('local_backups', { keyPath: 'id', autoIncrement: true });
+        }
+        // Example: Add 'status' index to students if missing
+        const studentStore = tx.objectStore('students');
+        if (!studentStore.indexNames.contains('isActive')) {
+            studentStore.createIndex('isActive', 'isActive');
+        }
+    }
+};
+
+// Initialize the database with Migration Support
 export async function initDB() {
     return openDB(DB_NAME, DB_VERSION, {
-        upgrade(db) {
-            // Settings store
-            if (!db.objectStoreNames.contains('settings')) {
-                db.createObjectStore('settings', { keyPath: 'key' });
+        upgrade(db, oldVersion, newVersion, tx) {
+            console.log(`DB Upgrade: v${oldVersion} -> v${newVersion}`);
+
+            // v1: Initial Schema (Legacy Support)
+            if (oldVersion < 1) {
+                // Settings store
+                if (!db.objectStoreNames.contains('settings')) {
+                    db.createObjectStore('settings', { keyPath: 'key' });
+                }
+
+                // Students store with indexes
+                if (!db.objectStoreNames.contains('students')) {
+                    const studentStore = db.createObjectStore('students', {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    });
+                    studentStore.createIndex('grNo', 'grNo', { unique: true });
+                    studentStore.createIndex('standard', 'standard');
+                    studentStore.createIndex('rollNo', 'rollNo');
+                    studentStore.createIndex('name', 'name');
+                }
+
+                // Standards/Classes store
+                if (!db.objectStoreNames.contains('standards')) {
+                    db.createObjectStore('standards', { keyPath: 'id' });
+                }
+
+                // Custom fields store
+                if (!db.objectStoreNames.contains('customFields')) {
+                    db.createObjectStore('customFields', { keyPath: 'id', autoIncrement: true });
+                }
+
+                // Documents store (for file metadata)
+                if (!db.objectStoreNames.contains('documents')) {
+                    const docStore = db.createObjectStore('documents', {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    });
+                    docStore.createIndex('studentId', 'studentId');
+                }
             }
 
-            // Students store with indexes
-            if (!db.objectStoreNames.contains('students')) {
-                const studentStore = db.createObjectStore('students', {
-                    keyPath: 'id',
-                    autoIncrement: true
-                });
-                studentStore.createIndex('grNo', 'grNo', { unique: true });
-                studentStore.createIndex('standard', 'standard');
-                studentStore.createIndex('rollNo', 'rollNo');
-                studentStore.createIndex('name', 'name');
-            }
-
-            // Standards/Classes store
-            if (!db.objectStoreNames.contains('standards')) {
-                db.createObjectStore('standards', { keyPath: 'id' });
-            }
-
-            // Custom fields store
-            if (!db.objectStoreNames.contains('customFields')) {
-                db.createObjectStore('customFields', { keyPath: 'id', autoIncrement: true });
-            }
-
-            // Documents store (for file metadata)
-            if (!db.objectStoreNames.contains('documents')) {
-                const docStore = db.createObjectStore('documents', {
-                    keyPath: 'id',
-                    autoIncrement: true
-                });
-                docStore.createIndex('studentId', 'studentId');
+            // Apply subsequent migrations sequentially
+            for (let v = oldVersion + 1; v <= newVersion; v++) {
+                if (MIGRATIONS[v]) {
+                    console.log(`Applying Migration v${v}...`);
+                    MIGRATIONS[v](db, tx);
+                }
             }
         },
     });
@@ -342,3 +370,103 @@ export const importData = importAllData;
 // Aliases for cloud backup service
 export const getAllStudentsForBackup = getAllStudents;
 export const getAllLedgerEntries = getLedger;
+
+// Verification Utilities for Login
+// Verification Utilities for Login
+export async function verifyStudent(grNo, govId) {
+    const db = await initDB();
+    // 1. Try to find by GR No (Local Try both String and Number formats)
+    const index = db.transaction('students').store.index('grNo');
+    let student = await index.get(grNo);
+
+    // If not found as-is, try converting type
+    if (!student && !isNaN(grNo)) {
+        student = await index.get(Number(grNo)); // Try number
+    }
+    if (!student) {
+        student = await index.get(String(grNo)); // Try string
+    }
+
+    // --- LIVE FIRESTORE FALLBACK ---
+    if (!student) {
+        console.log('Local verification failed. Trying Live Firestore check...');
+        try {
+            const { getFirestore, collection, query, where, getDocs } = await import('firebase/firestore');
+            const { isFirebaseConfigured } = await import('../config/firebase');
+
+            if (isFirebaseConfigured) {
+                const firestore = getFirestore();
+                // We need the school ID to query students. 
+                // However, at this point, we might only have the School Code from context.
+                // Constraint: We can't easily query ALL schools for a GR No.
+                // Solution: We must rely on the School Profile being actively set in the context 
+                // OR passed down.
+                // Assuming the school is set locally (which is the prerequisite for this function anyway).
+                // OR passed down.
+                // Assuming the school is set locally (which is the prerequisite for this function anyway).
+                const schoolProfile = await getSetting('school_profile');
+
+                // CRITICAL FIX: Use schoolCode/udise if ID is missing (Manual Entry case)
+                const schoolId = schoolProfile?.id || schoolProfile?.schoolCode || schoolProfile?.udiseNumber || schoolProfile?.indexNumber;
+
+                if (schoolId) {
+                    const cleanSchoolId = String(schoolId).trim().replace(/[^a-zA-Z0-9]/g, '');
+                    const studentsRef = collection(firestore, `schools/${cleanSchoolId}/students`);
+                    // Try querying by GR No (string match usually)
+                    const q = query(studentsRef, where("grNo", "==", String(grNo)));
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const doc = querySnapshot.docs[0];
+                        student = { ...doc.data(), id: doc.id };
+                        console.log('Student found in Live Firestore:', student.name);
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('Live Firestore verification failed:', err);
+        }
+    }
+    // -------------------------------
+
+    if (!student) return { success: false, error: `Student with GR No "${grNo}" not found.` };
+
+    // 2. Verify Gov ID (flexible match against common fields)
+    // ALLOW: Aadhar, GovID, SSSM ID, Email, or Mobile
+    const inputVal = String(govId).trim().toLowerCase();
+
+    const storedAadhar = student.aadharNo ? String(student.aadharNo).trim() : '';
+    const storedGovId = student.govId ? String(student.govId).trim() : '';
+    const storedSssm = student.sssmId ? String(student.sssmId).trim() : '';
+    const storedEmail = student.email ? String(student.email).trim().toLowerCase() : '';
+    const storedMobile = student.mobile ? String(student.mobile).trim() : '';
+
+    const debugMsg = `Checking Student GR: ${grNo} | Input: "${inputVal}" | Stored: Aadhar=${storedAadhar}, GovID=${storedGovId}, Email=${storedEmail}, Mobile=${storedMobile}`;
+    console.log(debugMsg);
+
+    if (
+        (storedAadhar && storedAadhar === inputVal) ||
+        (storedGovId && storedGovId === inputVal) ||
+        (storedSssm && storedSssm === inputVal) ||
+        (storedEmail && storedEmail === inputVal) ||
+        (storedMobile && storedMobile === inputVal)
+    ) {
+        return { success: true, data: student };
+    }
+    return { success: false, error: 'Verification credentials mismatch.' };
+}
+
+export async function verifyTeacher(teacherCode, govId) {
+    // Teachers are stored in settings currently
+    const teachers = await getSetting('school_teachers_list') || [];
+
+    const teacher = teachers.find(t => {
+        const data = t.data || {};
+        return (
+            String(data.teacherCode).trim() === String(teacherCode).trim() &&
+            String(data.govId).trim() === String(govId).trim()
+        );
+    });
+
+    return teacher ? { success: true, data: teacher } : null;
+}

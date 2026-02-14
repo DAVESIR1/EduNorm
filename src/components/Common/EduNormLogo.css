@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+
+/* ===== CUSTOM BRAND LOGO COMPONENT ===== */
+.brand-logo-container {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.5px;
+    position: relative;
+    line-height: 1;
+    user-select: none;
+}
+
+/* Size Variants */
+.brand-logo-container.size-small {
+    font-size: 20px;
+}
+
+.brand-logo-container.size-medium {
+    font-size: 26px;
+}
+
+.brand-logo-container.size-large {
+    font-size: 32px;
+}
+
+.brand-logo-container.size-xl {
+    font-size: 48px;
+}
+
+.brand-letter {
+    display: inline-block;
+    position: relative;
+    animation: letterPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .brand-letter {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Colorful Letter Styles */
+.letter-e {
+    color: #db2777;
+    animation-delay: 0.1s;
+    transform: rotate(-3deg);
+}
+
+/* Pink/Rose */
+.letter-d {
+    color: #0891b2;
+    animation-delay: 0.15s;
+}
+
+/* Cyan */
+.letter-u {
+    color: #d97706;
+    animation-delay: 0.2s;
+    transform: translateY(-2px);
+}
+
+/* Amber */
+.letter-n {
+    color: #7c3aed;
+    animation-delay: 0.25s;
+}
+
+/* Violet */
+.letter-o {
+    color: #059669;
+    animation-delay: 0.3s;
+    transform: rotate(3deg);
+}
+
+/* Emerald */
+.letter-r {
+    color: #dc2626;
+    animation-delay: 0.35s;
+}
+
+/* Red */
+.letter-m {
+    color: #2563eb;
+    animation-delay: 0.4s;
+}
+
+/* Blue */
+
+@keyframes letterPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Decorative Dots */
+.brand-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: fadeSlideUp 0.8s backwards;
+}
+
+.size-small .brand-dot {
+    width: 4px;
+    height: 4px;
+}
+
+.size-large .brand-dot {
+    width: 8px;
+    height: 8px;
+}
+
+.dot-1 {
+    background: #db2777;
+    top: 5%;
+    right: -4px;
+    animation-delay: 0.5s;
+}
+
+.dot-2 {
+    background: #0891b2;
+    bottom: 5%;
+    left: -4px;
+    animation-delay: 0.6s;
+}

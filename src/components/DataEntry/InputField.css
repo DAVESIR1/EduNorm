@@ -189,3 +189,62 @@
 .upload-more-btn .file-input {
     display: none;
 }
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+[data-theme="neon"] .upload-label {
+    background: #000000;
+    border: 1px dashed rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .upload-label:hover {
+    background: rgba(255, 253, 208, 0.05);
+    /* Cream low opacity */
+    border-color: #FFFDD0;
+}
+
+[data-theme="neon"] .upload-more-btn {
+    background: #000000;
+    border: 1px dashed rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .upload-more-btn:hover {
+    background: rgba(255, 253, 208, 0.05);
+    border-color: #FFFDD0;
+}
+
+/* Document Items in Vault */
+[data-theme="neon"] .document-item {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .doc-name {
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .doc-size {
+    color: #A0A0A0;
+}
+
+[data-theme="neon"] .doc-action-btn {
+    background: transparent;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .doc-action-btn:hover {
+    border-color: #FFFDD0;
+    color: #FFFDD0;
+}
+
+/* Input Focus */
+[data-theme="neon"] .input-group.focused .input-field {
+    border-color: #FFFDD0;
+    box-shadow: 0 0 5px rgba(255, 253, 208, 0.3);
+}
+
+[data-theme="neon"] .input-group.focused .input-label {
+    color: #FFFDD0;
+}

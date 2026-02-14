@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMenu, MENU_STRUCTURE } from '../../contexts/MenuContext';
 import { IconMap, PaletteIcon, LanguageIcon } from '../Icons/CustomIcons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUserTier } from '../../contexts/UserTierContext';
 import { LogoutIcon, ShieldIcon, CrownIcon, SparklesIcon } from '../Icons/CustomIcons';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { useTheme } from '../../hooks/useDatabase';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Menu, Pin, PinOff, Sun, Moon, Palette } from 'lucide-react';
 import './NewSidebar.css';
+import EduNormLogo from '../Common/EduNormLogo';
+
+// ... (Keep existing helper components: PasswordModal, HOIPasswordModal, ComingSoonBadge, MenuItem, MenuSection)
 
 // Password modal for HOI access
 function PasswordModal({ isOpen, onClose, onSubmit }) {
@@ -335,6 +339,8 @@ function MenuSection({ menu, isExpanded, onToggle, onItemClick, activeSubItem, i
     );
 }
 
+// Local branding removed - using shared component
+
 export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, onOpenUpgrade, onLogout }) {
     const { user } = useAuth();
     const { tier, isAdmin, isFree } = useUserTier();
@@ -352,6 +358,10 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showHOIPassword, setShowHOIPassword] = useState(false);
     const [pendingNavigation, setPendingNavigation] = useState(null);
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Determine actual Open state (Pinned OR Hovered)
+    const isSidebarVisible = isOpen || isHovered;
 
     // Determine if user is a student (simple check - can be enhanced)
     const isStudent = user && !isAdmin && (
@@ -409,26 +419,42 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
     return (
         <>
             {/* Mobile backdrop overlay */}
-            {isOpen && (
+            {isSidebarVisible && (
                 <div
                     className="sidebar-backdrop"
-                    onClick={onToggle}
+                    onClick={() => { setIsHovered(false); if (isOpen) onToggle(); }}
                     aria-hidden="true"
                 />
             )}
 
-            <aside className={`new-sidebar ${isOpen ? 'open' : 'collapsed'}`}>
-                {/* Header */}
+            <aside
+                className={`new-sidebar ${isSidebarVisible ? 'open' : 'collapsed'} ${isHovered && !isOpen ? 'hover-expanded' : ''}`}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {/* Header with Integrated Toggle/Pin Button */}
                 <div className="new-sidebar-header">
-                    <div className="sidebar-logo">
-                        <img src="/edunorm-logo.png" alt="EduNorm" className="logo-image" />
-                        {isOpen && <span className="logo-text display-font">EduNorm</span>}
+                    <div className="sidebar-header-left">
+                        <button
+                            className={`sidebar-pin-btn ${isOpen ? 'pinned' : ''}`}
+                            onClick={onToggle}
+                            title={isOpen ? "Unpin Sidebar (Auto-hide)" : "Pin Sidebar"}
+                        >
+                            {isOpen ? <Pin size={20} /> : <Menu size={24} />}
+                        </button>
+
+                        <div className="sidebar-brand">
+                            <img src="/edunorm-logo.png" alt="Logo" className="logo-image" />
+                            <div className={`brand-text-wrapper ${isSidebarVisible ? 'visible' : ''}`}>
+                                <EduNormLogo size="medium" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* User Info */}
-                {isOpen && user && (
-                    <div className="new-sidebar-user">
+                {isSidebarVisible && user && (
+                    <div className="new-sidebar-user animate-fade-in">
                         <div className="user-avatar">
                             {user.photoURL ? (
                                 <img src={user.photoURL} alt="User" />
@@ -452,8 +478,8 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                 )}
 
                 {/* Tier Actions - Don't show to students */}
-                {isOpen && !isStudent && (
-                    <div className="tier-actions">
+                {isSidebarVisible && !isStudent && (
+                    <div className="tier-actions animate-fade-in">
                         {isAdmin && onOpenAdmin && (
                             <button className="tier-action-btn admin-btn" onClick={onOpenAdmin}>
                                 <ShieldIcon size={16} />
@@ -470,20 +496,34 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                 )}
 
                 {/* Theme & Language Selectors */}
-                {isOpen && (
-                    <div className="sidebar-settings">
+                {isSidebarVisible && (
+                    <div className="sidebar-settings animate-fade-in">
                         <div className="setting-row">
                             <PaletteIcon size={16} />
                             <span>Theme:</span>
-                            <select
-                                value={theme || 'classic'}
-                                onChange={(e) => changeTheme(e.target.value)}
-                                className="theme-select"
-                            >
-                                <option value="classic">Classic</option>
-                                <option value="modern">Modern</option>
-                                <option value="dark">Dark</option>
-                            </select>
+                            <div className="theme-icon-row">
+                                <button
+                                    className={`theme-icon-btn ${theme === 'edutech' ? 'active' : ''}`}
+                                    onClick={() => changeTheme('edutech')}
+                                    title="EduTech Pro (Light Mode)"
+                                >
+                                    <Sun size={18} />
+                                </button>
+                                <button
+                                    className={`theme-icon-btn ${theme === 'colorful' ? 'active' : ''}`}
+                                    onClick={() => changeTheme('colorful')}
+                                    title="Vibrant Burst (Rainbow Colors)"
+                                >
+                                    <Palette size={18} />
+                                </button>
+                                <button
+                                    className={`theme-icon-btn ${theme === 'neon' ? 'active' : ''}`}
+                                    onClick={() => changeTheme('neon')}
+                                    title="Neon OLED (Dark Mode)"
+                                >
+                                    <Moon size={18} />
+                                </button>
+                            </div>
                         </div>
                         <div className="setting-row">
                             <LanguageIcon size={16} />
@@ -515,14 +555,14 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                                 onToggle={toggleMenu}
                                 onItemClick={handleItemClick}
                                 activeSubItem={activeSubItem}
-                                isOpen={isOpen}
+                                isOpen={isSidebarVisible}
                             />
                         ))}
                     </div>
 
                     {/* Help & Suggestions - always at bottom */}
-                    {isOpen && (
-                        <div className="sidebar-bottom-actions">
+                    {isSidebarVisible && (
+                        <div className="sidebar-bottom-actions animate-fade-in">
                             <button
                                 className={`sidebar-help-btn ${activeSubItem === 'usage-instructions' ? 'active' : ''}`}
                                 onClick={() => handleItemClick('other', 'usage-instructions')}

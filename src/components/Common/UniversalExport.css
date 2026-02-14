@@ -222,3 +222,45 @@
         width: 100%;
     }
 }
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+[data-theme="neon"] .format-btn {
+    background: #000000;
+    border-color: rgba(211, 211, 211, 0.5);
+    /* Light Grey 50% */
+    color: #A0A0A0;
+}
+
+[data-theme="neon"] .format-btn.active {
+    background: rgba(255, 253, 208, 0.1);
+    border-color: #FFFDD0;
+    /* Cream */
+    box-shadow: none;
+    color: #FFFDD0;
+}
+
+[data-theme="neon"] .preview-table {
+    border-color: rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .preview-table th {
+    background: #000000;
+    color: #A0A0A0;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .preview-table td {
+    border-top: 1px solid rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+    /* Light Grey */
+}
+
+[data-theme="neon"] .export-header h3 {
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .setting-group select {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+}

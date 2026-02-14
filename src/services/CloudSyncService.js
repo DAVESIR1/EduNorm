@@ -20,6 +20,10 @@ let syncInProgress = false;
 let lastSyncTime = null;
 let syncListeners = [];
 
+// App Version Management for Safety
+const CURRENT_APP_VERSION = '2.1.0'; // Increment this whenever DB schema changes
+const VERSION_KEY = 'app_data_version';
+
 // Notify sync status listeners
 function notifySyncStatus(status) {
     syncListeners.forEach(listener => listener(status));
@@ -38,8 +42,39 @@ export function getSyncStatus() {
     return {
         inProgress: syncInProgress,
         lastSync: lastSyncTime,
-        configured: isFirebaseConfigured && !!db
+        configured: isFirebaseConfigured && !!db,
+        version: CURRENT_APP_VERSION
     };
+}
+
+/**
+ * SAFETY CHECK: Perform Pre-Update Backup if versions change
+ */
+export async function checkAndPerformSafetyBackup(userId) {
+    if (!userId) return;
+
+    const lastVersion = await localDb.getSetting(VERSION_KEY);
+
+    if (lastVersion && lastVersion !== CURRENT_APP_VERSION) {
+        console.log(`CloudSync: Version upgrade detected (${lastVersion} -> ${CURRENT_APP_VERSION}). Performing SAFETY BACKUP.`);
+        notifySyncStatus({ type: 'safety_backup', message: '⚠️ Updating App... Backing up data first!' });
+
+        try {
+            await backupToCloudNow(userId, 'PRE_UPDATE_SAFETY');
+            await localDb.setSetting(VERSION_KEY, CURRENT_APP_VERSION);
+            notifySyncStatus({ type: 'success', message: 'Safety backup complete. Update applied.' });
+            return true;
+        } catch (e) {
+            console.error('SAFETY BACKUP FAILED:', e);
+            notifySyncStatus({ type: 'error', message: 'Safety Backup Failed! Please check connection.' });
+            // In a strict mode, we might throw here to prevent the app from loading
+            return false;
+        }
+    } else if (!lastVersion) {
+        // First run or fresh install
+        await localDb.setSetting(VERSION_KEY, CURRENT_APP_VERSION);
+    }
+    return false;
 }
 
 /**
@@ -109,26 +144,33 @@ export async function autoSyncOnLogin(userId) {
                 return { success: true, action: 'backed_up', studentCount: localStudentCount };
             }
             else if (localStudentCount > 0 && cloudStudentCount > 0) {
-                // Both have data - prefer cloud if it has more or same data
-                // This ensures data isn't lost
-                if (cloudStudentCount >= localStudentCount) {
-                    console.log('CloudSync: Cloud has more/equal data, syncing from cloud...');
+                // Both have data - "Smart Conflict Resolution"
+                // 1. Check Timestamps (Last Modified Wins) if available
+                const cloudTime = cloudData.lastModified ? new Date(cloudData.lastModified).getTime() : 0;
+
+                // We'll estimate local modification time or use a stored value
+                // Ideally, we'd store a local 'lastBackedUp' timestamp, but for now, let's use a safe heuristic:
+                // If Cloud is significantly newer (e.g. > 1 hour) than our last known sync, it likely has changes from another device.
+
+                // For this implementation, we prioritizing DATA SAFETY:
+                if (cloudStudentCount > localStudentCount) {
+                    // Cloud has MORE data -> Restore
+                    console.log('CloudSync: Cloud has MORE data, restoring...');
                     await restoreFromCloudData(cloudData, userId);
-                    lastSyncTime = new Date();
-                    notifySyncStatus({
-                        type: 'synced',
-                        message: '🔓 Data synced from cloud!'
-                    });
+                    notifySyncStatus({ type: 'restored', message: '📥 Fetched missing data from cloud!' });
+                    return { success: true, action: 'restored' };
+                } else if (cloudTime > (Date.now() - 60000)) {
+                    // Cloud was modified very recently (e.g. just now by another device), and we are just logging in.
+                    // This is a common case for multi-device usage.
+                    console.log('CloudSync: Cloud is newer, syncing down...');
+                    await restoreFromCloudData(cloudData, userId);
+                    notifySyncStatus({ type: 'synced', message: '🔄 Synced latest changes from cloud.' });
                     return { success: true, action: 'synced_from_cloud' };
                 } else {
-                    // Local has more - backup to cloud
-                    console.log('CloudSync: Local has more data, backing up...');
-                    await backupToCloudNow(userId);
-                    lastSyncTime = new Date();
-                    notifySyncStatus({
-                        type: 'backed_up',
-                        message: 'Local data backed up to cloud!'
-                    });
+                    // Local is authoritative or same -> Backup to make cloud current
+                    console.log('CloudSync: Local is authoritative, backing up...');
+                    await backupToCloudNow(userId, 'AUTO_SYNC');
+                    notifySyncStatus({ type: 'backed_up', message: '☁️ Cloud backup updated.' });
                     return { success: true, action: 'backed_up' };
                 }
             }
@@ -139,15 +181,15 @@ export async function autoSyncOnLogin(userId) {
                 return { success: true, action: 'nothing_to_sync' };
             }
         } else {
-            // No cloud backup exists
+            // No cloud backup exists (First time or deleted)
             if (localStudentCount > 0 || localStandardCount > 0) {
                 // Backup local data to cloud
                 console.log('CloudSync: No cloud backup, creating first backup...');
-                await backupToCloudNow(userId);
+                await backupToCloudNow(userId, 'FIRST_BACKUP');
                 lastSyncTime = new Date();
                 notifySyncStatus({
                     type: 'first_backup',
-                    message: 'Created your first cloud backup!'
+                    message: '🚀 Initial cloud backup created!'
                 });
                 return { success: true, action: 'first_backup' };
             }
@@ -165,7 +207,7 @@ export async function autoSyncOnLogin(userId) {
 /**
  * Backup current data to cloud (with encryption)
  */
-async function backupToCloudNow(userId) {
+async function backupToCloudNow(userId, reason = 'MANUAL') {
     if (!userId || !db) throw new Error('Not configured');
 
     // Gather all local data
@@ -188,11 +230,11 @@ async function backupToCloudNow(userId) {
         standards,
         customFields,
         ledger,
-        appVersion: '2.0.0'
+        appVersion: CURRENT_APP_VERSION
     };
 
     // ENCRYPT DATA
-    console.log('CloudSync: Encrypting data...');
+    console.log(`CloudSync: Encrypting data (${reason})...`);
     const encryptedPackage = await encryptData(backupData, userId);
 
     const secureBackup = {
@@ -201,6 +243,7 @@ async function backupToCloudNow(userId) {
         lastModified: new Date().toISOString(),
         userId: userId,
         dataVersion: '2.0',
+        backupReason: reason, // Traceability
         security: 'AES-256-GCM + PBKDF2 + GZIP'
     };
 

@@ -6,8 +6,9 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { UserTierProvider, useUserTier } from './contexts/UserTierContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import UndoRedoBar from './components/Common/UndoRedoBar';
-import { useMenu } from './contexts/MenuContext';
+import { MenuProvider, useMenu } from './contexts/MenuContext';
 import ComponentErrorBoundary from './components/Common/ErrorBoundary';
+import EduNormLogo from './components/Common/EduNormLogo';
 
 // Lazy-loaded components for code splitting
 const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
@@ -40,13 +41,14 @@ const StudentLogin = lazy(() => import('./components/Student/StudentLogin'));
 const CorrectionRequest = lazy(() => import('./components/Student/CorrectionRequest'));
 const QAChat = lazy(() => import('./components/Student/QAChat'));
 const UsageInstructions = lazy(() => import('./components/Features/UsageInstructions'));
+import RoleSelectionModal from './components/Common/RoleSelectionModal';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
     useSettings,
     useStudents,
     useStandards,
     useCustomFields,
-    useLedger,
-    useTheme
+    useLedger
 } from './hooks/useDatabase';
 import * as db from './services/database';
 import * as LocalBackupService from './services/LocalBackupService';
@@ -91,6 +93,17 @@ function AppContent() {
     const { activeMenu, activeSubItem, selectSubItem } = useMenu();
     const [showMenuContent, setShowMenuContent] = useState(false);
     const [menuContentType, setMenuContentType] = useState(null);
+
+    // Role Selection Modal State
+    const [showRoleSelection, setShowRoleSelection] = useState(false);
+
+    useEffect(() => {
+        if (isAuthenticated && user && !user.role) {
+            setShowRoleSelection(true);
+        } else {
+            setShowRoleSelection(false);
+        }
+    }, [isAuthenticated, user]);
 
     // Hooks
     const { settings, updateSetting, loading: settingsLoading } = useSettings();
@@ -168,6 +181,9 @@ function AppContent() {
                 });
 
                 try {
+                    // SAFETY CHECK: Force backup if version changed
+                    await CloudSyncService.checkAndPerformSafetyBackup(user.uid);
+
                     const result = await CloudSyncService.autoSyncOnLogin(user.uid);
                     console.log('Auto-sync result:', result);
 
@@ -691,9 +707,26 @@ function AppContent() {
     }
 
 
+
+
     // Show login page if not authenticated
     if (!isAuthenticated) {
         return <LoginPage />;
+    }
+
+    // Show Role Selection if role is missing (e.g. after Google Login)
+    if (showRoleSelection) {
+        return (
+            <div className="app" data-theme={theme}>
+                <RoleSelectionModal
+                    isOpen={true}
+                    onComplete={() => {
+                        setShowRoleSelection(false);
+                        window.location.reload(); // Reload to refresh menu/context logic
+                    }}
+                />
+            </div>
+        );
     }
 
     // Loading state
@@ -718,13 +751,7 @@ function AppContent() {
             </div>
 
             {/* Sidebar toggle button - always visible */}
-            <button
-                className="sidebar-toggle-btn"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                title={sidebarOpen ? 'Close Menu' : 'Open Menu'}
-            >
-                <Menu size={24} />
-            </button>
+            {/* Sidebar toggle button moved to Sidebar component */}
 
             {/* New Sidebar with 5-Category Menu */}
             <NewSidebar
@@ -747,13 +774,15 @@ function AppContent() {
                         <span>{syncStatus.message}</span>
                     </div>
                 )}
+
+
                 {/* Header */}
                 <header className="main-header">
                     <div className="header-info">
-                        <h1 className="display-font gradient-text">
-                            <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 32, height: 32, borderRadius: 8, marginRight: 8, verticalAlign: 'middle' }} />
-                            EduNorm
-                        </h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 42, height: 42, borderRadius: 10 }} />
+                            <EduNormLogo size="large" />
+                        </div>
                         {selectedStandard && (
                             <div className="header-meta">
                                 <span className="badge badge-primary">{selectedStandard}</span>
@@ -1065,8 +1094,12 @@ function App() {
         <LanguageProvider>
             <AuthProvider>
                 <UserTierProvider>
-                    <AppContent />
-                    <UpgradeModal />
+                    <MenuProvider>
+                        <ThemeProvider>
+                            <AppContent />
+                            <UpgradeModal />
+                        </ThemeProvider>
+                    </MenuProvider>
                 </UserTierProvider>
             </AuthProvider>
         </LanguageProvider>

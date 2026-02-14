@@ -73,7 +73,7 @@
     padding: var(--space-3) var(--space-3);
     text-align: left;
     font-weight: 600;
-    color: var(--gray-800);
+    color: var(--text-primary);
     white-space: nowrap;
     border-bottom: 2px solid var(--pastel-lavender-dark);
     font-size: var(--text-xs);
@@ -100,15 +100,18 @@
 }
 
 .ledger-table tr.even {
-    background: var(--white);
+    background: var(--bg-surface);
 }
 
 .ledger-table tr.odd {
     background: var(--gray-50);
+    /* In dark mode this is now #0f172a */
 }
 
 .ledger-table tr:hover {
-    background: var(--pastel-lavender-light);
+    background: var(--primary-light);
+    color: var(--gray-900);
+    /* Ensure text remains readable on hover */
 }
 
 .ledger-table tr.expanded {
@@ -128,7 +131,7 @@
 
 .student-name {
     font-weight: 500;
-    color: var(--gray-800);
+    color: var(--text-primary);
 }
 
 .action-btns {
@@ -307,7 +310,102 @@
     border-radius: 0;
 }
 
-.ledger-container.maximized .ledger-table-wrapper {
-    max-height: none;
-    flex: 1;
+/* Dark Theme Existing ... */
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+html[data-theme="neon"] body .general-register-container,
+html[data-theme="neon"] body .register-table-container,
+html[data-theme="neon"] body .register-table th,
+html[data-theme="neon"] body .register-table td {
+    background: #000000 !important;
+    color: #D3D3D3 !important;
+    border-color: rgba(211, 211, 211, 0.5) !important;
+}
+
+html[data-theme="neon"] body .expanded-row {
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5) !important;
+}
+
+html[data-theme="neon"] body .detail-value {
+    background: #000000 !important;
+    color: #FFFDD0 !important;
+    /* Cream for values */
+    border: 1px solid rgba(211, 211, 211, 0.5) !important;
+}
+
+html[data-theme="neon"] body .detail-label {
+    color: #A0A0A0 !important;
+    /* Muted Grey */
+}
+
+[data-theme="neon"] .ledger-table th {
+    background: #000000;
+    color: #FFFDD0;
+    /* Cream Accent Header */
+    border-bottom: 2px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .ledger-table tr.even {
+    background: #000000;
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .ledger-table tr.odd {
+    background: #050505;
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .ledger-table td {
+    border-color: rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .ledger-table tr:hover {
+    background: #111;
+    /* Slight highlight */
+    color: #FFFDD0;
+    /* Cream Text on Hover */
+    box-shadow: none;
+}
+
+[data-theme="neon"] .action-btn {
+    background: #000000;
+    color: #D3D3D3;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+box-shadow: none;
+}
+
+/* Expanded Row Neon Overrides (4-Color Rule) */
+[data-theme="neon"] .expanded-row,
+[data-theme="neon"] .expanded-row:hover {
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.5);
+    /* #D3D3D380 */
+}
+
+[data-theme="neon"] .detail-section h4 {
+    color: #D3D3D3;
+    /* Light Grey */
+    text-shadow: none;
+}
+
+[data-theme="neon"] .detail-label {
+    color: #A0A0A0;
+    /* Muted Grey */
+}
+
+[data-theme="neon"] .detail-value {
+    background: #000000;
+    color: #FFFDD0;
+    /* Cream Accent for Values */
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    /* #D3D3D380 */
+}
+
+[data-theme="neon"] .detail-section+.detail-section {
+    border-top: 1px solid rgba(211, 211, 211, 0.5);
+
 }

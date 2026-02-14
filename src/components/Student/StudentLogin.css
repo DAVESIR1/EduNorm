@@ -295,3 +295,58 @@
         text-align: center;
     }
 }
+
+/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+[data-theme="neon"] .student-login-card,
+[data-theme="neon"] .student-profile-view {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    box-shadow: none;
+}
+
+[data-theme="neon"] .profile-photo-wrap {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .profile-detail-card {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+}
+
+[data-theme="neon"] .login-card-header h2,
+[data-theme="neon"] .profile-name-section h2 {
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .login-card-header p {
+    color: #A0A0A0;
+}
+
+[data-theme="neon"] .input-field {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    color: #D3D3D3;
+}
+
+[data-theme="neon"] .input-field:focus {
+    border-color: #FFFDD0;
+    box-shadow: 0 0 5px rgba(255, 253, 208, 0.3);
+}
+
+[data-theme="neon"] .id-type-btn {
+    background: #000000;
+    border: 1px solid rgba(211, 211, 211, 0.5);
+    color: #A0A0A0;
+}
+
+[data-theme="neon"] .id-type-btn.active {
+    background: rgba(255, 253, 208, 0.1);
+    color: #FFFDD0;
+    border-color: #FFFDD0;
+    box-shadow: none;
+}
+
+[data-theme="neon"] .profile-class {
+    color: #FFFDD0;
+}
