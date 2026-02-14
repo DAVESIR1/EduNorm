@@ -390,6 +390,7 @@ export function AuthProvider({ children }) {
         verifyPhoneOTP,
         updateProfile,
         logout,
+        setError,
         clearError: () => setError(null)
     };
 

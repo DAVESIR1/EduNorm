@@ -50,14 +50,17 @@ export default function LoginPage() {
     const [schoolCode, setSchoolCode] = useState('');
     const [schoolVerified, setSchoolVerified] = useState(false);
     const [verifiedData, setVerifiedData] = useState(null); // Store verified student/teacher data
+    const [notFoundMessage, setNotFoundMessage] = useState(false); // Friendly error state
 
     const handleVerifySchoolCode = async () => {
+        console.log('handleVerifySchoolCode: Started with code:', schoolCode);
         if (!schoolCode) return;
         setLoading(true);
         clearError();
         try {
             const db = await import('../../services/database');
             const schoolProfile = await db.getSetting('school_profile');
+            console.log('handleVerifySchoolCode: Local Profile:', schoolProfile);
 
             if (schoolProfile) {
                 const storedUdise = String(schoolProfile.udiseNumber || '').trim().toLowerCase();
@@ -65,20 +68,26 @@ export default function LoginPage() {
                 const inputCode = String(schoolCode).trim().toLowerCase();
 
                 if (inputCode === storedUdise || inputCode === storedIndex) {
+                    console.log('handleVerifySchoolCode: Local Match Found!');
                     setSchoolVerified(true);
                     setSuccess('School Verified! Please enter your credentials.');
                     // Pre-fill for registration later
                     setGovtSchoolCode(inputCode);
                 } else {
-                    alert(`Debug: Input "${inputCode}" != Stored UDISE "${storedUdise}" / Index "${storedIndex}"`);
+                    console.warn(`Debug: Input "${inputCode}" != Stored UDISE "${storedUdise}" / Index "${storedIndex}"`);
                     setError('Incorrect School Code. Please ask your Head of Institute (HOI) to register your data first.');
                 }
             } else {
-                alert('Debug: No School Profile found on this device. Please login as HOI first.');
-                setError('This device is not registered with any School. Please ask your Head of Institute (HOI) to register first.');
+                console.log('handleVerifySchoolCode: No local profile. Using Override Logic?');
+                // FORCE SUCCESS for Verification Phase if using Remote Check logic
+                // The actual check happens in the NEXT step (verifyUserCredentials)
+                // But we need to let the UI show the next inputs.
+                setSchoolVerified(true);
+                setSuccess('Please enter your Student ID to verify with Server.');
+                setGovtSchoolCode(schoolCode);
             }
         } catch (err) {
-            console.error(err);
+            console.error('handleVerifySchoolCode Error:', err);
             setError('Verification failed. Try again.');
         } finally {
             setLoading(false);
@@ -247,11 +256,51 @@ export default function LoginPage() {
 
                             } catch (err) {
                                 console.error('Login Process Error:', err);
-                                setError(err.message || 'Login Failed. Check console.');
+
+                                // Check for specific "Not Found" errors to show the friendly message
+                                if (err.message.includes('Record not found') || err.message.includes('not found')) {
+                                    // We can try to get the contact info from the school profile if we have it locally,
+                                    // or just show a generic placeholder if we only have the code.
+                                    // Since verifyUserCredentials fails, we might not have the full profile loaded here 
+                                    // if we are using the override.
+                                    setNotFoundMessage(true);
+                                } else {
+                                    setError(err.message || 'Login Failed. Check console.');
+                                }
+                                setSuccess('');
                             } finally {
                                 setLoading(false);
                             }
                         }}>
+
+                            {/* Friendly "Not Found" Modal/Message */}
+                            {notFoundMessage && (
+                                <div className="beautiful-error-window slide-down-animation">
+                                    <div className="error-content">
+                                        <h4>👋 Hello Dear!</h4>
+                                        <p>
+                                            I honestly inform you that your <b>School / Institute</b> is not registered here
+                                            or has not added your data yet.
+                                        </p>
+                                        <p>
+                                            Please contact your <b>Head of Institute (HOI)</b> to register and add your data.
+                                            <br />
+                                            Only then can you register and login here.
+                                        </p>
+                                        <div className="contact-box">
+                                            <span>📞 HOI Contact:</span>
+                                            <strong>{schoolContact || 'Please check with your School Admin'}</strong>
+                                        </div>
+                                        <button
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => { setNotFoundMessage(false); clearError(); }}
+                                            style={{ marginTop: '12px' }}
+                                        >
+                                            Okay, I Understand
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             {/* Step 1: School Code Verification */}
                             <div className="input-group">
                                 <label className="input-label">

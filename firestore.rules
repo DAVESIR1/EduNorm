@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- HELPER FUNCTIONS ---
+    
+    // Check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Check if user is Admin (Hardcoded for safety, ideally use Custom Claims)
+    function isAdmin() {
+      return isAuth() && (
+        request.auth.token.email == 'baraiyanitin220@gmail.com' ||
+        request.auth.token.phone_number == '+919737970647'
+      );
+    }
+
+    // Check if the user accessing their own profile
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // --- RULES ---
+
+    // 1. SCHOOLS COLLECTION
+    // Public Read: Required for "School Code Verification" check.
+    // Admin Write: Only admins can create/update schools.
+    match /schools/{schoolId} {
+      allow read: if true;
+      allow write: if isAdmin();
+
+      // 2. STUDENTS SUBCOLLECTION
+      // Read: 
+      // - Allow if authenticated (Logged in users)
+      // - Allow public LIST if querying for verification (limited access)
+      //   (Note: Real production apps should use Cloud Functions for sensitive ID lookup to prevent scraping)
+      match /students/{studentId} {
+        allow read: if isAuth() || (request.query.limit <= 1);
+        allow write: if isAdmin();
+      }
+
+      // 3. TEACHERS SUBCOLLECTION
+      match /teachers/{teacherId} {
+        allow read: if isAuth();
+        allow write: if isAdmin(); 
+      }
+    }
+
+    // 4. USER PROFILES
+    // Strict Owner Access: Users can only read/write their own profile.
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // 5. SETTINGS / GLOBAL CONFIG
+    match /settings/{docId} {
+      allow read: if true; // Public settings like "Maintenance Mode"
+      allow write: if isAdmin();
+    }
+    
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

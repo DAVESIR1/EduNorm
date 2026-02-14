@@ -1,4 +1,38 @@
 /* ===== LOGIN PAGE STYLES ===== */
+.beautiful-error-window {
+    background: #fff5f5;
+    border: 1px solid #fc8181;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(252, 129, 129, 0.2);
+}
+
+.beautiful-error-window h4 {
+    color: #c53030;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+}
+
+.beautiful-error-window p {
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.beautiful-error-window .contact-box {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border: 1px dashed #fc8181;
+    display: inline-block;
+    color: #2d3748;
+}
+
+/* Original Content */
 .login-page {
     min-height: 100vh;
     display: flex;

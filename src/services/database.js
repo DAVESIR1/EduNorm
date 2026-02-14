@@ -328,18 +328,100 @@ export async function importAllData(data) {
     }
 
     if (data.students && data.students.length > 0) {
-        console.log('importAllData: Importing students...');
-        // Log first 3 students to verify data
-        data.students.slice(0, 3).forEach((s, i) => {
-            console.log(`  Student ${i + 1}: ID=${s.id}, GR=${s.grNo}, Name="${s.name}"`);
+        console.log('importAllData: Importing students with Smart Merge...');
+
+        // --- SMART MERGE & DEDUPLICATION ---
+        const studentMap = new Map();
+
+        // 1. Deduplicate INCOMING records first
+        data.students.forEach(incoming => {
+            if (!incoming.grNo) return; // Skip invalid records without GR
+            const grKey = String(incoming.grNo).trim();
+
+            if (studentMap.has(grKey)) {
+                // Merge strategy: Prioritize info from the "better" record
+                const existing = studentMap.get(grKey);
+
+                // Helper to check if a record has valid ID
+                const hasId = (s) => (s.aadharNo || s.govId || s.aadhar || s.aadharNumber);
+
+                // If incoming has ID and existing doesn't, OVERWRITE existing with incoming
+                if (hasId(incoming) && !hasId(existing)) {
+                    studentMap.set(grKey, incoming);
+                }
+                // If both have ID, or neither, verify other fields (retain most complete)
+                else if (!hasId(existing) && !hasId(incoming)) {
+                    // Simple heuristic: keep the one with more keys
+                    if (Object.keys(incoming).length > Object.keys(existing).length) {
+                        studentMap.set(grKey, incoming);
+                    }
+                }
+                // Else: Existing has ID, keep existing (or merge fields if needed, but for now assumption is one valid record exists)
+
+                // MERGE MISSING FIELDS
+                // Regardless of which "base" record we kept, fill in gaps from the "other" one
+                const base = studentMap.get(grKey);
+                const other = (base === incoming) ? existing : incoming;
+
+                Object.keys(other).forEach(key => {
+                    if ((base[key] === undefined || base[key] === '' || base[key] === null) && other[key]) {
+                        base[key] = other[key];
+                    }
+                });
+                // NORMALIZE FIELDS
+                if (base.aadharNumber && !base.aadharNo) base.aadharNo = base.aadharNumber;
+                if (base.gr_no && !base.grNo) base.grNo = base.gr_no;
+
+                studentMap.set(grKey, base);
+
+            } else {
+                const s = { ...incoming };
+                // NORMALIZE NEW RECORDS TOO
+                if (s.aadharNumber && !s.aadharNo) s.aadharNo = s.aadharNumber;
+                if (s.gr_no && !s.grNo) s.grNo = s.gr_no;
+                studentMap.set(grKey, s);
+            }
         });
 
+        console.log(`importAllData: Deduplicated ${data.students.length} incoming records to ${studentMap.size} unique students.`);
+
         const tx = db.transaction('students', 'readwrite');
-        for (const item of data.students) {
-            await tx.store.put(item);
+        // Clear existing? No, we merge/update. 
+        // NOTE: If we want a full restore that matches backup exactly, we might want to clear. 
+        // But for "Restore from File" on top of potential local data, update is safer.
+        // However, user said "Restore", implying "Reset to this state".
+        // Let's iterate and put.
+
+        for (const student of studentMap.values()) {
+            // Ensure ID is unique or handled. 
+            // If we use 'put', and ID exists, it updates. 
+            // But duplicate GR check might fail if IDs don't match existing DB.
+            // Best approach for Restore: Look up by GR first in DB?
+            // "importAllData" usually implies a bulk load. 
+            // If IDs in backup conflict with IDs in DB but for DIFFERENT GRs, we have a mess.
+            // SAFEST: Let IndexedDB auto-increment ID if not strictly required, OR strictly use GR as key.
+            // But ID is keyPath.
+
+            // To avoid ConstraintError on unique GR index:
+            // Check if GR exists in DB.
+            const existingInDbIdx = tx.store.index('grNo');
+            const existingInDb = await existingInDbIdx.get(student.grNo);
+
+            if (existingInDb) {
+                // Update existing record, keeping its DB ID to avoid PK collision/change
+                student.id = existingInDb.id;
+            } else {
+                // New record. If student.id is present, it might collide with another AUTO-INCREMENT.
+                // It is safer to DELETE student.id and let DB assign a new one, unless we need to preserve IDs for relations.
+                // For this app, relationships (like fees) likely use ID.
+                // Assuming Backup preserves integrity.
+                // IF we trust backup IDs, use them.
+            }
+
+            await tx.store.put(student);
         }
         await tx.done;
-        console.log('importAllData: All students imported');
+        console.log('importAllData: All students imported successfully.');
     }
 
     if (data.standards) {
@@ -435,7 +517,7 @@ export async function verifyStudent(grNo, govId) {
     // ALLOW: Aadhar, GovID, SSSM ID, Email, or Mobile
     const inputVal = String(govId).trim().toLowerCase();
 
-    const storedAadhar = student.aadharNo ? String(student.aadharNo).trim() : '';
+    const storedAadhar = student.aadharNo ? String(student.aadharNo).trim() : (student.aadharNumber ? String(student.aadharNumber).trim() : '');
     const storedGovId = student.govId ? String(student.govId).trim() : '';
     const storedSssm = student.sssmId ? String(student.sssmId).trim() : '';
     const storedEmail = student.email ? String(student.email).trim().toLowerCase() : '';

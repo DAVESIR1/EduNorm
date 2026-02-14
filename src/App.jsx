@@ -9,6 +9,7 @@ import UndoRedoBar from './components/Common/UndoRedoBar';
 import { MenuProvider, useMenu } from './contexts/MenuContext';
 import ComponentErrorBoundary from './components/Common/ErrorBoundary';
 import EduNormLogo from './components/Common/EduNormLogo';
+import BrandLoader from './components/Common/BrandLoader';
 
 // Lazy-loaded components for code splitting
 const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
@@ -671,39 +672,9 @@ function AppContent() {
         // The BackupRestore modal will show the Import tab
     }, []);
 
-    // Auth loading state - instantly visible skeleton (no CSS variable dependency)
+    // Auth loading state - instantly visible
     if (authLoading) {
-        return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#f8f9fa',
-                flexDirection: 'column',
-                gap: '16px'
-            }}>
-                <div className="auth-spinner" style={{
-                    width: '48px',
-                    height: '48px',
-                    border: '4px solid #e5e7eb',
-                    borderTop: '4px solid #7C3AED',
-                    borderRadius: '50%',
-                    animation: 'authSpin 0.8s linear infinite'
-                }} />
-                <p style={{ color: '#6b7280', fontSize: '14px', fontFamily: 'system-ui, sans-serif' }}>
-                    Loading...
-                </p>
-                <style>{`
-                    @keyframes authSpin {
-                        to { transform: rotate(360deg); }
-                    }
-                    @media (prefers-color-scheme: dark) {
-                        .auth-spinner { border-color: #374151 !important; border-top-color: #8B5CF6 !important; }
-                    }
-                `}</style>
-            </div>
-        );
+        return <BrandLoader message="Verifying credentials..." />;
     }
 
 
@@ -731,14 +702,7 @@ function AppContent() {
 
     // Loading state
     if (!isReady) {
-        return (
-            <div className="loading-screen">
-                <div className="loading-content">
-                    <div className="loading-spinner animate-pulse">📚</div>
-                    <h2 className="display-font gradient-text">Loading EduNorm...</h2>
-                </div>
-            </div>
-        );
+        return <BrandLoader message="Loading EduNorm..." />;
     }
 
     return (
@@ -751,7 +715,30 @@ function AppContent() {
             </div>
 
             {/* Sidebar toggle button - always visible */}
-            {/* Sidebar toggle button moved to Sidebar component */}
+            {!sidebarOpen && (
+                <button
+                    className="mobile-sidebar-toggle"
+                    onClick={() => setSidebarOpen(true)}
+                    style={{
+                        position: 'fixed',
+                        top: '12px',
+                        left: '12px',
+                        zIndex: 40,
+                        padding: '8px',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    title="Open Menu"
+                >
+                    <Menu size={24} />
+                </button>
+            )}
 
             {/* New Sidebar with 5-Category Menu */}
             <NewSidebar

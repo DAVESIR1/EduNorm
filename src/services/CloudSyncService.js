@@ -247,10 +247,100 @@ async function backupToCloudNow(userId, reason = 'MANUAL') {
         security: 'AES-256-GCM + PBKDF2 + GZIP'
     };
 
+
     const backupRef = doc(db, 'backups', userId);
     await setDoc(backupRef, secureBackup);
     console.log('CloudSync: Encrypted backup completed');
+
+    // ─── PUBLIC DIRECTORY SYNC (For Student Verification) ───
+    try {
+        await publishToPublicDirectory(students, settings);
+    } catch (pubErr) {
+        console.warn('CloudSync: Public directory sync failed (Non-critical):', pubErr);
+    }
 }
+
+/**
+ * Publish essential student data to Public Directory for Verification
+ * Writes to: schools/{schoolId}/students/{studentId}
+ */
+async function publishToPublicDirectory(students, settings) {
+    if (!students || students.length === 0) return;
+
+    // 1. Identify School ID (UDISE or Index)
+    // We prefer the 'id' if it matches the code, or the code itself
+    const schoolId = settings.id || settings.udiseNumber || settings.indexNumber || settings.schoolCode;
+
+    if (!schoolId) {
+        console.warn('CloudSync: No School ID found, skipping public sync.');
+        return;
+    }
+
+    const cleanSchoolId = String(schoolId).trim().replace(/[^a-zA-Z0-9]/g, '');
+    console.log(`CloudSync: Syncing ${students.length} students to Public Directory: schools/${cleanSchoolId}/students`);
+
+    const { collection, writeBatch, doc: firestoreDoc } = await import('firebase/firestore');
+
+    // We use batches to write efficiently (max 500 ops per batch)
+    // For now, we'll confirm the School Document exists first
+    const schoolRef = firestoreDoc(db, 'schools', cleanSchoolId);
+
+    // Create/Update School Doc with basic info
+    const schoolData = {
+        name: settings.schoolName || 'Unknown School',
+        udiseNumber: settings.udiseNumber || '',
+        indexNumber: settings.indexNumber || '',
+        lastUpdated: serverTimestamp()
+    };
+
+    // Use setDoc with merge to avoid overwriting existing data if any
+    await setDoc(schoolRef, schoolData, { merge: true });
+
+    // Batch write students
+    // Optimization: Only write if data changed? Hard to know without tracking.
+    // robust approach: Write all.
+
+    const BATCH_SIZE = 450; // Safety margin below 500
+    const chunks = [];
+
+    for (let i = 0; i < students.length; i += BATCH_SIZE) {
+        chunks.push(students.slice(i, i + BATCH_SIZE));
+    }
+
+    for (const chunk of chunks) {
+        const batch = writeBatch(db);
+        chunk.forEach(student => {
+            if (!student.id) return; // Skip invalid
+            const studentRef = firestoreDoc(db, `schools/${cleanSchoolId}/students`, String(student.id));
+
+            // Only sync searchable/verifiable fields to public directory
+            // We strip sensitive data not needed for verification if we wanted to be strict,
+            // but for verifyStudent() to work flexibly, we send the core object.
+            // Let's send a sanitized version.
+            const publicData = {
+                id: student.id,
+                grNo: student.grNo, // Critical
+                name: student.name,
+                standard: student.standard,
+                section: student.division || student.section || '',
+                aadharNo: student.aadharNo || '', // Critical for verification
+                govId: student.govId || '',
+                dob: student.dob || '',
+                mobile: student.mobile || '',
+                gender: student.gender || '',
+                lastUpdated: serverTimestamp()
+            };
+
+            batch.set(studentRef, publicData, { merge: true });
+        });
+
+        await batch.commit();
+        console.log(`CloudSync: Published batch of ${chunk.length} students.`);
+    }
+
+    console.log('CloudSync: Public Directory Sync Complete.');
+}
+
 
 /**
  * Restore data from cloud backup object (with decryption)
