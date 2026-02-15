@@ -42,7 +42,9 @@ const TeachersProfileList = lazy(() => import('./components/School/TeachersProfi
 const StudentLogin = lazy(() => import('./components/Student/StudentLogin'));
 const CorrectionRequest = lazy(() => import('./components/Student/CorrectionRequest'));
 const QAChat = lazy(() => import('./components/Student/QAChat'));
+
 const UsageInstructions = lazy(() => import('./components/Features/UsageInstructions'));
+const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard'));
 import RoleSelectionModal from './components/Common/RoleSelectionModal';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
@@ -700,6 +702,16 @@ function AppContent() {
                         window.location.reload(); // Reload to refresh menu/context logic
                     }}
                 />
+            </div>
+        );
+    }
+
+    // ROLE-BASED ACCESS CONTROL (RBAC)
+    // If verified student, show restricted dashboard ONLY
+    if (user?.role === 'student') {
+        return (
+            <div className="app" data-theme={theme}>
+                <StudentDashboard user={user} onLogout={logout} />
             </div>
         );
     }
