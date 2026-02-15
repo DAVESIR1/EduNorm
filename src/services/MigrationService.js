@@ -43,7 +43,7 @@ export async function migrateToLiveServer() {
     // Crucial: Update local settings so verifyStudent() knows where to look!
     try {
         const currentProfile = await localDb.getSetting('school_profile') || {};
-        await localDb.saveSetting('school_profile', {
+        await localDb.setSetting('school_profile', {
             ...currentProfile,
             id: schoolId, // Link local data to this cloud capability
             ownerId: schoolId,

@@ -266,7 +266,6 @@ async function publishToPublicDirectory(students, settings, userId) {
     if (!students || students.length === 0) return;
 
     // CRITICAL FIX: Use Auth UID as the School ID to match MigrationService and Security Rules
-    // Old logic: const schoolId = settings.id || settings.udiseNumber ...
     if (!userId) {
         console.warn('CloudSync: No User ID provided for public sync.');
         return;
@@ -277,21 +276,34 @@ async function publishToPublicDirectory(students, settings, userId) {
 
     const { collection, writeBatch, doc: firestoreDoc } = await import('firebase/firestore');
 
-    // We use batches to write efficiently (max 500 ops per batch)
-    // For now, we'll confirm the School Document exists first
     const schoolRef = firestoreDoc(db, 'schools', cleanSchoolId);
 
-    // Create/Update School Doc with basic info
-    // CRITICAL: Ensure no undefined values, as Firestore rejects them
+    // ROOT CAUSE FIX: Extract school info from BOTH top-level keys AND nested 'school_profile'
+    // Settings may look like: { school_profile: { schoolName: '...', udiseNumber: '...' }, schoolName: '...', ... }
+    // We need to check the nested object first, then fallback to top-level keys
+    const profile = settings.school_profile || {};
+
+    const schoolName = profile.schoolName || profile.name || settings.schoolName || settings.school_name || 'Unknown School';
+    const udiseNumber = String(profile.udiseNumber || settings.udiseNumber || profile.udise || settings.udise || '').trim();
+    const indexNumber = String(profile.indexNumber || settings.indexNumber || profile.index || settings.index || '').trim();
+    const schoolEmail = profile.email || profile.schoolEmail || settings.schoolEmail || settings.email || '';
+    const schoolCode = String(profile.schoolCode || settings.schoolCode || '').trim();
+
+    console.log(`CloudSync: School Info -> Name="${schoolName}", UDISE="${udiseNumber}", Index="${indexNumber}", Code="${schoolCode}"`);
+
+    // Create/Update School Doc with CORRECT info
     const schoolData = {
-        name: settings.schoolName || 'Unknown School',
-        udiseNumber: settings.udiseNumber || '',
-        indexNumber: settings.indexNumber || '',
-        email: settings.schoolEmail || '',
+        name: schoolName,
+        schoolName: schoolName,
+        udiseNumber: udiseNumber,
+        indexNumber: indexNumber,
+        schoolCode: schoolCode,
+        email: schoolEmail,
+        ownerId: userId,
         lastUpdated: serverTimestamp()
     };
 
-    // Use setDoc with merge to avoid overwriting existing data if any
+    // Use setDoc with merge to avoid overwriting existing data
     await setDoc(schoolRef, schoolData, { merge: true });
 
     // Batch write students

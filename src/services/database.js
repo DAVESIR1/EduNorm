@@ -520,6 +520,12 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
                             snap = await getDocs(q);
                         }
 
+                        // Try schoolCode field
+                        if (snap.empty) {
+                            q = query(schoolsRef, where('schoolCode', '==', searchCode), limit(1));
+                            snap = await getDocs(q);
+                        }
+
                         // Try direct document ID
                         if (snap.empty) {
                             const { getDoc, doc } = await import('firebase/firestore');
@@ -527,6 +533,10 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
                             if (directDoc.exists()) targetSchoolUid = directDoc.id;
                         } else {
                             targetSchoolUid = snap.docs[0].id;
+                        }
+
+                        if (targetSchoolUid) {
+                            console.log(`School resolved: code "${searchCode}" -> UID "${targetSchoolUid}"`);
                         }
                     }
 
