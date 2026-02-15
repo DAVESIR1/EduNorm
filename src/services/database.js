@@ -464,226 +464,146 @@ export const getAllStudentsForBackup = getAllStudents;
 export const getAllLedgerEntries = getLedger;
 
 // Verification Utilities for Login
-// Verification Utilities for Login
 export async function verifyStudent(grNo, govId, schoolCodeArg) {
     const db = await initDB();
-    // 1. Try to find by GR No (Local Try both String and Number formats)
+
+    // Helper: clean string for fuzzy matching (removes spaces, dashes, lowercases)
+    const cleanStr = (s) => String(s || '').replace(/[\s-]/g, '').toLowerCase().trim();
+
+    // Smart GR variations
+    const rawGr = String(grNo).trim();
+    const numGr = parseInt(rawGr, 10);
+
+    // 1. LOCAL IndexedDB lookup (fast path)
     const index = db.transaction('students').store.index('grNo');
-    let student = await index.get(grNo);
+    let student = await index.get(rawGr);
 
-    // If not found as-is, try converting type
-    if (!student && !isNaN(grNo)) {
-        student = await index.get(Number(grNo)); // Try number
+    if (!student && !isNaN(numGr)) {
+        student = await index.get(numGr);           // Try as number
     }
-    if (!student) {
-        student = await index.get(String(grNo)); // Try string
+    if (!student && !isNaN(numGr)) {
+        student = await index.get(String(numGr));   // Try "1" when input was "01"
     }
 
-    // --- LIVE FIRESTORE FALLBACK ---
+    // 2. LIVE FIRESTORE FALLBACK (if local didn't find anything)
     if (!student) {
-        console.log('Local verification failed. Trying Live Firestore check...');
+        console.log('Local verification failed. Trying Live Firestore with Smart Query...');
         try {
             const { getFirestore, collection, query, where, getDocs, limit } = await import('firebase/firestore');
             const { isFirebaseConfigured } = await import('../config/firebase');
 
             if (isFirebaseConfigured) {
                 const firestore = getFirestore();
-
-                // PRIORITIZE: Passed School Code -> Local Profile ID
+                const schoolProfile = await getSetting('school_profile');
                 const searchCode = String(schoolCodeArg || schoolProfile?.udiseNumber || schoolProfile?.schoolCode || schoolProfile?.indexNumber || '').trim();
 
                 if (searchCode) {
                     console.log('Verifying with School Code:', searchCode);
 
-                    // 1. Resolve School UID from the Code (UDISE/Index/etc)
-                    // We need to find which "school" document has this code
+                    // 2a. Resolve School UID from Code
                     let targetSchoolUid = null;
 
-                    // First, if the user happens to have the UID locally (rare for new users), use it.
                     if (schoolProfile?.id && schoolProfile?.id.length > 20) {
                         targetSchoolUid = schoolProfile.id;
                     }
 
                     if (!targetSchoolUid) {
-                        // Query 'schools' collection to find the doc with this udise/code
                         const schoolsRef = collection(firestore, 'schools');
 
-                        // Try UDISE first
+                        // Try UDISE
                         let q = query(schoolsRef, where('udiseNumber', '==', searchCode), limit(1));
                         let snap = await getDocs(q);
 
-                        console.log(`Database: UDISE Query Result Empty? ${snap.empty}`);
-
+                        // Try Index Number
                         if (snap.empty) {
-                            // Try Index Number
                             q = query(schoolsRef, where('indexNumber', '==', searchCode), limit(1));
                             snap = await getDocs(q);
                         }
 
-                        // If still empty, maybe they entered the UID directly? (Unlikely but valid)
+                        // Try direct document ID
                         if (snap.empty) {
-                            const directDoc = await import('firebase/firestore').then(mod => mod.getDoc(mod.doc(firestore, 'schools', searchCode)));
-                            if (directDoc.exists()) {
-                                targetSchoolUid = directDoc.id;
-                            }
+                            const { getDoc, doc } = await import('firebase/firestore');
+                            const directDoc = await getDoc(doc(firestore, 'schools', searchCode));
+                            if (directDoc.exists()) targetSchoolUid = directDoc.id;
                         } else {
                             targetSchoolUid = snap.docs[0].id;
                         }
                     }
 
-                    // -------------------------------
-                    // 1. SMART GR Match Strategy
-                    // -------------------------------
-                    // We try multiple formats of the GR No to ensure we find the student
-                    const grVariations = [];
-                    const rawGr = String(grNo).trim();
-                    grVariations.push(rawGr); // 1. As entered ("001")
+                    // 2b. Query students with multiple GR variations
+                    if (targetSchoolUid) {
+                        console.log('Found School UID:', targetSchoolUid);
+                        const studentsRef = collection(firestore, `schools/${targetSchoolUid}/students`);
 
-                    const numGr = parseInt(rawGr, 10);
-                    if (!isNaN(numGr)) {
-                        grVariations.push(numGr);          // 2. As number (1)
-                        grVariations.push(String(numGr));  // 3. As string number ("1")
-                        // 4. Pad with zeros if short? Maybe later if needed.
-                    }
+                        // Fire multiple queries in parallel for robustness
+                        const queries = [];
+                        queries.push(query(studentsRef, where("grNo", "==", rawGr), limit(1)));
 
-                    // Attempt to find student with any of these variations
-                    // Note: In a real DB, we'd use an 'IN' query, but for local array find/filter is fast enough
-                    if (!student) {
-                        // Local Check first
-
-                        // Helper: Check if a student's GR matches any variation
-                        const matchGr = (s) => {
-                            const sGr = s.grNo;
-                            // Strict check
-                            if (sGr == rawGr) return true;
-                            // Loose check
-                            if (String(sGr).trim() == rawGr) return true;
-                            // Number check
-                            if (!isNaN(numGr) && parseInt(sGr, 10) === numGr) return true;
-                            return false;
-                        };
-
-                        student = students.find(s => matchGr(s));
-                    }
-
-                    // --- LIVE FIRESTORE FALLBACK (Advanced) ---
-                    if (!student) {
-                        console.log('Local verification failed. Trying Live Firestore check with Smart Query...');
-                        try {
-                            const { getFirestore, collection, query, where, getDocs, limit, or } = await import('firebase/firestore');
-                            const { isFirebaseConfigured } = await import('../config/firebase');
-
-                            if (isFirebaseConfigured) {
-                                const firestore = getFirestore();
-
-                                // PRIORITIZE: Passed School Code -> Local Profile ID
-                                const searchCode = String(schoolCodeArg || schoolProfile?.udiseNumber || schoolProfile?.schoolCode || schoolProfile?.indexNumber || '').trim();
-
-                                if (searchCode) {
-                                    // ... (School Resolution Logic same as before) ...
-                                    // 1. Resolve School UID from the Code (UDISE/Index/etc)
-                                    let targetSchoolUid = null;
-                                    if (schoolProfile?.id && schoolProfile?.id.length > 20) targetSchoolUid = schoolProfile.id;
-
-                                    if (!targetSchoolUid) {
-                                        const schoolsRef = collection(firestore, 'schools');
-                                        let q = query(schoolsRef, where('udiseNumber', '==', searchCode), limit(1));
-                                        let snap = await getDocs(q);
-                                        if (snap.empty) {
-                                            q = query(schoolsRef, where('indexNumber', '==', searchCode), limit(1));
-                                            snap = await getDocs(q);
-                                        }
-                                        if (snap.empty) {
-                                            const directDoc = await import('firebase/firestore').then(mod => mod.getDoc(mod.doc(firestore, 'schools', searchCode)));
-                                            if (directDoc.exists()) targetSchoolUid = directDoc.id;
-                                        } else {
-                                            targetSchoolUid = snap.docs[0].id;
-                                        }
-                                    }
-
-                                    if (targetSchoolUid) {
-                                        console.log('Found School UID:', targetSchoolUid);
-                                        const studentsRef = collection(firestore, `schools/${targetSchoolUid}/students`);
-
-                                        // Fire multiple queries in parallel for robustness (OR queries can be tricky in Firestore without composite index)
-                                        // simpler to issue 2-3 specific queries
-                                        const queries = [];
-
-                                        // 1. Exact String Match
-                                        queries.push(query(studentsRef, where("grNo", "==", rawGr), limit(1)));
-
-                                        // 2. Number Match (if applicable)
-                                        if (!isNaN(numGr)) {
-                                            queries.push(query(studentsRef, where("grNo", "==", numGr), limit(1))); // Stored as number
-                                            queries.push(query(studentsRef, where("grNo", "==", String(numGr)), limit(1))); // Stored as "1" (inputs "01")
-                                        }
-
-                                        // Execute all
-                                        const verifySnapshots = await Promise.all(queries.map(q => getDocs(q)));
-
-                                        for (const snap of verifySnapshots) {
-                                            if (!snap.empty) {
-                                                const doc = snap.docs[0];
-                                                student = { ...doc.data(), id: doc.id };
-                                                console.log('Student found in Live Firestore via Smart Match:', student.name);
-                                                break;
-                                            }
-                                        }
-
-                                        if (!student) console.log('School found, but Student GR not found with any variation.');
-                                    } else {
-                                        console.warn('No registered school found with code:', searchCode);
-                                    }
-                                }
-                            }
-                        } catch (err) {
-                            console.warn('Live Firestore verification failed:', err);
+                        if (!isNaN(numGr)) {
+                            queries.push(query(studentsRef, where("grNo", "==", numGr), limit(1)));
+                            queries.push(query(studentsRef, where("grNo", "==", String(numGr)), limit(1)));
                         }
+
+                        const snapshots = await Promise.all(queries.map(q => getDocs(q)));
+
+                        for (const snap of snapshots) {
+                            if (!snap.empty) {
+                                const doc = snap.docs[0];
+                                student = { ...doc.data(), id: doc.id };
+                                console.log('Student found in Live Firestore via Smart Match:', student.name);
+                                break;
+                            }
+                        }
+
+                        if (!student) console.log('School found, but Student GR not found with any variation.');
+                    } else {
+                        console.warn('No registered school found with code:', searchCode);
                     }
-                    // -------------------------------
-
-                    if (!student) return { success: false, error: `Student with GR No "${grNo}" not found.` };
-
-                    // 2. Verify Gov ID (FUZZY MATCH)
-                    // ALLOW: Aadhar, GovID, SSSM ID, Email, or Mobile
-                    // Remove spaces, dashes, lowercase
-                    const cleanStr = (s) => String(s || '').replace(/[\s-]/g, '').toLowerCase().trim();
-
-                    const inputVal = cleanStr(govId);
-
-                    const storedAadhar = cleanStr(student.aadharNo || student.aadharNumber);
-                    const storedGovId = cleanStr(student.govId);
-                    const storedSssm = cleanStr(student.sssmId);
-                    const storedEmail = cleanStr(student.email);
-                    const storedMobile = cleanStr(student.mobile || student.contactNumber);
-
-                    const debugMsg = `Checking Student GR: ${grNo} | Input: "${inputVal}" | Matches: Aadhar=${storedAadhar === inputVal}, Mobile=${storedMobile === inputVal}`;
-                    console.log(debugMsg);
-
-                    if (
-                        (storedAadhar && storedAadhar === inputVal) ||
-                        (storedGovId && storedGovId === inputVal) ||
-                        (storedSssm && storedSssm === inputVal) ||
-                        (storedEmail && storedEmail === inputVal) ||
-                        (storedMobile && storedMobile === inputVal)
-                    ) {
-                        return { success: true, data: student };
-                    }
-
-                    return { success: false, error: 'Verification credentials mismatch.' };
                 }
+            }
+        } catch (err) {
+            console.warn('Live Firestore verification failed:', err);
+        }
+    }
 
-                export async function verifyTeacher(teacherCode, govId) {
-                    // Teachers are stored in settings currently
-                    const teachers = await getSetting('school_teachers_list') || [];
+    // 3. If student still not found, return error
+    if (!student) return { success: false, error: `Student with GR No "${grNo}" not found.` };
 
-                    const teacher = teachers.find(t => {
-                        const data = t.data || {};
-                        return (
-                            String(data.teacherCode).trim() === String(teacherCode).trim() &&
-                            String(data.govId).trim() === String(govId).trim()
-                        );
-                    });
+    // 4. FUZZY IDENTITY VERIFICATION
+    const inputVal = cleanStr(govId);
 
-                    return teacher ? { success: true, data: teacher } : null;
-                }
+    const storedAadhar = cleanStr(student.aadharNo || student.aadharNumber);
+    const storedGovId = cleanStr(student.govId);
+    const storedSssm = cleanStr(student.sssmId);
+    const storedEmail = cleanStr(student.email);
+    const storedMobile = cleanStr(student.mobile || student.contactNumber);
+
+    console.log(`Smart Verify: GR=${grNo} | Input="${inputVal}" | Aadhar=${storedAadhar === inputVal}, Mobile=${storedMobile === inputVal}`);
+
+    if (
+        (storedAadhar && storedAadhar === inputVal) ||
+        (storedGovId && storedGovId === inputVal) ||
+        (storedSssm && storedSssm === inputVal) ||
+        (storedEmail && storedEmail === inputVal) ||
+        (storedMobile && storedMobile === inputVal)
+    ) {
+        return { success: true, data: student };
+    }
+
+    return { success: false, error: 'Verification credentials mismatch.' };
+}
+
+export async function verifyTeacher(teacherCode, govId) {
+    const teachers = await getSetting('school_teachers_list') || [];
+
+    const teacher = teachers.find(t => {
+        const data = t.data || {};
+        return (
+            String(data.teacherCode).trim() === String(teacherCode).trim() &&
+            String(data.govId).trim() === String(govId).trim()
+        );
+    });
+
+    return teacher ? { success: true, data: teacher } : null;
+}
+
