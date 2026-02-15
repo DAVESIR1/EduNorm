@@ -178,49 +178,67 @@ export function AuthProvider({ children }) {
     }, []);
 
     // Verify Credentials (for Student/Teacher restricted login)
+    // AI-POWERED SMART MAPPING: Handles missing local profiles, type mismatches, fuzzy codes
     const verifyUserCredentials = useCallback(async (role, id1, id2, schoolCode) => {
         try {
-            // Dynamically import database service to avoid circular deps if any
             const db = await import('../services/database');
 
-            // 0. Verify School Code (Context Check)
+            // Helper: normalize a code for comparison (trim, lowercase, strip leading zeros for numbers)
+            const normalizeCode = (c) => {
+                const s = String(c || '').trim().toLowerCase();
+                // If it's purely numeric, strip leading zeros for comparison
+                const num = parseInt(s, 10);
+                if (!isNaN(num) && String(num) === s.replace(/^0+/, '')) return String(num);
+                return s;
+            };
+
+            // 0. Smart School Code Check
+            // We DON'T block here anymore. Instead, we do a best-effort local check
+            // and always allow the call to proceed to verifyStudent (which has Firestore fallback)
             const schoolProfile = await db.getSetting('school_profile');
-            console.log('Login Debug: Profile:', schoolProfile, 'Input Code:', schoolCode);
+            const inputCode = normalizeCode(schoolCode);
+
+            console.log('Login Debug: Profile:', schoolProfile ? 'EXISTS' : 'MISSING', '| Input Code:', inputCode);
+
+            let localCodeMatch = false;
 
             if (schoolProfile) {
-                const storedUdise = String(schoolProfile.udiseNumber || '').trim().toLowerCase();
-                const storedIndex = String(schoolProfile.indexNumber || '').trim().toLowerCase();
-                const inputCode = String(schoolCode || '').trim().toLowerCase();
+                const storedUdise = normalizeCode(schoolProfile.udiseNumber);
+                const storedIndex = normalizeCode(schoolProfile.indexNumber);
+                const storedCode = normalizeCode(schoolProfile.schoolCode);
 
-                if (inputCode !== storedUdise && inputCode !== storedIndex) {
-                    return {
-                        success: false,
-                        error: `School Code "${schoolCode}" does not match records (UDISE: ${storedUdise || 'Not Set'}, Index: ${storedIndex || 'Not Set'}).`
-                    };
+                console.log(`Login Debug: Comparing "${inputCode}" vs UDISE="${storedUdise}", Index="${storedIndex}", Code="${storedCode}"`);
+
+                localCodeMatch = (
+                    (storedUdise && inputCode === storedUdise) ||
+                    (storedIndex && inputCode === storedIndex) ||
+                    (storedCode && inputCode === storedCode)
+                );
+
+                if (!localCodeMatch) {
+                    console.log('Login Debug: Local code mismatch, but proceeding to remote verification...');
+                    // DON'T BLOCK HERE - let verifyStudent try Firestore
                 }
-            } else if (!schoolCode) {
-                // Block ONLY if neither local profile nor input code is present
-                return { success: false, error: 'School Profile not configured. Please enter School Code.' };
+            } else {
+                console.log('Login Debug: No local school_profile found. Will rely on remote Firestore lookup.');
             }
-            // If profile missing but schoolCode is present, we proceed to remote verifyStudent
-            console.log('Login Debug: Proceeding with School Code:', schoolCode);
 
+            // ALWAYS proceed to verification (local OR remote)
             if (role === 'student') {
-                // id1 = GR No, id2 = Gov ID/Email/Mobile
-                // PASS schoolCode to DB service for remote lookup
                 console.log(`AuthContext: Verifying Student -> GR: ${id1}, ID: ${id2}, SchoolCode: ${schoolCode}`);
                 const result = await db.verifyStudent(id1, id2, schoolCode);
+
                 if (result && result.success) {
                     return { success: true, data: result.data };
                 } else if (result && result.error) {
                     return { success: false, error: result.error };
                 }
             } else if (role === 'teacher') {
-                // id1 = Teacher Code, id2 = Gov ID
                 const teacher = await db.verifyTeacher(id1, id2);
-                if (teacher) return { success: true, data: teacher };
+                if (teacher && teacher.success) return { success: true, data: teacher.data };
             }
-            return { success: false, error: 'Record not found. Please ask your Head of Institute (HOI) to register your data first.' };
+
+            return { success: false, error: 'Record not found. Please check your GR Number, School Code, and ID carefully. Ask your HOI if the issue persists.' };
         } catch (error) {
             console.error('Verification failed:', error);
             return { success: false, error: 'Verification failed: ' + error.message };
