@@ -106,7 +106,8 @@ export default function RoleSelectionModal({ isOpen, onComplete }) {
     const sendOtp = async (email) => {
         // Call the Serverless Function
         try {
-            const res = await fetch('https://edunorm.vercel.app/api/send-otp', {
+            // Use relative path to avoid CORS and domain mismatch issues
+            const res = await fetch('/api/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'send', email: email })
@@ -133,7 +134,7 @@ export default function RoleSelectionModal({ isOpen, onComplete }) {
             // Real API Call
             let verified = false;
             try {
-                const res = await fetch('https://edunorm.vercel.app/api/send-otp', {
+                const res = await fetch('/api/send-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'verify', email: targetEmail, otp })

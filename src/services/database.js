@@ -483,7 +483,7 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
     if (!student) {
         console.log('Local verification failed. Trying Live Firestore check...');
         try {
-            const { getFirestore, collection, query, where, getDocs } = await import('firebase/firestore');
+            const { getFirestore, collection, query, where, getDocs, limit } = await import('firebase/firestore');
             const { isFirebaseConfigured } = await import('../config/firebase');
 
             if (isFirebaseConfigured) {
@@ -509,14 +509,14 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
                         const schoolsRef = collection(firestore, 'schools');
 
                         // Try UDISE first
-                        let q = query(schoolsRef, where('udiseNumber', '==', searchCode));
+                        let q = query(schoolsRef, where('udiseNumber', '==', searchCode), limit(1));
                         let snap = await getDocs(q);
 
                         console.log(`Database: UDISE Query Result Empty? ${snap.empty}`);
 
                         if (snap.empty) {
                             // Try Index Number
-                            q = query(schoolsRef, where('indexNumber', '==', searchCode));
+                            q = query(schoolsRef, where('indexNumber', '==', searchCode), limit(1));
                             snap = await getDocs(q);
                         }
 
@@ -535,7 +535,8 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
                         console.log('Found School UID:', targetSchoolUid);
                         const studentsRef = collection(firestore, `schools/${targetSchoolUid}/students`);
                         // Try querying by GR No (string match usually)
-                        const q = query(studentsRef, where("grNo", "==", String(grNo)));
+                        // Add limit(1) to satisfy Firestore Security Rules for unauthenticated public read
+                        const q = query(studentsRef, where("grNo", "==", String(grNo)), limit(1));
                         const querySnapshot = await getDocs(q);
 
                         if (!querySnapshot.empty) {
