@@ -134,7 +134,7 @@ export function MenuProvider({ children }) {
 
             if (role === 'student') {
                 // Student sees only 'student' menu
-                if (key !== 'student') isVisible = false;
+                if (key !== 'student' && key !== 'other') isVisible = false;
             } else if (role === 'teacher') {
                 // Teacher sees everything EXCEPT 'hoi'
                 if (key === 'hoi') isVisible = false;

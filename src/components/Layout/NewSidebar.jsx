@@ -347,6 +347,7 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
     const { theme, changeTheme } = useTheme();
     const { language, changeLanguage, languages } = useLanguage();
     const {
+        menus,
         expandedMenus,
         toggleMenu,
         selectSubItem,
@@ -364,25 +365,7 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
     const isSidebarVisible = isOpen || isHovered;
 
     // Determine if user is a student (simple check - can be enhanced)
-    const isStudent = user && !isAdmin && (
-        user.email?.toLowerCase().includes('student') ||
-        user.phoneNumber?.startsWith('+919') // Students with phone auth
-    );
-
-    // Filter menus based on user role
-    const getVisibleMenus = () => {
-        const allMenus = Object.values(MENU_STRUCTURE);
-
-        // Students only see student menu
-        if (isStudent) {
-            return allMenus.filter(menu => menu.id === 'student');
-        }
-
-        // All other users see all menus
-        return allMenus;
-    };
-
-    const visibleMenus = getVisibleMenus();
+    const visibleMenus = Object.values(menus);
 
     const handleItemClick = (menuId, itemId) => {
         // Special: HOI password opens modal instead of navigating
