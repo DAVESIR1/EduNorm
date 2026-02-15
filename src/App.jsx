@@ -867,7 +867,11 @@ function AppContent() {
                     user?.role === 'student' ? (
                         <div className="student-dashboard-wrapper" style={{ padding: '20px' }}>
                             <Suspense fallback={<BrandLoader message="Loading Dashboard..." />}>
-                                <StudentDashboard user={user} onLogout={logout} />
+                                <StudentDashboard
+                                    user={user}
+                                    onLogout={logout}
+                                    onNavigate={handleMenuNavigate}
+                                />
                             </Suspense>
                         </div>
                     ) : (

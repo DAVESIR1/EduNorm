@@ -144,7 +144,7 @@ export function MenuProvider({ children }) {
             } else {
                 // Fallback for no role or unknown role (maybe show basic or all if in dev)
                 // For now, let's show all to avoid locking out existing users without role
-                isVisible = true;
+                isVisible = false;
             }
 
             if (isVisible) {
