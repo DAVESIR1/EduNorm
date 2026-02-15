@@ -672,19 +672,18 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
 
                     return { success: false, error: 'Verification credentials mismatch.' };
                 }
-            }
 
-            export async function verifyTeacher(teacherCode, govId) {
-                // Teachers are stored in settings currently
-                const teachers = await getSetting('school_teachers_list') || [];
+                export async function verifyTeacher(teacherCode, govId) {
+                    // Teachers are stored in settings currently
+                    const teachers = await getSetting('school_teachers_list') || [];
 
-                const teacher = teachers.find(t => {
-                    const data = t.data || {};
-                    return (
-                        String(data.teacherCode).trim() === String(teacherCode).trim() &&
-                        String(data.govId).trim() === String(govId).trim()
-                    );
-                });
+                    const teacher = teachers.find(t => {
+                        const data = t.data || {};
+                        return (
+                            String(data.teacherCode).trim() === String(teacherCode).trim() &&
+                            String(data.govId).trim() === String(govId).trim()
+                        );
+                    });
 
-                return teacher ? { success: true, data: teacher } : null;
-            }
+                    return teacher ? { success: true, data: teacher } : null;
+                }
