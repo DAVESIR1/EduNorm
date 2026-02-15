@@ -706,16 +706,6 @@ function AppContent() {
         );
     }
 
-    // ROLE-BASED ACCESS CONTROL (RBAC)
-    // If verified student, show restricted dashboard ONLY
-    if (user?.role === 'student') {
-        return (
-            <div className="app" data-theme={theme}>
-                <StudentDashboard user={user} onLogout={logout} />
-            </div>
-        );
-    }
-
     // Loading state
     if (!isReady) {
         return <BrandLoader message="Loading EduNorm..." />;
@@ -800,20 +790,24 @@ function AppContent() {
                     </div>
 
                     <div className="header-actions">
-                        <button
-                            className="btn btn-secondary"
-                            onClick={() => setShowLedger(true)}
-                        >
-                            <FileSpreadsheet size={18} />
-                            View Register
-                        </button>
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => setShowProfile(true)}
-                        >
-                            <Users size={18} />
-                            Student Profile
-                        </button>
+                        {user?.role !== 'student' && (
+                            <>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowLedger(true)}
+                                >
+                                    <FileSpreadsheet size={18} />
+                                    View Register
+                                </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setShowProfile(true)}
+                                >
+                                    <Users size={18} />
+                                    Student Profile
+                                </button>
+                            </>
+                        )}
                     </div>
                 </header>
 
@@ -869,58 +863,67 @@ function AppContent() {
                         </Suspense>
                     </div>
                 ) : (
-                    /* Data Entry Form */
-                    <div className={`form-container ${isFormMaximized ? 'maximized' : ''}`}>
-                        {selectedStandard && (
-                            <button
-                                className="form-maximize-btn btn btn-icon btn-ghost"
-                                onClick={() => setIsFormMaximized(!isFormMaximized)}
-                                title={isFormMaximized ? 'Minimize' : 'Maximize'}
-                            >
-                                {isFormMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                            </button>
-                        )}
-                        {selectedStandard ? (
-                            <StepWizard
-                                key={editingStudent?.id || 'new'}
-                                onSave={handleAddStudent}
-                                initialData={editingStudent || {}}
-                                selectedStandard={selectedStandard}
-                                customFields={fields}
-                                onCancel={editingStudent ? () => setEditingStudent(null) : null}
-                            />
-                        ) : (
-                            <div className="no-standard-selected fluffy-card">
-                                <div className="empty-state">
-                                    <img src="/edunorm-logo.png" alt="EduNorm" className="welcome-logo" />
-                                    <h2 className="display-font">Welcome to EduNorm!</h2>
-                                    <p>Please select or create a Standard/Class from the sidebar to start entering student data.</p>
-                                    <div className="empty-steps">
-                                        <div className="step-item">
-                                            <span className="step-num">1</span>
-                                            <span>Upload School Logo</span>
-                                        </div>
-                                        <div className="step-item">
-                                            <span className="step-num">2</span>
-                                            <span>Enter School Name</span>
-                                        </div>
-                                        <div className="step-item">
-                                            <span className="step-num">3</span>
-                                            <span>Add Teacher Name</span>
-                                        </div>
-                                        <div className="step-item">
-                                            <span className="step-num">4</span>
-                                            <span>Select or Create Standard</span>
-                                        </div>
-                                        <div className="step-item">
-                                            <span className="step-num">5</span>
-                                            <span>Start Adding Students!</span>
+                    /* Main Content Area: Admin gets Data Entry, Student gets Dashboard */
+                    user?.role === 'student' ? (
+                        <div className="student-dashboard-wrapper" style={{ padding: '20px' }}>
+                            <Suspense fallback={<BrandLoader message="Loading Dashboard..." />}>
+                                <StudentDashboard user={user} onLogout={logout} />
+                            </Suspense>
+                        </div>
+                    ) : (
+                        /* Data Entry Form (Admin/Teacher) */
+                        <div className={`form-container ${isFormMaximized ? 'maximized' : ''}`}>
+                            {selectedStandard && (
+                                <button
+                                    className="form-maximize-btn btn btn-icon btn-ghost"
+                                    onClick={() => setIsFormMaximized(!isFormMaximized)}
+                                    title={isFormMaximized ? 'Minimize' : 'Maximize'}
+                                >
+                                    {isFormMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                                </button>
+                            )}
+                            {selectedStandard ? (
+                                <StepWizard
+                                    key={editingStudent?.id || 'new'}
+                                    onSave={handleAddStudent}
+                                    initialData={editingStudent || {}}
+                                    selectedStandard={selectedStandard}
+                                    customFields={fields}
+                                    onCancel={editingStudent ? () => setEditingStudent(null) : null}
+                                />
+                            ) : (
+                                <div className="no-standard-selected fluffy-card">
+                                    <div className="empty-state">
+                                        <img src="/edunorm-logo.png" alt="EduNorm" className="welcome-logo" />
+                                        <h2 className="display-font">Welcome to EduNorm!</h2>
+                                        <p>Please select or create a Standard/Class from the sidebar to start entering student data.</p>
+                                        <div className="empty-steps">
+                                            <div className="step-item">
+                                                <span className="step-num">1</span>
+                                                <span>Upload School Logo</span>
+                                            </div>
+                                            <div className="step-item">
+                                                <span className="step-num">2</span>
+                                                <span>Enter School Name</span>
+                                            </div>
+                                            <div className="step-item">
+                                                <span className="step-num">3</span>
+                                                <span>Add Teacher Name</span>
+                                            </div>
+                                            <div className="step-item">
+                                                <span className="step-num">4</span>
+                                                <span>Select or Create Standard</span>
+                                            </div>
+                                            <div className="step-item">
+                                                <span className="step-num">5</span>
+                                                <span>Start Adding Students!</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )
                 )}
             </main>
 
