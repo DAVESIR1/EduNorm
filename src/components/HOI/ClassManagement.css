@@ -1,0 +1,753 @@
+.class-management {
+    display: flex;
+    height: calc(100vh - 120px);
+    background: var(--bg-primary);
+    border-radius: 16px;
+    overflow: hidden;
+    color: var(--text-primary);
+}
+
+.management-sidebar {
+    width: 240px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+}
+
+.management-sidebar h3 {
+    font-size: 1rem;
+    margin-bottom: var(--space-4);
+    color: var(--text-secondary);
+}
+
+.standards-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.std-item {
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    text-align: left;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.std-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.std-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+.timetable-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-4);
+}
+
+.add-period-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.add-period-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: var(--primary);
+}
+
+.remnant-row {
+    height: 12px;
+    /* Increased height for better hover target */
+    line-height: 0;
+}
+
+.remnant-row::after {
+    display: none;
+    /* Hide the buggy line */
+}
+
+/* New line approach: Border top on the gap cells */
+.remnant-gap-cell {
+    position: relative;
+    height: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    /* Very subtle by default */
+    background: transparent !important;
+}
+
+[data-theme="neon"] .remnant-gap-cell {
+    border-top-color: rgba(255, 248, 240, 0.05);
+    /* Even more subtle for neon */
+}
+
+.remnant-row:hover .remnant-gap-cell {
+    border-top-color: var(--primary);
+}
+
+.remnant-row td {
+    padding: 0 !important;
+    border: none !important;
+    position: relative;
+    text-align: center;
+}
+
+.remnant-gap-cell {
+    position: relative;
+    height: 12px;
+}
+
+.add-remnant-btn {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    /* Centered exactly on the border line */
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    visibility: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.2s, visibility 0.2s, transform 0.1s;
+    /* Reduced transition triggers */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-remnant-btn:active {
+    transform: translate(-50%, -50%) scale(0.95);
+    /* Direct transform to avoid jumping */
+}
+
+.remnant-row:hover .add-remnant-btn {
+    opacity: 0.3;
+    /* Subtle hint for all cells in row on hover */
+    visibility: visible;
+}
+
+.remnant-gap-cell:hover .add-remnant-btn {
+    opacity: 1 !important;
+}
+
+.remnant-gap-cell {
+    position: relative;
+    height: 12px;
+}
+
+.add-remnant-btn:hover {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+}
+
+[data-theme="neon"] .add-period-btn,
+[data-theme="neon"] .add-remnant-btn {
+    background: #FFFDD0 !important;
+    border: none !important;
+    color: #000000 !important;
+    box-shadow: 0 0 10px rgba(255, 253, 224, 0.3) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+[data-theme="neon"] .add-remnant-btn:hover {
+    background: #FFF8E7 !important;
+    transform: translate(-50%, -50%) scale(1.1) !important;
+}
+
+.period-label .label-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+}
+
+.row-delete-btn {
+    opacity: 0;
+    visibility: hidden;
+    background: transparent;
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.period-row:hover .row-delete-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+.row-delete-btn:hover {
+    background: rgba(220, 38, 38, 0.1);
+    transform: scale(1.1);
+}
+
+[data-theme="neon"] .row-delete-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #FFF !important;
+}
+
+.management-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-6);
+}
+
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-8);
+    gap: var(--space-4);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: #FFF8F0;
+    /* Ensure icon color inheritance */
+}
+
+[data-theme="neon"] .management-header h2 {
+    color: #FFF8F0 !important;
+}
+
+
+/* Dropdown Content */
+.print-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--bg-card, #fff);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.print-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content button {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dropdown-content button:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+[data-theme="neon"] .dropdown-content {
+    background-color: #000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="neon"] .dropdown-content button {
+    color: #FFF8F0;
+}
+
+[data-theme="neon"] .dropdown-content button:hover {
+    background-color: #FFFDD0;
+    color: #000;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Force High Contrast for Action Buttons in Neon */
+[data-theme="neon"] .action-btn,
+[data-theme="neon"] .save-btn,
+[data-theme="neon"] .menu-btn {
+    background: #FFFDD0 !important;
+    color: #000000 !important;
+    border: 1px solid #FFFDD0 !important;
+}
+
+[data-theme="neon"] .action-btn:hover,
+[data-theme="neon"] .save-btn:hover,
+[data-theme="neon"] .menu-btn:hover {
+    background: #FFF8E7 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 253, 208, 0.3) !important;
+}
+
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+
+.fullscreen-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.fullscreen-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+}
+
+[data-theme="neon"] .fullscreen-btn {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .fullscreen-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #FFF !important;
+}
+
+.class-management.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    border-radius: 0;
+}
+
+.management-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+    border: 1px solid var(--border-color);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    color: var(--primary);
+}
+
+.section-title h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.teacher-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.teacher-selector label {
+    font-weight: 500;
+}
+
+.timetable-container {
+    overflow-x: auto;
+    margin-top: var(--space-4);
+}
+
+.timetable-grid {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.timetable-grid th {
+    background: var(--bg-secondary);
+    padding: var(--space-3);
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.timetable-grid td {
+    border: 1px solid var(--border-color);
+    padding: var(--space-2);
+}
+
+.period-label {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    text-align: center;
+    width: 100px;
+}
+
+.timetable-cell {
+    width: 150px;
+    vertical-align: top;
+}
+
+.cell-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    padding: var(--space-1) 0;
+    margin-bottom: var(--space-2);
+}
+
+.cell-input:focus {
+    outline: none;
+    border-bottom-color: var(--primary);
+}
+
+.cell-select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.cell-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    opacity: 0.6;
+}
+
+.cell-time {
+    background: transparent;
+    border: none;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    width: 100%;
+}
+
+.cell-time:focus {
+    outline: none;
+}
+
+/* Minimal Dark Theme Overrides */
+[data-theme="neon"] .class-management {
+    background: #000000 !important;
+}
+
+[data-theme="neon"] .management-sidebar {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .std-item {
+    background: #FFFDD0 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px;
+}
+
+[data-theme="neon"] .std-item.active {
+    background: #FFFDD0 !important;
+    border: 3px solid #3B82F6 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5) !important;
+}
+
+[data-theme="neon"] .management-section {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .section-title,
+[data-theme="neon"] .section-title h3,
+[data-theme="neon"] .section-title svg,
+[data-theme="neon"] .section-title svg * {
+    color: #FFFDD0 !important;
+    stroke: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .timetable-grid th {
+    background: #111827 !important;
+    color: #FFF8F0 !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .timetable-grid td {
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .period-label {
+    background: #111827 !important;
+}
+
+[data-theme="neon"] .cell-input {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .cell-select {
+    color: #d1d5db !important;
+}
+
+[data-theme="neon"] .cell-time {
+    color: #d1d5db !important;
+}
+
+.no-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    opacity: 0.5;
+    text-align: center;
+    gap: var(--space-4);
+}
+
+.save-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0 var(--space-6);
+    /* Consistent padding */
+    height: 42px;
+    /* Same height as action-btn */
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 5mm;
+    }
+
+    /* Force instant white environment */
+    html,
+    body,
+    .app,
+    .main-content,
+    .class-management,
+    .management-main,
+    .profile-display,
+    .profile-viewer-container {
+        background: white !important;
+        background-color: white !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Target all elements that might have theme specific backgrounds */
+    [data-theme],
+    [data-theme] *,
+    .dark,
+    .dark * {
+        background: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        color: black !important;
+        text-shadow: none !important;
+    }
+
+    .timetable-grid,
+    .timetable-grid * {
+        background: white !important;
+        border-color: black !important;
+    }
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    .class-management,
+    .management-main,
+    .management-main *,
+    .timetable-grid,
+    .timetable-grid * {
+        visibility: visible !important;
+    }
+
+    /* Print scaling to force 1 page */
+    .timetable-grid {
+        width: 100% !important;
+        max-width: none !important;
+        transform: scale(0.85);
+        /* Scale down to fit */
+        transform-origin: top left;
+        page-break-inside: avoid;
+        border: 2px solid #000 !important;
+    }
+
+    /* Hide UI Elements STICTLY */
+    .management-sidebar,
+    .management-header,
+    .fullscreen-btn,
+    .save-btn,
+    .action-btn,
+    .print-dropdown,
+    .no-print,
+    .add-period-btn,
+    .timetable-actions,
+    .delete-row-btn,
+    .add-remnant-btn,
+    .trash-icon,
+    .period-header button,
+    .remnant-row,
+    .remnant-gap {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .management-main {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    .timetable-grid th,
+    .timetable-grid td {
+        border: 1pt solid #000 !important;
+        padding: 6pt !important;
+        /* Slightly more padding for readability */
+        color: black !important;
+        background: white !important;
+    }
+}
+
+.print-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-btn {
+    width: auto !important;
+    padding: 0 18px !important;
+    /* Slightly more padding for text visibility */
+    gap: 10px;
+    height: 42px !important;
+    white-space: nowrap;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--bg-card);
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dropdown-content button {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.dropdown-content button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.print-dropdown:hover .dropdown-content {
+    display: block;
+}

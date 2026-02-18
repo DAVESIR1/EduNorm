@@ -393,21 +393,116 @@
     }
 }
 
-/* Dark Theme */
-[data-theme="dark"] .diary-sidebar {
-    background: #1f2937;
-    border-color: #374151;
+
+/* === NEON OLED THEME OVERRIDES (Black, Grey, Cream) === */
+[data-theme="neon"] .diary-sidebar {
+    background: #000000 !important;
+    border-right: 1px solid #374151 !important;
 }
 
-[data-theme="dark"] .paper {
-    background: #1f2937;
+[data-theme="neon"] .sidebar-header {
+    border-bottom: 1px solid #374151 !important;
+    background: #000000 !important;
+}
+
+[data-theme="neon"] .sidebar-header h3 {
+    color: #FFF8F0 !important;
+    /* Cream */
+}
+
+[data-theme="neon"] .page-item {
+    color: #d1d5db !important;
+}
+
+[data-theme="neon"] .page-item:hover {
+    background: #111827 !important;
+}
+
+[data-theme="neon"] .page-item.active {
+    background: #FFF8F0 !important;
+    /* Cream selection */
+    color: #000000 !important;
+    /* Black text on selection */
+}
+
+[data-theme="neon"] .page-date {
+    color: #9ca3af !important;
+}
+
+[data-theme="neon"] .active .page-date {
+    color: #374151 !important;
+    /* Darker on active cream */
+}
+
+[data-theme="neon"] .diary-main {
+    background: #000000 !important;
+}
+
+[data-theme="neon"] .diary-header h2 {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .attach-btn,
+[data-theme="neon"] .action-btn {
+    background: #FFFDD0 !important;
+    border: none !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="neon"] .save-btn {
+    background: #FFFDD0 !important;
+    color: #000000 !important;
+    border: none !important;
+}
+
+[data-theme="neon"] .attach-btn svg,
+[data-theme="neon"] .action-btn svg,
+[data-theme="neon"] .save-btn svg {
+    stroke: #000000 !important;
+    color: #000000 !important;
+}
+
+
+[data-theme="neon"] .paper {
+    background: #0a0a0a !important;
+    border: 1px solid #374151 !important;
     background-image: repeating-linear-gradient(transparent,
             transparent 27px,
-            #374151 28px);
+            rgba(255, 248, 240, 0.4) 30px) !important;
+    /* Brighter Cream lines (40% opacity) and 3px total height for line */
+    box-shadow: none !important;
 }
 
-[data-theme="dark"] .paper-content {
-    color: #f9fafb;
+[data-theme="neon"] .paper-header .date {
+    color: #9ca3af !important;
+}
+
+[data-theme="neon"] .paper-content {
+    color: #FFF8F0 !important;
+    /* Cream text */
+}
+
+[data-theme="neon"] .no-page h3 {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .no-page p {
+    color: #9ca3af !important;
+}
+
+[data-theme="neon"] .attachment-item {
+    background: #111827 !important;
+    border: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .att-name {
+    color: #d1d5db !important;
+}
+
+[data-theme="neon"] .att-icon {
+    background: #000000 !important;
+    color: #9ca3af !important;
 }
 
 /* Mobile */

@@ -183,6 +183,7 @@
 .header-actions {
     display: flex;
     gap: 12px;
+    margin-left: auto;
 }
 
 .action-btn {
@@ -321,6 +322,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    justify-content: center;
 }
 
 .add-field-form .field-input {
@@ -380,52 +382,91 @@
     color: #f9fafb;
 }
 
-/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
+
+/* === NEON OLED THEME OVERRIDES (Black, Grey, Cream) === */
 [data-theme="neon"] .school-profile {
-    background: #000000;
-}
-
-[data-theme="neon"] .school-info-section,
-[data-theme="neon"] .facility-item,
-[data-theme="neon"] .logo-upload-card,
-[data-theme="neon"] .info-field-card {
     background: #000000 !important;
-    border: 1px solid rgba(211, 211, 211, 0.5) !important;
-    /* Light Grey 50% */
-    box-shadow: none !important;
 }
 
-[data-theme="neon"] .school-info h1,
+[data-theme="neon"] .profile-header {
+    background: #000000 !important;
+    border-bottom: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .school-info h1 {
+    color: #FFF8F0 !important;
+    /* Cream */
+    font-size: 1.8rem !important;
+}
+
+[data-theme="neon"] .school-info p {
+    color: #d1d5db !important;
+    /* Grey */
+}
+
+[data-theme="neon"] .school-info-section {
+    background: #0a0a0a !important;
+    border: 1px solid #374151 !important;
+}
+
 [data-theme="neon"] .school-info-section h2,
-[data-theme="neon"] .facilities-section h2 {
-    color: #D3D3D3 !important;
+[data-theme="neon"] .facilities-section h2,
+[data-theme="neon"] .custom-fields-section h2 {
+    color: #FFF8F0 !important;
+    /* Cream */
+}
+
+[data-theme="neon"] .logo-upload-card label,
+[data-theme="neon"] .info-field-card label,
+[data-theme="neon"] .facility-item label {
+    color: #9ca3af !important;
     /* Light Grey */
-    text-shadow: none;
 }
 
 [data-theme="neon"] .field-input {
-    background: #000000;
-    color: #D3D3D3;
-    /* Light Grey */
-    border: 1px solid rgba(211, 211, 211, 0.5);
+    background: #000000 !important;
+    color: #FFF8F0 !important;
+    /* Cream */
+    border: 1px solid #374151 !important;
 }
 
 [data-theme="neon"] .field-input:focus {
-    border-color: #FFFDD0;
-    /* Cream Accent */
-    box-shadow: 0 0 5px rgba(255, 253, 208, 0.3);
+    border-color: #FFF8F0 !important;
+    box-shadow: 0 0 8px rgba(255, 248, 240, 0.1) !important;
+}
+
+[data-theme="neon"] .logo-upload-area {
+    border: 2px dashed #374151 !important;
+}
+
+[data-theme="neon"] .logo-preview img {
+    background: #000000 !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .change-logo-btn {
+    background: #111827 !important;
+    color: #d1d5db !important;
+    border-color: #374151 !important;
 }
 
 [data-theme="neon"] .logo-placeholder {
-    background: #000000;
-    border: 1px dashed rgba(211, 211, 211, 0.5);
-    color: #A0A0A0;
+    color: #9ca3af !important;
 }
 
-[data-theme="neon"] .logo-placeholder:hover {
-    border-color: #FFFDD0;
-    background: rgba(255, 253, 208, 0.05);
-    /* Cream low opacity */
+[data-theme="neon"] .facility-item {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .field-value {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .action-btn:not(.save) {
+    background: #111827 !important;
+    color: #d1d5db !important;
+    border: 1px solid #374151 !important;
 }
 
 /* Mobile */

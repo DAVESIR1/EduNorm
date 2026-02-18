@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { GraduationCap, BookOpen, School, Check, ArrowRight, Loader2, Mail, LogOut } from 'lucide-react';
+import { GraduationCap, BookOpen, School, Check, ArrowRight, Loader2, Mail, LogOut, Search, UserCheck, Info } from 'lucide-react';
+import IdentityResolutionService from '../../services/IdentityResolutionService';
 import './RoleSelectionModal.css';
 
 export default function RoleSelectionModal({ isOpen, onComplete }) {
@@ -16,11 +17,31 @@ export default function RoleSelectionModal({ isOpen, onComplete }) {
     const [userId, setUserId] = useState(''); // GR No or Teacher Code
     const [govId, setGovId] = useState(''); // Mobile or Email or Aadhar
 
+    // Professional Mapping State
+    const [discoveredSchool, setDiscoveredSchool] = useState(null);
+    const [foundProfile, setFoundProfile] = useState(null);
+    const [isResolvingSchool, setIsResolvingSchool] = useState(false);
+
     // OTP State
     const [otp, setOtp] = useState('');
     const [verifiedData, setVerifiedData] = useState(null);
     const [timer, setTimer] = useState(60);
     const [canResend, setCanResend] = useState(false);
+
+    // Smart School Discovery Effect
+    React.useEffect(() => {
+        if (schoolCode.length >= 4) {
+            const delayDebounceFn = setTimeout(async () => {
+                setIsResolvingSchool(true);
+                const school = await IdentityResolutionService.resolveSchoolProfile(schoolCode);
+                setDiscoveredSchool(school);
+                setIsResolvingSchool(false);
+            }, 800);
+            return () => clearTimeout(delayDebounceFn);
+        } else {
+            setDiscoveredSchool(null);
+        }
+    }, [schoolCode]);
 
     // Timer Effect
     React.useEffect(() => {
@@ -63,44 +84,56 @@ export default function RoleSelectionModal({ isOpen, onComplete }) {
         e.preventDefault();
         setLoading(true);
         try {
+            const targetSchoolId = discoveredSchool?.id || schoolCode;
+
             if (selectedRole === 'hoi') {
-                // HOI Flow: Still needs OTP for security (as they are admins)
+                // HOI Flow: Registration of NEW school or claiming admin
                 setVerifiedData({ email: user.email, name: user.displayName || 'HOI' });
                 await sendOtp(user.email);
                 setStep('otp');
                 return;
             }
 
-            // Student/Teacher Verification
-            // Clean inputs for Failproof Mapping
-            const cleanUserId = userId.trim();
-            const cleanGovId = govId.replace(/[\s-]/g, '').trim();
-
-            const result = await verifyUserCredentials(selectedRole, cleanUserId, cleanGovId, schoolCode);
+            // Professional Profile Resolution
+            const result = await IdentityResolutionService.resolveProfile(
+                selectedRole,
+                { id1: userId, id2: govId },
+                targetSchoolId
+            );
 
             if (result.success) {
-                setVerifiedData(result.data);
-
-                // DIRECT SUCCESS (No OTP for Students/Teachers as requested)
-                console.log('Identity Verified:', result.data.name);
-
-                await updateProfile({
-                    role: selectedRole,
-                    isVerified: true,
-                    verifiedAt: new Date().toISOString(),
-                    schoolCode: schoolCode || 'PENDING',
-                    ...result.data
-                });
-
-                alert(`Welcome, ${result.data.name}! Identity Updated.`);
-                onComplete();
-
+                setFoundProfile(result.data);
+                // Step to 'preview' before finishing
+                setStep('preview');
             } else {
                 alert(result.error);
             }
         } catch (err) {
             console.error(err);
             alert('Verification failed: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const finalizeMapping = async () => {
+        setLoading(true);
+        try {
+            await updateProfile({
+                role: selectedRole,
+                isVerified: true,
+                verifiedAt: new Date().toISOString(),
+                schoolId: discoveredSchool?.id || schoolCode,
+                schoolCode: schoolCode,
+                schoolName: discoveredSchool?.name || 'School',
+                recordId: foundProfile.id,
+                ...foundProfile // Merge student/teacher data
+            });
+
+            alert(`Identity Mapped! Welcome, ${foundProfile.name}.`);
+            onComplete();
+        } catch (err) {
+            alert('Mapping failed: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -232,13 +265,21 @@ export default function RoleSelectionModal({ isOpen, onComplete }) {
                         <form onSubmit={verifyIdentity} className="wizard-form">
                             <div className="input-group">
                                 <label>🏫 School Code / UDISE</label>
-                                <input
-                                    className="input-field"
-                                    value={schoolCode}
-                                    onChange={e => setSchoolCode(e.target.value)}
-                                    placeholder="e.g. 24050200..."
-                                    required
-                                />
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        className="input-field"
+                                        value={schoolCode}
+                                        onChange={e => setSchoolCode(e.target.value)}
+                                        placeholder="e.g. 2405..."
+                                        required
+                                    />
+                                    {isResolvingSchool && <Loader2 className="spin" size={16} style={{ position: 'absolute', right: '12px', top: '14px', color: '#6366f1' }} />}
+                                </div>
+                                {discoveredSchool && (
+                                    <div className="discovery-success animate-fade-in">
+                                        <Check size={14} /> Found: <b>{discoveredSchool.name}</b>
+                                    </div>
+                                )}
                             </div>
 
                             {selectedRole !== 'hoi' && (
@@ -249,25 +290,68 @@ export default function RoleSelectionModal({ isOpen, onComplete }) {
                                             className="input-field"
                                             value={userId}
                                             onChange={e => setUserId(e.target.value)}
+                                            placeholder={selectedRole === 'student' ? 'e.g. 101' : 'e.g. T45'}
                                             required
                                         />
                                     </div>
                                     <div className="input-group">
-                                        <label>Enter Mobile, Email, or Aadhar No.</label>
+                                        <label>Any ID</label>
                                         <input
                                             className="input-field"
                                             value={govId}
                                             onChange={e => setGovId(e.target.value)}
+                                            placeholder="Aadhar, Mobile, Email, PAN, etc."
                                             required
                                         />
+                                        <p className="input-note">
+                                            <Info size={12} /> You can type any ID that's available in school data
+                                        </p>
                                     </div>
                                 </>
                             )}
 
                             <button className="btn btn-primary btn-large btn-block" disabled={loading}>
-                                {loading ? <Loader2 className="spin" /> : 'Verify Records'}
+                                {loading ? <Loader2 className="spin" /> : 'Find My Profile'}
                             </button>
                         </form>
+                    </div>
+                )}
+
+                {step === 'preview' && foundProfile && (
+                    <div className="wizard-step animate-fade-in">
+                        <button className="back-link" onClick={() => setStep('identity')}>← Back</button>
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <div className="profile-match-icon">
+                                <UserCheck size={48} />
+                            </div>
+                            <h2>Is this you?</h2>
+                            <p className="subtitle">We found a matching record</p>
+                        </div>
+
+                        <div className="profile-preview-card">
+                            <div className="preview-row">
+                                <span className="label">Name</span>
+                                <span className="value">{foundProfile.name}</span>
+                            </div>
+                            {selectedRole === 'student' && (
+                                <div className="preview-row">
+                                    <span className="label">Class</span>
+                                    <span className="value">{foundProfile.standard} {foundProfile.division}</span>
+                                </div>
+                            )}
+                            <div className="preview-row">
+                                <span className="label">{selectedRole === 'student' ? 'GR No' : 'Code'}</span>
+                                <span className="value">{foundProfile.grNo || foundProfile.teacherCode}</span>
+                            </div>
+                        </div>
+
+                        <div className="confirmation-warning">
+                            <small>By clicking "Confirm", you link this professional record to your account <b>{user.email}</b>. This action is permanent.</small>
+                        </div>
+
+                        <button className="btn btn-primary btn-large btn-block" onClick={finalizeMapping} disabled={loading}>
+                            {loading ? <Loader2 className="spin" /> : 'Yes, That\'s Me - Finish'}
+                        </button>
                     </div>
                 )}
 

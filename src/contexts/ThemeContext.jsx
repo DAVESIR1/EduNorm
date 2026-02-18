@@ -7,10 +7,15 @@ export function ThemeProvider({ children }) {
 
     // Initialize theme from local storage
     useEffect(() => {
-        const saved = localStorage.getItem('theme') || 'edutech'; // Default to EduTech
+        let saved = localStorage.getItem('theme') || 'edutech';
+        // Cleanup: If the user was on Neon (which we are removing), reset to edutech
+        if (saved === 'neon' || saved === 'legacy-neon' || saved === 'dark') {
+            saved = 'edutech';
+            localStorage.setItem('theme', saved);
+        }
         setTheme(saved);
         document.documentElement.setAttribute('data-theme', saved);
-        document.body.setAttribute('data-theme', saved); // Robustness
+        document.body.setAttribute('data-theme', saved);
     }, []);
 
     // Change theme function

@@ -230,7 +230,7 @@ export default function HOIDiary() {
                             Attach
                         </label>
                         <button className="action-btn" onClick={handlePrint}>
-                            <PrinterIcon size={18} />
+                            <PrinterIcon size={20} />
                             Print
                         </button>
                         <button
@@ -238,7 +238,7 @@ export default function HOIDiary() {
                             onClick={handleSave}
                             disabled={saving || !currentPage}
                         >
-                            <SaveIcon size={18} />
+                            <SaveIcon size={20} />
                             {saving ? 'Saving...' : 'Save'}
                         </button>
                     </div>

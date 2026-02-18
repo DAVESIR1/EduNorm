@@ -8,9 +8,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    gap: 16px;
+    margin-bottom: 32px;
+    gap: 24px;
 }
 
 .staff-header h2 {
@@ -261,10 +260,11 @@
 /* Form Actions */
 .form-actions {
     display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    padding-top: 24px;
-    border-top: 1px solid var(--border-color, #e5e7eb);
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--gray-200);
 }
 
 .btn-primary {
@@ -306,30 +306,112 @@
     background: var(--border-color, #e5e7eb);
 }
 
-/* Dark Theme */
-[data-theme="dark"] .staff-card {
-    background: #1f2937;
-    border-color: #374151;
+/* === NEON OLED THEME OVERRIDES (Black, Grey, Cream) === */
+[data-theme="neon"] .staff-info {
+    background: #000000 !important;
 }
 
-[data-theme="dark"] .staff-form {
-    background: #1f2937;
-    border-color: #374151;
+[data-theme="neon"] .staff-header h2,
+[data-theme="neon"] .custom-fields-section h3 {
+    color: #FFF8F0 !important;
+    /* Cream */
 }
 
-[data-theme="dark"] .input-field {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
+[data-theme="neon"] .search-box {
+    background: #000000 !important;
+    border-color: rgba(211, 211, 211, 0.4) !important;
+    height: 40px;
+    display: flex;
+    align-items: center;
 }
 
-[data-theme="dark"] .search-box {
-    background: #1f2937;
-    border-color: #374151;
+[data-theme="neon"] .search-box svg {
+    color: #FFFDD0 !important;
 }
 
-[data-theme="dark"] .search-box input {
-    color: #f9fafb;
+[data-theme="neon"] .search-box input {
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .staff-card {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .staff-card:hover {
+    box-shadow: 0 8px 24px rgba(255, 248, 240, 0.05) !important;
+}
+
+[data-theme="neon"] .staff-avatar {
+    background: #111 !important;
+    color: #FFFDD0 !important;
+    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+}
+
+[data-theme="neon"] .staff-details h3 {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .staff-details p,
+[data-theme="neon"] .staff-details span {
+    color: #9ca3af !important;
+}
+
+[data-theme="neon"] .staff-form {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .form-group label {
+    color: #9ca3af !important;
+}
+
+[data-theme="neon"] .input-field {
+    background: #000000 !important;
+    color: #FFF8F0 !important;
+    border: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .input-field:focus {
+    border-color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .add-field-btn {
+    border-color: #374151 !important;
+    color: #9ca3af !important;
+}
+
+[data-theme="neon"] .add-field-btn:hover {
+    border-color: #FFF8F0 !important;
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .btn-primary {
+    background: #FFFDD0 !important;
+    color: #000 !important;
+    border: 1px solid #FFFDD0 !important;
+    font-weight: 700 !important;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme="neon"] .btn-primary svg {
+    stroke: #000 !important;
+}
+
+[data-theme="neon"] .btn-secondary {
+    background: #111 !important;
+    color: #FFFDD0 !important;
+    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+}
+
+[data-theme="neon"] .btn-primary:hover {
+    background: #FFFDD0 !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px rgba(255, 253, 208, 0.3) !important;
+    opacity: 0.9 !important;
 }
 
 /* Mobile */
@@ -380,4 +462,38 @@
         width: 100%;
         justify-content: center;
     }
+
+    .window-actions button {
+        flex: 1;
+    }
+}
+
+/* [data-theme="neon"] Extra Specificity Fix for Delete Icons */
+[data-theme="neon"] .staff-card:hover .delete-btn,
+[data-theme="neon"] .staff-card .delete-btn:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+[data-theme="neon"] .staff-card:hover .delete-btn svg,
+[data-theme="neon"] .staff-card .delete-btn:hover svg {
+    stroke: #FFFDD0 !important;
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .add-field-btn {
+    background: transparent !important;
+    border: 1px dashed rgba(211, 211, 211, 0.5) !important;
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .add-field-btn:hover {
+    background: rgba(255, 253, 208, 0.1) !important;
+    border-style: solid !important;
+}
+
+[data-theme="neon"] .add-field-btn svg {
+    stroke: currentColor !important;
 }

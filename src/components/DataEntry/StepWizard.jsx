@@ -211,10 +211,11 @@ export default function StepWizard({
                 <button
                     className="btn btn-sm btn-outline-primary"
                     onClick={() => setShowScanner(true)}
-                    style={{ marginLeft: 'auto', marginRight: '20px', display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}
+                    style={{ marginLeft: 'auto', marginRight: '10px', display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}
                 >
                     <ScanLine size={16} /> Auto-Fill Form
                 </button>
+
 
                 <div className="wizard-progress">
                     <div className="progress-bar">

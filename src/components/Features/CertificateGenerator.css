@@ -163,9 +163,13 @@
 }
 
 .template-card:hover {
-    background: var(--card-bg);
     border-color: var(--card-color);
     transform: translateY(-2px);
+}
+
+[data-theme="neon"] .template-card:hover {
+    border-color: #FFFDD0 !important;
+    box-shadow: 0 0 10px rgba(255, 253, 208, 0.3) !important;
 }
 
 .template-card.active {
@@ -550,4 +554,89 @@
         width: 50px;
         height: 50px;
     }
+}
+
+/* === NEON THEME OVERRIDES (OLED Black, Cream) === */
+[data-theme="neon"] .cert-gen-modal {
+    background: #000000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+}
+
+[data-theme="neon"] .cert-gen-header {
+    background: #000000 !important;
+    border-bottom: 2px solid rgba(211, 211, 211, 0.5) !important;
+}
+
+[data-theme="neon"] .cert-gen-header h2 {
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .template-count {
+    background: rgba(255, 253, 208, 0.1) !important;
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .cert-gen-settings {
+    border-right: 1px solid rgba(211, 211, 211, 0.2) !important;
+}
+
+[data-theme="neon"] .category-tabs {
+    background: #050505 !important;
+    border-bottom: 1px solid rgba(211, 211, 211, 0.2) !important;
+}
+
+[data-theme="neon"] .cat-tab {
+    background: #000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+    color: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .cat-tab.active {
+    background: #FFFDD0 !important;
+    color: #000 !important;
+}
+
+[data-theme="neon"] .template-scroll {
+    border-bottom: 1px solid rgba(211, 211, 211, 0.2) !important;
+}
+
+[data-theme="neon"] .template-card {
+    background: #FFFDD0 !important;
+    border: 2px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="neon"] .template-card.active {
+    background: #111111 !important;
+    border-color: #FFFDD0 !important;
+    box-shadow: 0 0 15px rgba(255, 253, 208, 0.4) !important;
+}
+
+[data-theme="neon"] .template-card.active .template-label {
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .template-label {
+    color: #000000 !important;
+}
+
+[data-theme="neon"] .cert-form .form-group label {
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .cert-form input,
+[data-theme="neon"] .cert-form textarea,
+[data-theme="neon"] .cert-form select {
+    background: #000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+    color: #fff !important;
+}
+
+[data-theme="neon"] .cert-preview-container {
+    background: #050505 !important;
+}
+
+/* [data-theme="neon"] Certificate Generator controls handled by global design-system.css */
+[data-theme="neon"] .print-btn-new svg,
+[data-theme="neon"] .print-btn-new svg * {
+    stroke: #ffffff !important;
 }

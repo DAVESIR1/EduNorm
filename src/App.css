@@ -3,6 +3,8 @@
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
 }
 
 .app-decorations {
@@ -47,6 +49,7 @@
     transition: margin-left 0.05s ease;
     overflow-y: auto;
     overflow-x: hidden;
+    background-color: var(--bg-main);
 }
 
 .main-content.sidebar-open {
@@ -55,6 +58,15 @@
 
 .main-content.sidebar-collapsed {
     margin-left: 70px;
+}
+
+/* Sidebar auto-hide on mobile */
+@media (max-width: 768px) {
+
+    .main-content.sidebar-open,
+    .main-content.sidebar-collapsed {
+        margin-left: 0 !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -66,26 +78,66 @@
 
     .main-content {
         padding: var(--space-4);
-        padding-top: calc(var(--space-16) + var(--space-4));
+        padding-top: var(--space-4);
+        /* Reduced for single row */
     }
 }
+
 
 /* Header */
 .main-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: var(--space-6);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--space-4);
+    min-height: 60px;
+    /* Slimmer header */
+    position: relative;
 }
 
-.header-info h1 {
+.header-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Responsive form container */
+.form-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-4);
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: var(--space-2);
+        border-radius: 0;
+    }
+}
+
+.header-brand {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.header-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
     gap: var(--space-3);
-    font-size: var(--text-3xl);
-    margin: 0 0 var(--space-2);
 }
 
 .header-icon {
@@ -126,17 +178,11 @@
     color: #ef4444;
 }
 
-
-
-.header-meta {
-    display: flex;
-    gap: var(--space-2);
-    flex-wrap: wrap;
-}
-
-.header-actions {
-    display: flex;
-    gap: var(--space-3);
+.header-actions .btn {
+    height: 42px;
+    /* Force consistent height */
+    padding: 0 var(--space-5);
+    font-size: 0.95rem;
 }
 
 @media (max-width: 640px) {
@@ -181,64 +227,32 @@
     transition: all 0.05s ease;
 }
 
-.form-container.maximized {
-    position: fixed;
-    inset: 0;
-    max-width: none;
-    z-index: 9999;
-    background: var(--bg-card, #ffffff);
-    padding: 24px;
-    padding-top: 60px;
-    overflow-y: auto;
-    animation: none;
+.menu-content-area {
+    position: relative;
+    border-radius: var(--radius-xl);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: var(--space-6);
+    min-height: calc(100vh - 200px);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
+
+@media (max-width: 768px) {
+    .menu-content-area {
+        padding: var(--space-3);
+        border-radius: 0;
+        margin: 0 -12px;
+        width: calc(100% + 24px);
+    }
+}
+
 
 [data-theme="dark"] .form-container.maximized {
     background: #1a1625;
 }
 
-[data-theme="neon"] .form-container.maximized {
-    background: #000000;
-}
-
-/* [data-theme="neon"] - 4-Color OLED Rule */
-[data-theme="neon"] {
-    /* 1. Background: Pure Black */
-    --bg-primary: #000000;
-    --bg-secondary: #000000;
-    --bg-sidebar: #000000;
-    --bg-card: #000000;
-    --bg-input: #000000;
-    --bg-surface: #000000;
-
-    /* 2. Text: Light Grey */
-    --text-primary: #D3D3D3;
-    --text-secondary: #D3D3D3;
-    --text-muted: #A0A0A0;
-    /* Slightly darker grey for muted */
-
-    /* 3. Borders: Light Grey (50% Opacity) */
-    --border-color: rgba(211, 211, 211, 0.5);
-    /* #D3D3D380 */
-    --input-border: rgba(211, 211, 211, 0.5);
-
-    /* 4. Accents: Cream */
-    --primary: #FFFDD0;
-    /* Cream */
-    --primary-light: #FFFDD0;
-    --primary-dark: #EBE9BC;
-    /* Slightly darker cream */
-    --accent: #FFFDD0;
-    --success: #FFFDD0;
-    /* Force success to cream to stick to 4 colors? Or keep slightly distinct? User said "any thing else use cream color". So yes. */
-    --warning: #FFFDD0;
-    --error: #FF6B6B;
-    /* Maybe keep error distinct for safety? Or force cream? "any thing else use cream color" -> Let's use cream but maybe a variant or keep error red for usability. I'll stick to cream for 'primary' interactions. */
-
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-lg: 0 0 10px rgba(255, 253, 208, 0.1);
-}
 
 .form-maximize-btn {
     position: absolute;
@@ -572,60 +586,33 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="neon"] .step-item {
-    background: #000000;
-    color: #00ff9d;
-    /* Neon Mint Text */
-    border: 1px solid #333333;
-    box-shadow: 0 0 5px rgba(0, 255, 157, 0.2);
-    /* Subtle Glow */
-}
-
-[data-theme="neon"] .step-item:hover {
-    border-color: #00ff9d;
-    box-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
-}
 
 [data-theme="dark"] .step-num {
     background: linear-gradient(135deg, #8B5CF6, #EC4899);
     color: white;
 }
 
-[data-theme="neon"] .step-num {
-    background: #000000;
-    color: #00ff9d;
-    border: 1px solid #00ff9d;
-    box-shadow: 0 0 5px #00ff9d;
-}
 
-[data-theme="neon"] .fluffy-card {
-    background: #000000 !important;
-    border-color: #333333;
-}
 
 [data-theme="dark"] .fluffy-card {
     background: var(--bg-card);
     border-color: var(--border-color);
 }
 
-[data-theme="dark"] .app-footer,
-[data-theme="neon"] .app-footer {
+[data-theme="dark"] .app-footer {
     background: var(--bg-card);
     border-color: var(--border-color);
 }
 
-[data-theme="dark"] .footer-content,
-[data-theme="neon"] .footer-content {
+[data-theme="dark"] .footer-content {
     color: var(--text-muted);
 }
 
-[data-theme="dark"] .footer-links a,
-[data-theme="neon"] .footer-links a {
+[data-theme="dark"] .footer-links a {
     color: var(--text-secondary);
 }
 
-[data-theme="dark"] .footer-links a:hover,
-[data-theme="neon"] .footer-links a:hover {
+[data-theme="dark"] .footer-links a:hover {
     color: var(--primary);
 }
 
@@ -816,22 +803,6 @@
     border-top-color: var(--gray-700);
 }
 
-/* === NEON OLED FOOTER === */
-[data-theme="neon"] .app-footer {
-    background: #000000 !important;
-    border-top: 1px solid rgba(211, 211, 211, 0.5) !important;
-}
-
-[data-theme="neon"] .footer-row,
-[data-theme="neon"] .footer-row a {
-    color: #D3D3D3 !important;
-}
-
-[data-theme="neon"] .footer-row a:hover {
-    color: #FFFDD0 !important;
-    /* Cream on hover */
-    text-decoration: none;
-}
 
 
 /* ============================================
@@ -872,15 +843,13 @@
     color: var(--text-primary, #1f2937);
 }
 
-[data-theme="dark"] .menu-back-btn,
-[data-theme="neon"] .menu-back-btn {
+[data-theme="dark"] .menu-back-btn {
     background: #1f2937;
     border-color: #374151;
     color: #9ca3af;
 }
 
-[data-theme="dark"] .menu-back-btn:hover,
-[data-theme="neon"] .menu-back-btn:hover {
+[data-theme="dark"] .menu-back-btn:hover {
     background: #374151;
     color: #f9fafb;
 }

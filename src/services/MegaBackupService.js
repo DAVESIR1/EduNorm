@@ -1,4 +1,5 @@
 import { Storage } from 'megajs';
+import AnigmaEncoding from './AnigmaEncoding';
 
 // CREDENTIALS from .env
 const MEGA_EMAIL = import.meta.env.VITE_MEGA_EMAIL;
@@ -37,41 +38,84 @@ async function getStorage() {
     });
 }
 
+// Helper: Find or create a folder within a parent folder
+async function findOrCreateFolder(parent, name) {
+    let folder = parent.children?.find(f => f.name === name);
+    if (!folder) {
+        console.log(`MegaBackup: Creating folder '${name}'...`);
+        folder = await parent.mkdir(name);
+    }
+    return folder;
+}
+
 /**
- * Upload Data to Mega in a specific folder structure
- * Structure: /EduNorm_Backups/{SchoolName}_{SchoolID}/backup_{timestamp}.json
+ * Upload Data to Mega with specific role-based structure
+ * 
+ * Paths:
+ * - HOI: /{School}/WholeSchoolData/backup.json
+ * - Teacher: /{School}/Teachers/{Name}_{ID}/data.json
+ * - Student: /{School}/Students/{Name}_{ID}/data.json
  */
-export async function uploadToMega(data, schoolName = 'Unknown_School', schoolId = '000') {
+export async function uploadToMega(data, schoolName = 'Unknown', schoolId = '000', role = 'hoi', userName = 'User', userId = '000') {
     try {
         const mega = await getStorage();
+        if (!mega) throw new Error('Could not connect to Mega');
 
-        // 1. Find or Create Root Folder "EduNorm_Backups"
-        let rootFolder = mega.root.children.find(f => f.name === 'EduNorm_Backups');
-        if (!rootFolder) {
-            console.log('MegaBackup: Creating root folder...');
-            rootFolder = await mega.root.mkdir('EduNorm_Backups');
+        // 1. Root: EduNorm_Backups (Stay readable for admin context)
+        const rootFolder = await findOrCreateFolder(mega.root, 'EduNorm_Backups');
+
+        // 2. School Folder: Encoded(SchoolName_SchoolId)
+        console.log('MegaBackup: Encoding school folder name...');
+        const rawSchoolFolder = `${schoolName}_${schoolId}`;
+        const encodedSchoolFolder = AnigmaEncoding.encode(rawSchoolFolder);
+        const schoolFolder = await findOrCreateFolder(rootFolder, encodedSchoolFolder);
+
+        // 3. Subfolder based on Role
+        let roleFolderName = role === 'hoi' || role === 'admin' ? 'WholeSchoolData' : (role === 'teacher' ? 'Teachers' : 'Students');
+        const encodedRoleFolder = AnigmaEncoding.encode(roleFolderName);
+        const roleFolder = await findOrCreateFolder(schoolFolder, encodedRoleFolder);
+
+        let targetFolder = roleFolder;
+
+        // 4. User Folder: Encoded(UserName_UserId) for non-HOI
+        if (role !== 'hoi' && role !== 'admin') {
+            const rawUserFolder = `${userName}_${userId}`;
+            const encodedUserFolder = AnigmaEncoding.encode(rawUserFolder);
+            targetFolder = await findOrCreateFolder(roleFolder, encodedUserFolder);
         }
 
-        // 2. Find or Create School Folder
-        const schoolFolderName = `${schoolName.replace(/[^a-zA-Z0-9]/g, '_')}_${schoolId}`;
-        let schoolFolder = rootFolder.children.find(f => f.name === schoolFolderName);
-        if (!schoolFolder) {
-            console.log(`MegaBackup: Creating folder for ${schoolName}...`);
-            schoolFolder = await rootFolder.mkdir(schoolFolderName);
+        // 4. Prepare File (ANIGMA ENCODING)
+        console.log('MegaBackup: Encoding data with Anigma...');
+
+        let fileContent;
+        try {
+            const encodedString = AnigmaEncoding.encode(data);
+            const encryptedPackage = {
+                encrypted: encodedString,
+                version: '3.0-anigma',
+                timestamp: new Date().toISOString(),
+                metadata: {
+                    role,
+                    schoolName,
+                    userId
+                }
+            };
+            fileContent = JSON.stringify(encryptedPackage, null, 2);
+        } catch (encError) {
+            console.error('MegaBackup: Encoding failed, falling back to plaintext (Safety Net)', encError);
+            fileContent = JSON.stringify(data, null, 2);
         }
 
-        // 3. Prepare File
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const filename = `backup_${timestamp}.json`;
-        const fileContent = JSON.stringify(data, null, 2);
+        const filename = `backup_${role}_${timestamp}.json`;
         const buffer = Buffer.from(fileContent);
 
-        // 4. Upload
-        console.log(`MegaBackup: Uploading ${filename}...`);
-        await schoolFolder.upload(filename, buffer).complete;
+        // 5. Upload
+        console.log(`MegaBackup: Uploading ${filename} to ${targetFolder.name}...`);
+        await targetFolder.upload(filename, buffer).complete;
 
         console.log('MegaBackup: Upload Complete!');
-        return { success: true, path: `${schoolFolderName}/${filename}` };
+        return { success: true, path: `${schoolFolder.name}/${targetFolder.name}/${filename}` };
 
     } catch (error) {
         console.error('MegaBackup: Upload Failed', error);

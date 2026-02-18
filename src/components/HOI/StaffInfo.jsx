@@ -267,9 +267,11 @@ export default function StaffInfo() {
         <div className="staff-info">
             <div className="staff-header">
                 <h2>{selectedStaff ? '✏️ Edit Staff' : '➕ Add New Staff'}</h2>
-                <button className="btn-secondary" onClick={() => setShowForm(false)}>
-                    ← Back to List
-                </button>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
+                    <button className="btn-secondary" onClick={() => setShowForm(false)}>
+                        ← Back to List
+                    </button>
+                </div>
             </div>
 
             <div className="staff-form">

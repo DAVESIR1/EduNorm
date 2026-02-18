@@ -289,9 +289,17 @@
 }
 
 /* Dark */
-[data-theme="dark"] .teacher-card {
-    background: #1f2937;
-    border-color: #374151;
+[data-theme="neon"] .list-header h2 {
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .teacher-card {
+    background: #000000;
+    border-color: rgba(255, 253, 208, 0.2);
+}
+
+[data-theme="neon"] .card-info h4 {
+    color: #FFFDD0;
 }
 
 [data-theme="dark"] .form-panel {

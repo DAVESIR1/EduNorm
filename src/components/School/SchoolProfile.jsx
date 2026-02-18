@@ -45,24 +45,60 @@ export default function SchoolProfile({
     useEffect(() => {
         loadData();
         // Parse landline from contact if stored as "mobile|landline"
-        if (schoolContact && schoolContact.includes('|')) {
+        if (typeof schoolContact === 'string' && schoolContact.includes('|')) {
             const parts = schoolContact.split('|');
             onSchoolContactChange?.(parts[0]);
             setSchoolLandline(parts[1] || '');
         }
     }, []);
 
+    // Load data from props AND local settings
+    useEffect(() => {
+        // Did we get data from props?
+        if (schoolName || schoolContact || schoolEmail) {
+            console.log('SchoolProfile: Loaded from props', { schoolName, schoolContact });
+            // We might still need to load 'facilities' and 'customFields' from DB
+        }
+        loadData();
+    }, [schoolName, schoolContact, schoolEmail]); // Reload if props change
+
     const loadData = async () => {
         try {
             const saved = await db.getSetting('school_profile');
             if (saved) {
-                if (saved.facilities) setFacilities(saved.facilities);
+                if (saved.facilities && Array.isArray(saved.facilities)) {
+                    // Smart Merge: Keep new default fields even if not in saved data
+                    const mergedFacilities = DEFAULT_FACILITIES.map(def => {
+                        const savedItem = saved.facilities.find(s => s.id === def.id);
+                        return savedItem ? { ...def, value: savedItem.value } : def;
+                    });
+                    setFacilities(mergedFacilities);
+                } else {
+                    setFacilities(DEFAULT_FACILITIES);
+                }
                 if (saved.customFields) setCustomFields(saved.customFields);
-                if (saved.schoolLandline) setSchoolLandline(saved.schoolLandline);
-                if (saved.indexNumber) setIndexNumber(saved.indexNumber);
-                if (saved.udiseNumber) setUdiseNumber(saved.udiseNumber);
-                if (saved.boardName) setBoardName(saved.boardName);
-                if (saved.principalSignature) setPrincipalSignature(saved.principalSignature);
+
+                // Self-Healing: If props are empty but we have data in school_profile, restore it!
+                if (!schoolName && (saved.schoolName || saved.name)) {
+                    console.log('SchoolProfile: Restoring Name from local backup');
+                    onSchoolNameChange?.(saved.schoolName || saved.name);
+                }
+                if (!schoolEmail && (saved.schoolEmail || saved.email)) {
+                    onSchoolEmailChange?.(saved.schoolEmail || saved.email);
+                }
+                if (!schoolContact && (saved.schoolContact || saved.contact || saved.mobile)) {
+                    onSchoolContactChange?.(saved.schoolContact || saved.contact || saved.mobile);
+                }
+                if (!schoolLogo && (saved.schoolLogo || saved.logo)) {
+                    onSchoolLogoChange?.(saved.schoolLogo || saved.logo);
+                }
+
+                // Only overwrite if props are missing/empty to avoid race conditions
+                if (!schoolLandline && saved.schoolLandline) setSchoolLandline(saved.schoolLandline);
+                if (!indexNumber && saved.indexNumber) setIndexNumber(saved.indexNumber);
+                if (!udiseNumber && saved.udiseNumber) setUdiseNumber(saved.udiseNumber);
+                if (!boardName && saved.boardName) setBoardName(saved.boardName);
+                if (!principalSignature && saved.principalSignature) setPrincipalSignature(saved.principalSignature);
             }
         } catch (error) {
             console.error('Failed to load school profile:', error);

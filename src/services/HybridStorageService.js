@@ -9,7 +9,7 @@
  * - Local only
  */
 
-import * as CloudBackupService from './CloudBackupService';
+import * as CloudFirestore from './CloudBackupService';
 import * as R2StorageService from './R2StorageService';
 import * as LocalBackupService from './LocalBackupService';
 import * as database from './database';
@@ -68,13 +68,13 @@ export async function backupToCloud(userId) {
     try {
         switch (currentProvider) {
             case PROVIDERS.FIREBASE:
-                return await CloudBackupService.backupToCloud(userId);
+                return await CloudFirestore.saveDataToFirestore(userId);
 
             case PROVIDERS.CLOUDFLARE_R2:
                 if (!R2StorageService.isR2Configured()) {
                     console.warn('R2 not configured, falling back to Firebase');
                     try {
-                        return await CloudBackupService.backupToCloud(userId);
+                        return await CloudFirestore.saveDataToFirestore(userId);
                     } catch (fbError) {
                         console.warn('Firebase also not configured:', fbError.message);
                         // Return local backup success
@@ -91,7 +91,7 @@ export async function backupToCloud(userId) {
             case PROVIDERS.SUPABASE:
                 console.warn('Supabase not yet implemented, falling back to Firebase');
                 try {
-                    return await CloudBackupService.backupToCloud(userId);
+                    return await CloudFirestore.saveDataToFirestore(userId);
                 } catch (fbError) {
                     return {
                         success: true,
@@ -110,7 +110,7 @@ export async function backupToCloud(userId) {
 
             default:
                 try {
-                    return await CloudBackupService.backupToCloud(userId);
+                    return await CloudFirestore.saveDataToFirestore(userId);
                 } catch (fbError) {
                     return {
                         success: true,
@@ -153,12 +153,12 @@ export async function backupToCloud(userId) {
 export async function restoreFromCloud(userId) {
     switch (currentProvider) {
         case PROVIDERS.FIREBASE:
-            return await CloudBackupService.restoreFromCloud(userId);
+            return await CloudFirestore.restoreFromCloud(userId);
 
         case PROVIDERS.CLOUDFLARE_R2:
             if (!R2StorageService.isR2Configured()) {
                 console.warn('R2 not configured, falling back to Firebase');
-                return await CloudBackupService.restoreFromCloud(userId);
+                return await CloudFirestore.restoreFromCloud(userId);
             }
             try {
                 const result = await R2StorageService.downloadLatestBackup(userId);
@@ -178,7 +178,7 @@ export async function restoreFromCloud(userId) {
 
         case PROVIDERS.SUPABASE:
             console.warn('Supabase not yet implemented, falling back to Firebase');
-            return await CloudBackupService.restoreFromCloud(userId);
+            return await CloudFirestore.restoreFromCloud(userId);
 
         case PROVIDERS.LOCAL_ONLY:
             const localBackup = LocalBackupService.getLocalBackup();
@@ -196,7 +196,7 @@ export async function restoreFromCloud(userId) {
             };
 
         default:
-            return await CloudBackupService.restoreFromCloud(userId);
+            return await CloudFirestore.restoreFromCloud(userId);
     }
 }
 
@@ -208,7 +208,7 @@ export async function restoreFromCloud(userId) {
 export async function checkBackupExists(userId) {
     switch (currentProvider) {
         case PROVIDERS.FIREBASE:
-            return await CloudBackupService.checkBackupExists(userId);
+            return await CloudFirestore.checkBackupExists(userId);
 
         case PROVIDERS.CLOUDFLARE_R2:
             if (!R2StorageService.isR2Configured()) {
@@ -226,7 +226,7 @@ export async function checkBackupExists(userId) {
             };
 
         default:
-            return await CloudBackupService.checkBackupExists(userId);
+            return await CloudFirestore.checkBackupExists(userId);
     }
 }
 
@@ -299,32 +299,120 @@ export async function listR2Backups(userId) {
 }
 
 /**
- * Auto-backup with failover between providers
- * Try primary provider, fall back to local if fails
+ * Auto-backup with failover between providers (5+ Layer Hybrid Method)
+ * Try all configured providers for maximum reliability.
  */
 export async function smartBackup(userId) {
-    try {
-        const result = await backupToCloud(userId);
-        if (result.success) {
-            return result;
-        }
+    if (!userId) return { success: false, message: 'No User ID' };
 
-        console.warn('HybridStorage: Cloud backup failed, local backup preserved');
+    const results = {
+        firestore: false,
+        r2: false,
+        mega: false,
+        localDb: true, // Local DB is our source of truth
+        localFile: false
+    };
+
+    try {
+        // 1. Local Persistence (Safety Buffer)
+        const allData = await database.exportAllData();
+        await LocalBackupService.createLocalBackup(allData);
+        results.localFile = true;
+
+        // 2. Parallel Background Backups (Performance & Reliability)
+        const cloudBackups = [
+            // Layer 1: Firestore (Primary Sync)
+            (async () => {
+                try {
+                    // Use dynamic import and renamed function to break circular dependencies/conflicts
+                    const FireCloud = await import('./CloudBackupService');
+                    const res = await FireCloud.saveDataToFirestore(userId, allData);
+                    results.firestore = res.success;
+                    return { provider: 'firestore', ...res };
+                } catch (e) {
+                    results.firestore = false;
+                    return { provider: 'firestore', success: false, error: e.message };
+                }
+            })(),
+
+            // Layer 2: Cloudflare R2 (Object Store Failover)
+            (async () => {
+                if (R2StorageService.isR2Configured()) {
+                    try {
+                        const res = await R2StorageService.uploadBackup(userId, allData);
+                        results.r2 = res.success;
+                        return { provider: 'r2', ...res };
+                    } catch (e) {
+                        results.r2 = false;
+                        return { provider: 'r2', success: false, error: e.message };
+                    }
+                }
+                return { provider: 'r2', success: false, error: 'R2 not configured' };
+            })(),
+
+            // Layer 3: Mega.nz (Admin Safety Background)
+            (async () => {
+                try {
+                    const { uploadToMega } = await import('./MegaBackupService');
+                    // Get school/user metadata for encoded folders
+                    const settings = await database.getSetting('school_profile') || {};
+                    const userProfile = JSON.parse(localStorage.getItem(`user_profile_${userId}`) || '{}');
+
+                    const res = await uploadToMega(
+                        allData,
+                        settings.schoolName || 'EduNorm_School',
+                        settings.schoolCode || '000',
+                        userProfile.role || 'user',
+                        userProfile.email || userId,
+                        userId
+                    );
+                    results.mega = res.success;
+                    return { provider: 'mega', ...res };
+                } catch (e) {
+                    results.mega = false;
+                    return { provider: 'mega', success: false, error: e.message };
+                }
+            })()
+        ];
+
+        // We wait for all cloud backups to settle (success or failure)
+        const taskResults = await Promise.allSettled(cloudBackups);
+
+        // Log individual results for debugging
+        taskResults.forEach((res, index) => {
+            if (res.status === 'fulfilled') {
+                const val = res.value;
+                if (!val.success) {
+                    // Downgrade known environment issues (like R2 CORS on localhost) to info
+                    if (val.provider === 'r2' && (val.error?.includes('CORS') || val.error?.includes('Network error'))) {
+                        console.info(`HybridStorage: R2 sync paused (development environment CORS).`);
+                    } else {
+                        console.warn(`HybridStorage: ${val.provider} layer failed:`, val.error);
+                    }
+                } else {
+                    console.log(`HybridStorage: ${val.provider} layer success`);
+                }
+            } else {
+                console.error(`HybridStorage: Layer ${index} crashed:`, res.reason);
+            }
+        });
+
+        console.log('HybridStorage: Multi-tier Backup Status:', results);
+
+        const anyCloudSuccess = results.firestore || results.r2 || results.mega;
+
         return {
             success: true,
-            message: 'Cloud backup failed, but local backup is available',
-            fallback: true
+            results,
+            message: anyCloudSuccess ? 'Data synced across cloud layers' : 'Data preserved locally (Cloud sync pending)',
+            timestamp: new Date().toISOString()
         };
+
     } catch (error) {
-        console.error('HybridStorage: Backup error', error);
-
-        // Ensure we have local backup at minimum
-        const allData = await database.exportAllData();
-        LocalBackupService.createLocalBackup(allData);
-
+        console.error('HybridStorage: Critical backup failure', error);
         return {
             success: false,
-            message: 'Cloud backup failed, local backup created',
+            message: 'Backup engine failure',
             error: error.message
         };
     }

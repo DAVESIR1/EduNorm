@@ -1,4 +1,5 @@
 import { openDB } from 'idb';
+import { normalizeId } from './IdentityResolutionService';
 
 const DB_NAME = 'StudentDataEntry';
 const DB_VERSION = 2; // Incremented for Migration Support
@@ -83,7 +84,9 @@ export async function getSetting(key) {
 
 export async function setSetting(key, value) {
     const db = await initDB();
-    return db.put('settings', { key, value, updatedAt: new Date().toISOString() });
+    const result = await db.put('settings', { key, value, updatedAt: new Date().toISOString() });
+    notifyChanges('settings');
+    return result;
 }
 
 export async function getAllSettings() {
@@ -92,6 +95,31 @@ export async function getAllSettings() {
 }
 
 // Sync Timestamp Management
+let changeListeners = [];
+
+export function subscribeToChanges(callback) {
+    changeListeners.push(callback);
+    return () => {
+        changeListeners = changeListeners.filter(cb => cb !== callback);
+    };
+}
+
+let notificationsPaused = false;
+
+export function pauseNotifications() {
+    notificationsPaused = true;
+}
+
+export function resumeNotifications() {
+    notificationsPaused = false;
+}
+
+function notifyChanges(type) {
+    if (notificationsPaused) return;
+    // console.log('DB Change:', type);
+    changeListeners.forEach(cb => cb(type));
+}
+
 export async function getLastSyncTime() {
     const val = await getSetting('last_sync_timestamp');
     return val ? parseInt(val, 10) : 0;
@@ -124,6 +152,7 @@ export async function addStudent(studentData) {
     const id = await store.add(student);
     await tx.done;
 
+    notifyChanges('students');
     return { ...student, id };
 }
 
@@ -143,12 +172,14 @@ export async function updateStudent(id, studentData) {
     };
 
     await db.put('students', updated);
+    notifyChanges('students');
     return updated;
 }
 
 export async function deleteStudent(id) {
     const db = await initDB();
     await db.delete('students', id);
+    notifyChanges('students');
 }
 
 export async function getStudent(id) {
@@ -191,10 +222,12 @@ export async function searchStudents(query) {
 // Standard operations
 export async function addStandard(standardData) {
     const db = await initDB();
-    return db.put('standards', {
+    const result = await db.put('standards', {
         ...standardData,
         createdAt: new Date().toISOString()
     });
+    notifyChanges('standards');
+    return result;
 }
 
 export async function getStandard(id) {
@@ -210,21 +243,26 @@ export async function getAllStandards() {
 export async function updateStandard(id, data) {
     const db = await initDB();
     const existing = await db.get('standards', id);
-    return db.put('standards', { ...existing, ...data, id });
+    const result = await db.put('standards', { ...existing, ...data, id });
+    notifyChanges('standards');
+    return result;
 }
 
 export async function deleteStandard(id) {
     const db = await initDB();
     await db.delete('standards', id);
+    notifyChanges('standards');
 }
 
 // Custom fields operations
 export async function addCustomField(fieldData) {
     const db = await initDB();
-    return db.add('customFields', {
+    const result = await db.add('customFields', {
         ...fieldData,
         createdAt: new Date().toISOString()
     });
+    notifyChanges('customFields');
+    return result;
 }
 
 export async function getAllCustomFields() {
@@ -235,21 +273,26 @@ export async function getAllCustomFields() {
 export async function updateCustomField(id, data) {
     const db = await initDB();
     const existing = await db.get('customFields', id);
-    return db.put('customFields', { ...existing, ...data, id });
+    const result = await db.put('customFields', { ...existing, ...data, id });
+    notifyChanges('customFields');
+    return result;
 }
 
 export async function deleteCustomField(id) {
     const db = await initDB();
     await db.delete('customFields', id);
+    notifyChanges('customFields');
 }
 
 // Document operations
 export async function addDocument(docData) {
     const db = await initDB();
-    return db.add('documents', {
+    const result = await db.add('documents', {
         ...docData,
         uploadedAt: new Date().toISOString()
     });
+    notifyChanges('documents');
+    return result;
 }
 
 export async function getDocumentsByStudent(studentId) {
@@ -261,6 +304,7 @@ export async function getDocumentsByStudent(studentId) {
 export async function deleteDocument(id) {
     const db = await initDB();
     await db.delete('documents', id);
+    notifyChanges('documents');
 }
 
 // Utility: Upgrade class
@@ -471,18 +515,15 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
     const cleanStr = (s) => String(s || '').replace(/[\s-]/g, '').toLowerCase().trim();
 
     // Smart GR variations
-    const rawGr = String(grNo).trim();
-    const numGr = parseInt(rawGr, 10);
+    const cleanGr = normalizeId(grNo);
+    const numGr = parseInt(cleanGr, 10);
 
     // 1. LOCAL IndexedDB lookup (fast path)
     const index = db.transaction('students').store.index('grNo');
-    let student = await index.get(rawGr);
+    let student = await index.get(cleanGr);
 
     if (!student && !isNaN(numGr)) {
-        student = await index.get(numGr);           // Try as number
-    }
-    if (!student && !isNaN(numGr)) {
-        student = await index.get(String(numGr));   // Try "1" when input was "01"
+        student = await index.get(String(numGr)); // Try standard string
     }
 
     // 2. LIVE FIRESTORE FALLBACK (if local didn't find anything)
@@ -579,26 +620,33 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
     // 3. If student still not found, return error
     if (!student) return { success: false, error: `Student with GR No "${grNo}" not found.` };
 
-    // 4. FUZZY IDENTITY VERIFICATION
-    // Handles all field name variants across local DB and Firestore
-    const inputVal = cleanStr(govId);
+    // 4. FUZZY IDENTITY VERIFICATION - MULTI-ID CATCH SYSTEM
+    const inputVal = normalizeId(govId);
 
-    const storedAadhar = cleanStr(student.aadharNo || student.aadharNumber || student.aadhar);
-    const storedGovId = cleanStr(student.govId);
-    const storedSssm = cleanStr(student.sssmId || student.sssm_id);
-    const storedEmail = cleanStr(student.email);
-    const storedMobile = cleanStr(student.mobile || student.contactNumber || student.phone);
-    const storedName = student.name || student.nameEnglish || '';
+    const proofFields = [
+        'aadharNo', 'aadharNumber', 'aadhar',
+        'govId', 'governmentId', 'sssmId', 'sssm_id',
+        'email', 'mobile', 'contactNumber', 'phone',
+        'panCard', 'panNo', 'voterId', 'passportNo'
+    ];
 
-    console.log(`Smart Verify: GR=${grNo} | Name="${storedName}" | Input="${inputVal}" | Aadhar=${storedAadhar === inputVal}, Mobile=${storedMobile === inputVal}, GovId=${storedGovId === inputVal}, SSSM=${storedSssm === inputVal}, Email=${storedEmail === inputVal}`);
+    const proofMatch = proofFields.some(field => {
+        if (!student[field]) return false;
+        const storedVal = normalizeId(student[field]);
+        return storedVal && storedVal === inputVal;
+    });
 
-    if (
-        (storedAadhar && storedAadhar === inputVal) ||
-        (storedGovId && storedGovId === inputVal) ||
-        (storedSssm && storedSssm === inputVal) ||
-        (storedEmail && storedEmail === inputVal) ||
-        (storedMobile && storedMobile === inputVal)
-    ) {
+    if (proofMatch) {
+        return { success: true, data: student };
+    }
+
+    // Last resort: Check any field for a match
+    const secondaryMatch = Object.keys(student).some(key => {
+        if (typeof student[key] !== 'string' && typeof student[key] !== 'number') return false;
+        return normalizeId(student[key]) === inputVal;
+    });
+
+    if (secondaryMatch) {
         return { success: true, data: student };
     }
 

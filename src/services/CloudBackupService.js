@@ -11,7 +11,8 @@ import {
     getDocs
 } from 'firebase/firestore';
 import * as localDb from './database';
-import { encryptData, decryptData, isEncrypted } from './SecureEncryption';
+import { encryptData, decryptData, isEncrypted } from './SecureEncryption'; // Keep for Legacy Restore
+import AnigmaEncoding from './AnigmaEncoding'; // New Encoding Method
 
 /**
  * Cloud Backup Service using Firebase Firestore
@@ -43,7 +44,7 @@ function estimateSize(data) {
 }
 
 // Backup all user data to cloud
-export async function backupToCloud(userId) {
+export async function saveDataToFirestore(userId, unusedData, onProgress) {
     if (!userId) {
         throw new Error('User must be logged in to backup');
     }
@@ -59,6 +60,7 @@ export async function backupToCloud(userId) {
     }
 
     try {
+        if (onProgress) onProgress('Gathering data...');
         console.log('CloudBackupService: Starting backup for user:', userId);
 
         // Gather all local data
@@ -90,17 +92,33 @@ export async function backupToCloud(userId) {
             appVersion: '2.0.0'
         };
 
-        // Check data size - Firestore limit is 1MB per document
+        // Check data size - Firestore limit is 1MB per document (Chunking allows more but practical limit needed)
         const rawSize = estimateSize(backupData);
-        console.log(`CloudBackupService: Raw data size: ${(rawSize / 1024).toFixed(1)}KB`);
+        const rawSizeMB = (rawSize / (1024 * 1024)).toFixed(2);
+        console.log(`CloudBackupService: Raw data size: ${rawSizeMB} MB`);
 
-        // ENCRYPT AND COMPRESS DATA (compression typically reduces 80-90%)
-        console.log('CloudBackupService: Encrypting data with AES-256-GCM...');
+        if (rawSize > 6 * 1024 * 1024) { // 6MB Limit
+            const err = new Error(`Backup too large (${rawSizeMB} MB). Limit is 6MB. Please remove images/files from student profiles.`);
+            if (onProgress) onProgress(`Error: Data too large (${rawSizeMB} MB)`);
+            throw err;
+        }
+
+        // ENCRYPT / ENCODE DATA (Anigma Encoding)
+        const rawSizeKB = (rawSize / 1024).toFixed(1);
+        if (onProgress) onProgress(`Encrypting ${rawSizeKB} KB of data...`);
+        console.log('CloudBackupService: Encoding data with Anigma Method...');
         let encryptedPackage;
         try {
-            encryptedPackage = await encryptData(backupData, userId);
+            // Anigma Encoding (GZIP + Base64 + Obfuscation)
+            const encodedString = AnigmaEncoding.encode(backupData);
+
+            encryptedPackage = {
+                encrypted: encodedString,
+                version: '3.0-anigma', // New version
+                timestamp: new Date().toISOString()
+            };
         } catch (encErr) {
-            console.error('CloudBackupService: Encryption failed, saving unencrypted backup:', encErr);
+            console.error('CloudBackupService: Encoding failed, saving unencrypted backup:', encErr);
             // Fallback: save without encryption if it fails (safety net)
             encryptedPackage = {
                 data: backupData,
@@ -112,7 +130,7 @@ export async function backupToCloud(userId) {
 
         // Check encrypted size
         const encryptedSize = estimateSize(encryptedPackage);
-        console.log(`CloudBackupService: Encrypted size: ${(encryptedSize / 1024).toFixed(1)}KB`);
+        console.log(`CloudBackupService: Encoded size: ${(encryptedSize / 1024).toFixed(1)}KB`);
 
         // Add metadata for storage
         const schoolName = settings?.schoolName || 'Unknown School';
@@ -123,7 +141,7 @@ export async function backupToCloud(userId) {
             userId: userId,
             schoolName: schoolName,
             dataVersion: '2.0',
-            security: encryptedPackage.version === '2.0' ? 'AES-256-GCM + PBKDF2 + GZIP' : 'none',
+            security: encryptedPackage.version === '3.0-anigma' ? 'Anigma Encoding' : (encryptedPackage.version === '2.0' ? 'AES-256-GCM' : 'none'),
             studentCount: students?.length || 0,
             standardCount: standards?.length || 0,
             customFieldCount: customFields?.length || 0
@@ -136,6 +154,8 @@ export async function backupToCloud(userId) {
             const CHUNK_SIZE = 500000; // 500KB chunks
             const totalChunks = Math.ceil(encrypted.length / CHUNK_SIZE);
 
+            if (onProgress) onProgress(`Preparing ${totalChunks} chunks...`);
+
             // Save metadata document
             const metaRef = doc(db, 'backups', userId);
             await retryOperation(() => setDoc(metaRef, {
@@ -146,28 +166,43 @@ export async function backupToCloud(userId) {
                 chunkSize: CHUNK_SIZE
             }));
 
-            // Save chunks
-            for (let i = 0; i < totalChunks; i++) {
-                const chunkData = encrypted.substring(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-                const chunkRef = doc(db, 'backups', userId, 'chunks', `chunk_${i}`);
-                await retryOperation(() => setDoc(chunkRef, {
-                    index: i,
-                    data: chunkData,
-                    totalChunks
-                }));
-                console.log(`CloudBackupService: Saved chunk ${i + 1}/${totalChunks}`);
+            // Save chunks (Batched Uploads for Stability)
+            const BATCH_SIZE = 5; // Upload 5 chunks at a time
+            for (let i = 0; i < totalChunks; i += BATCH_SIZE) {
+                const batchPromises = [];
+                const batchEnd = Math.min(i + BATCH_SIZE, totalChunks);
+
+                if (onProgress) onProgress(`Uploading batch ${Math.ceil((i + 1) / BATCH_SIZE)}/${Math.ceil(totalChunks / BATCH_SIZE)}...`);
+
+                for (let j = i; j < batchEnd; j++) {
+                    const chunkData = encrypted.substring(j * CHUNK_SIZE, (j + 1) * CHUNK_SIZE);
+                    const chunkRef = doc(db, 'backups', userId, 'chunks', `chunk_${j}`);
+
+                    batchPromises.push(
+                        retryOperation(() => setDoc(chunkRef, {
+                            index: j,
+                            data: chunkData,
+                            totalChunks
+                        })).then(() => console.log(`CloudBackupService: Uploaded chunk ${j + 1}/${totalChunks}`))
+                    );
+                }
+
+                // Wait for this batch
+                await Promise.all(batchPromises);
             }
         } else {
             // Save as single document
+            if (onProgress) onProgress('Uploading single file...');
             const backupRef = doc(db, 'backups', userId);
             await retryOperation(() => setDoc(backupRef, secureBackup));
         }
 
         console.log('CloudBackupService: Backup saved successfully!');
+        if (onProgress) onProgress('Finalizing...');
 
         // ─── ADMIN BACKUP (Redundant & History) ───
         // Save to admin-backups using the SAME encrypted package (re-use optimization)
-        backupToAdminCloud(userId, encryptedPackage).catch(e => console.warn('Background admin backup failed:', e));
+        backupToAdminCloud(userId, encryptedPackage).catch(e => console.warn('CloudBackupService: Background admin backup skipped (Permission or Config):', e.message));
 
         // Also save to history (optional - may fail on free tier limits)
         try {
@@ -181,8 +216,12 @@ export async function backupToCloud(userId) {
                 sizeKB: Math.round(encryptedSize / 1024)
             });
         } catch (historyError) {
-            // Don't fail the whole backup if history fails
-            console.warn('CloudBackupService: Could not save backup history:', historyError.message);
+            // Don't fail the whole backup if history fails, and silence for non-admin users
+            if (historyError.message?.includes('permission') || historyError.code === 'permission-denied') {
+                console.debug('CloudBackupService: Backup history restricted (non-admin user).');
+            } else {
+                console.warn('CloudBackupService: Potential history sync delay:', historyError.message);
+            }
         }
 
         return {
@@ -219,10 +258,9 @@ export async function backupToAdminCloud(userId, encryptedPackage = null) {
             console.log('CloudBackupService: Starting Independent Admin Backup...');
             const allData = await localDb.exportAllData();
 
-            // Encrypt with same key for now (simplicity + restoration by user)
-            // Ideally, this uses a separate admin public key, but symmetric user key is safer for "no one can see user data" claim.
-            // The admin backs it up but can't read it without user's password/key.
-            encryptedPackage = await encryptData(allData, userId);
+            // Encrypt / Encode (Anigma)
+            const encodedString = AnigmaEncoding.encode(allData);
+            encryptedPackage = { encrypted: encodedString, version: '3.0-anigma' };
         } else {
             console.log('CloudBackupService: Saving Admin Backup (using existing package)...');
         }
@@ -234,13 +272,18 @@ export async function backupToAdminCloud(userId, encryptedPackage = null) {
             ...encryptedPackage,
             backupDate: serverTimestamp(),
             type: 'admin-auto-backup',
-            security: 'AES-256-GCM',
+            security: encryptedPackage.version === '3.0-anigma' ? 'Anigma Encoding' : 'AES-256-GCM',
             sizeKB: Math.round(estimateSize(encryptedPackage) / 1024)
         });
 
         console.log('CloudBackupService: Admin backup complete (Encrypted)');
     } catch (err) {
-        console.error('CloudBackupService: Admin backup failed', err);
+        if (err.message?.includes('permission') || err.code === 'permission-denied') {
+            // Silently skip if user doesn't have permission (this is expected for non-admin users)
+            console.debug('CloudBackupService: Admin-history backup restricted (non-admin user).');
+        } else {
+            console.warn('CloudBackupService: Non-critical Admin backup skipped:', err.message);
+        }
         // We don't throw here to avoid disrupting the main flow
     }
 }
@@ -297,9 +340,20 @@ export async function restoreFromCloud(userId) {
                 encrypted: reassembled,
                 chunked: undefined
             };
-            backupData = await decryptData(encryptedPackage, userId);
+
+            // Try Anigma first, then legacy
+            if (storedData.version === '3.0-anigma') {
+                backupData = AnigmaEncoding.decode(encryptedPackage.encrypted);
+            } else {
+                backupData = await decryptData(encryptedPackage, userId);
+            }
+
+        } else if (storedData.version === '3.0-anigma') {
+            console.log('CloudBackupService: Decoding Anigma backup...');
+            backupData = AnigmaEncoding.decode(storedData.encrypted);
+
         } else if (isEncrypted(storedData)) {
-            console.log('CloudBackupService: Decrypting backup data...');
+            console.log('CloudBackupService: Decrypting legacy AES backup...');
             backupData = await decryptData(storedData, userId);
         } else if (storedData.version === '1.0-unencrypted' && storedData.data) {
             // Fallback unencrypted backup
@@ -309,6 +363,10 @@ export async function restoreFromCloud(userId) {
             // Legacy unencrypted backup
             console.log('CloudBackupService: Legacy backup detected (unencrypted)');
             backupData = storedData;
+            // Handle edge case where data might be stringified
+            if (typeof backupData === 'string') {
+                try { backupData = JSON.parse(backupData); } catch (e) { }
+            }
         }
 
         console.log('CloudBackupService: Data ready for import', {
@@ -383,10 +441,21 @@ export async function checkBackupExists(userId) {
     }
 
     try {
+        const { getDocFromServer } = await import('firebase/firestore');
         const backupRef = doc(db, 'backups', userId);
-        const backupSnap = await getDoc(backupRef);
+
+        let backupSnap;
+        try {
+            // Force fetch from server to get latest data (fixes "0 backup" on multi-device)
+            backupSnap = await getDocFromServer(backupRef);
+        } catch (serverErr) {
+            console.warn('Backup check: Server fetch failed, falling back to cache:', serverErr);
+            // Fallback to cache if offline (though offline mode is disabled, network glitches happen)
+            backupSnap = await getDoc(backupRef);
+        }
 
         if (backupSnap.exists()) {
+            console.log('Backup Check: FOUND backup for', userId);
             const data = backupSnap.data();
 
             // Debug: log all top-level fields

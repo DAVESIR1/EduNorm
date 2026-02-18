@@ -29,11 +29,6 @@
     overflow: hidden;
 }
 
-[data-theme="neon"] .role-modal-content {
-    background: #000000;
-    border: 1px solid #D3D3D3;
-    box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
-}
 
 /* Wizard Header */
 .role-modal-content h2 {
@@ -45,12 +40,6 @@
     -webkit-text-fill-color: transparent;
 }
 
-[data-theme="neon"] .role-modal-content h2 {
-    background: none;
-    -webkit-text-fill-color: #FFFDD0;
-    color: #FFFDD0;
-    text-shadow: 0 0 10px rgba(255, 253, 208, 0.5);
-}
 
 .subtitle {
     color: var(--text-secondary, #64748b);
@@ -59,9 +48,6 @@
     line-height: 1.5;
 }
 
-[data-theme="neon"] .subtitle {
-    color: #A0A0A0;
-}
 
 /* Back Button */
 .back-link {
@@ -81,14 +67,6 @@
     color: var(--primary-color, #6366f1);
 }
 
-[data-theme="neon"] .back-link {
-    color: #A0A0A0;
-}
-
-[data-theme="neon"] .back-link:hover {
-    color: #FFFDD0;
-    text-shadow: 0 0 8px #FFFDD0;
-}
 
 /* Grid for Role Selection */
 .role-options-grid {
@@ -111,10 +89,6 @@
     gap: 16px;
 }
 
-[data-theme="neon"] .role-option {
-    background: #000000;
-    border: 1px solid #333;
-}
 
 .role-option:hover {
     transform: translateY(-5px);
@@ -122,11 +96,6 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="neon"] .role-option:hover {
-    background: #0a0a0a;
-    border-color: #FFFDD0;
-    box-shadow: 0 0 15px rgba(255, 253, 208, 0.2);
-}
 
 .role-icon-box {
     width: 64px;
@@ -140,11 +109,6 @@
     transition: all 0.3s ease;
 }
 
-[data-theme="neon"] .role-icon-box {
-    background: #000000;
-    border: 1px solid #D3D3D3;
-    color: #FFFDD0;
-}
 
 .role-option h3 {
     margin: 0;
@@ -153,9 +117,6 @@
     font-weight: 600;
 }
 
-[data-theme="neon"] .role-option h3 {
-    color: #D3D3D3;
-}
 
 /* Forms */
 .wizard-form {
@@ -182,9 +143,6 @@
     text-align: center;
 }
 
-[data-theme="neon"] .input-group label {
-    color: #A0A0A0;
-}
 
 .input-field {
     width: 100%;
@@ -211,16 +169,6 @@
     font-weight: 700;
 }
 
-[data-theme="neon"] .input-field {
-    background: #0a0a0a;
-    border-color: #333;
-    color: #FFF;
-}
-
-[data-theme="neon"] .input-field:focus {
-    border-color: #FFFDD0;
-    box-shadow: 0 0 10px rgba(255, 253, 208, 0.2);
-}
 
 /* Buttons */
 .btn {
@@ -259,18 +207,6 @@
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
-}
-
-[data-theme="neon"] .btn-primary {
-    background: transparent;
-    border: 1px solid #FFFDD0;
-    color: #FFFDD0;
-    box-shadow: 0 0 10px rgba(255, 253, 208, 0.1);
-}
-
-[data-theme="neon"] .btn-primary:hover:not(:disabled) {
-    background: rgba(255, 253, 208, 0.1);
-    box-shadow: 0 0 20px rgba(255, 253, 208, 0.3);
 }
 
 /* Animation */

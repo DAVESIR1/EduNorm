@@ -59,14 +59,25 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // 5.5 BACKUPS COLLECTION (Explicitly allow owner access)
+    // 5.5 BACKUPS COLLECTION (Recurisve access for chunks, history, etc.)
     match /backups/{userId} {
       allow read, write: if isOwner(userId);
       
-      // Allow access to chunks subcollection
-      match /chunks/{chunkId} {
+      match /{document=**} {
         allow read, write: if isOwner(userId);
       }
+    }
+
+    // 5.6 ADMIN BACKUPS (For redundancy)
+    match /admin-backups/{userId}/{document=**} {
+      allow create: if isOwner(userId); // Allow users to push their auto-backup
+      allow read, write: if isAdmin();
+    }
+
+    // 6. BUG REPORTS (Allow users to report, Admin to manage)
+    match /admin_bugs/{bugId} {
+      allow create: if isAuth();
+      allow read, delete, update: if isAdmin();
     }
 
     // 6. SCHOOL PROFILE (Fix for "Missing Permissions" error)

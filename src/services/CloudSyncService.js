@@ -12,7 +12,7 @@ import {
     serverTimestamp
 } from 'firebase/firestore';
 import * as localDb from './database';
-import { encryptData, decryptData, isEncrypted } from './SecureEncryption';
+import AnigmaEncoding from './AnigmaEncoding';
 import { safeJsonStringify } from '../utils/SafeJson';
 
 // Sync status
@@ -179,25 +179,19 @@ async function backupToCloudNow(userId, reason = 'MANUAL') {
         appVersion: CURRENT_APP_VERSION
     };
 
-    // ENCRYPT DATA
-    console.log(`CloudSync: Encrypting data (${reason})...`);
-
-    // We pass the raw object. encryptData calls compressData which calls JSON.stringify.
-    // To be safe, let's pre-sanitize if we suspect circular refs, but database data should be clean.
-    // However, if needed:
-    // const safeData = JSON.parse(safeJsonStringify(backupData)); 
-    // We'll trust EncryptionService to handle it, or wrap it.
-
-    const encryptedPackage = await encryptData(backupData, userId);
+    // ENCODE DATA (Anigma)
+    console.log(`CloudSync: Encoding data (${reason}) with Anigma...`);
+    const encodedString = AnigmaEncoding.encode(backupData);
 
     const secureBackup = {
-        ...encryptedPackage,
+        encrypted: encodedString,
+        version: '3.0-anigma',
         backupDate: serverTimestamp(),
         lastModified: new Date().toISOString(),
         userId: userId,
-        dataVersion: '2.0',
+        dataVersion: '3.0',
         backupReason: reason,
-        security: 'AES-256-GCM + PBKDF2 + GZIP'
+        security: 'Anigma Encoding'
     };
 
     const backupRef = doc(db, 'backups', userId);
@@ -385,102 +379,86 @@ async function restoreFromCloudData(storedData, userId) {
         }
     }
 
-    // DECRYPT DATA if encrypted
+    // DECODE DATA (Anigma)
     let backupData;
-    // Check if we have data to decrypt (either from chunks or direct)
-    if (encryptedDataToDecrypt || isEncrypted(storedData)) {
-        // If chunked, we constructed encryptedDataToDecrypt. 
-        // If not chunked, storedData.encrypted might be present (if verified by isEncrypted)
-        // But isEncrypted checks if 'security' field is present usually.
-
-        // Helper: verify if we have the string
-        const cipherText = encryptedDataToDecrypt || storedData.encrypted;
-
-        if (!cipherText) {
-            throw new Error('No encrypted data found to restore.');
-        }
-
-        console.log('CloudSync: Decrypting backup data...');
-        // We pass a mock object with just the encrypted string if we reassembled it, 
-        // OR pass the original storedData if it was simple.
-        // Actually decryptData takes (encryptedPackage, userId). 
-        // encryptedPackage expects { encrypted: string, iv: string, salt: string }
-
-        const packageToDecrypt = {
-            encrypted: cipherText,
-            iv: storedData.iv,
-            salt: storedData.salt
-        };
-
-        backupData = await decryptData(packageToDecrypt, userId);
-        console.log('CloudSync: Data decrypted!');
+    if (storedData.version === '3.0-anigma') {
+        console.log('CloudSync: Decoding Anigma backup data...');
+        backupData = AnigmaEncoding.decode(encryptedDataToDecrypt || storedData.encrypted);
     } else {
-        // Legacy unencrypted backup
-        console.log('CloudSync: Legacy backup (unencrypted)');
-        backupData = storedData;
-    }
-
-    // Restore settings
-    if (backupData.settings) {
-        for (const [key, value] of Object.entries(backupData.settings)) {
-            await localDb.setSetting(key, value);
-        }
-    }
-
-    // Restore standards
-    if (backupData.standards?.length > 0) {
-        for (const standard of backupData.standards) {
-            try {
-                await localDb.addStandard(standard);
-            } catch (e) {
-                console.log('CloudSync: Standard already exists:', standard.name);
-            }
-        }
-    }
-
-    // Restore custom fields
-    if (backupData.customFields?.length > 0) {
-        for (const field of backupData.customFields) {
-            try {
-                await localDb.addCustomField(field);
-            } catch (e) {
-                console.log('CloudSync: Field already exists:', field.name);
-            }
-        }
-    }
-
-    // Restore students — Bug 3 fix: use importAllData with Smart Merge
-    // instead of addStudent() which silently fails on duplicate GR numbers
-    if (backupData.students?.length > 0) {
-        console.log(`CloudSync: Restoring ${backupData.students.length} students via Smart Merge...`);
+        // Fallback or Legacy check
+        console.log('CloudSync: Unsupported or legacy format, attempting generic decode...');
         try {
-            await localDb.importAllData({ students: backupData.students });
-            console.log(`CloudSync: Students restored via Smart Merge successfully.`);
+            backupData = AnigmaEncoding.decode(encryptedDataToDecrypt || storedData.encrypted);
         } catch (e) {
-            console.error('CloudSync: Student restore via Smart Merge failed:', e);
-            // Fallback: try one-by-one with update
-            let restoredCount = 0;
-            for (const student of backupData.students) {
+            console.warn('CloudSync: Decode failed, data may be unencrypted or old-format.');
+            backupData = storedData.data || storedData;
+        }
+    }
+
+    // ─── CRITICAL PROTECT: Pause DB Notifications during Restore ───
+    // This prevents "RealTimeBackup" loop (Chicken-Egg Problem)
+    localDb.pauseNotifications();
+
+    try {
+        // Restore settings
+        if (backupData.settings) {
+            for (const [key, value] of Object.entries(backupData.settings)) {
+                await localDb.setSetting(key, value);
+            }
+        }
+
+        // Restore standards
+        if (backupData.standards?.length > 0) {
+            for (const standard of backupData.standards) {
                 try {
-                    // Try to find existing by GR
-                    const existing = await localDb.getStudentByGrNo(student.grNo);
-                    if (existing) {
-                        await localDb.updateStudent(existing.id, student);
-                    } else {
-                        await localDb.addStudent(student);
-                    }
-                    restoredCount++;
-                } catch (innerErr) {
-                    console.warn('CloudSync: Skip student:', student.grNo, innerErr.message);
+                    await localDb.addStandard(standard);
+                } catch (e) {
+                    // console.log('CloudSync: Standard already exists:', standard.name);
                 }
             }
-            console.log(`CloudSync: Fallback restored ${restoredCount} students.`);
         }
-    } else {
-        console.warn('CloudSync: No students found in backup data.');
-    }
 
-    console.log('CloudSync: Restore completed');
+        // Restore custom fields
+        if (backupData.customFields?.length > 0) {
+            for (const field of backupData.customFields) {
+                try {
+                    await localDb.addCustomField(field);
+                } catch (e) {
+                    // console.log('CloudSync: Field already exists:', field.name);
+                }
+            }
+        }
+
+        // Restore students
+        if (backupData.students?.length > 0) {
+            console.log(`CloudSync: Restoring ${backupData.students.length} students via Smart Merge...`);
+            try {
+                await localDb.importAllData({ students: backupData.students });
+            } catch (e) {
+                console.error('CloudSync: Student restore via Smart Merge failed:', e);
+                // Fallback: try one-by-one with update
+                for (const student of backupData.students) {
+                    try {
+                        const existing = await localDb.getStudentByGrNo(student.grNo);
+                        if (existing) {
+                            await localDb.updateStudent(existing.id, student);
+                        } else {
+                            await localDb.addStudent(student);
+                        }
+                    } catch (innerErr) {
+                        // console.warn('CloudSync: Skip student:', student.grNo);
+                    }
+                }
+            }
+        } else {
+            console.log('CloudSync: No students found in backup data (this is normal for fresh accounts).');
+        }
+
+        console.log('CloudSync: Restore completed');
+    } finally {
+        // ALWAYS resume notifications
+        localDb.resumeNotifications();
+    }
 }
 
 /**

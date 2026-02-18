@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, X, FileSpreadsheet, Download, ChevronUp, ChevronDown, Eye, Maximize2, Minimize2, Edit3, Share2 } from 'lucide-react';
+import { Search, X, FileSpreadsheet, Download, ChevronUp, ChevronDown, Eye, Edit3, Share2 } from 'lucide-react';
 import LedgerSearch from './LedgerSearch';
 import UniversalExport from '../Common/UniversalExport';
 import './GeneralRegister.css';
@@ -17,7 +17,6 @@ export default function GeneralRegister({
     const [sortField, setSortField] = useState('ledgerNo');
     const [sortDir, setSortDir] = useState('asc');
     const [expandedRow, setExpandedRow] = useState(null);
-    const [isMaximized, setIsMaximized] = useState(false);
     const [showExportPanel, setShowExportPanel] = useState(false);
 
     if (!isOpen) return null;
@@ -96,7 +95,7 @@ export default function GeneralRegister({
     return (
         <div className="ledger-overlay animate-fade-in" onClick={onClose}>
             <div
-                className={`ledger-container ${isMaximized ? 'maximized' : ''}`}
+                className="ledger-container"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -107,26 +106,16 @@ export default function GeneralRegister({
                         <span className="ledger-count badge badge-primary">{displayData.length} Students</span>
                     </div>
                     <div className="ledger-header-actions">
-                        <button
-                            className="btn btn-ghost btn-icon"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsMaximized(!isMaximized);
-                            }}
-                            title={isMaximized ? 'Exit Fullscreen' : 'Fullscreen'}
-                        >
-                            {isMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                        </button>
-                        <button className="btn btn-ghost btn-icon" onClick={onClose}>
+                        <button className="btn btn-ghost btn-icon close-btn" onClick={onClose}>
                             <X size={24} />
                         </button>
                     </div>
                 </div>
 
                 {/* Search and Actions */}
-                <div className="ledger-actions">
+                <div className="ledger-actions" style={{ marginTop: '0', padding: '0', border: 'none' }}>
                     <LedgerSearch onSearch={onSearch} query={searchQuery} />
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="action-btns">
                         <button className="btn btn-secondary" onClick={handleExportCSV}>
                             <Download size={18} />
                             Export CSV

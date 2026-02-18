@@ -8,7 +8,7 @@
 }
 
 /* Header */
-.profile-header {
+.profile-card .profile-header {
     display: grid;
     grid-template-columns: 100px 1fr 100px;
     gap: var(--space-4);
@@ -350,82 +350,80 @@
     }
 }
 
-/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
-/* Only apply to "Classic" template in Neon Mode */
+/* === MINIMAL DARK THEME OVERRIDES (Black, Grey, Cream) === */
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic {
     background: #000000 !important;
-    border: 1px solid rgba(211, 211, 211, 0.5) !important;
+    border: 1px solid #FFF8F0 !important;
+    /* Cream Border */
     box-shadow: none !important;
 }
 
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-header {
     background: #000000 !important;
-    border-bottom: 1px solid rgba(211, 211, 211, 0.5) !important;
+    border-bottom: 1px solid #374151 !important;
 }
 
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-name,
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-name {
+    color: #FFF8F0 !important;
+    /* Cream */
+    font-size: 1.5rem !important;
+    /* Bigger */
+}
+
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-title {
-    color: #D3D3D3 !important;
-    text-shadow: none !important;
+    color: #d1d5db !important;
+    /* Grey */
+    font-size: 1.2rem !important;
+    /* Bigger */
 }
 
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-contact {
-    color: #A0A0A0 !important;
+    color: #9ca3af !important;
+    font-size: 1rem !important;
 }
 
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-logo,
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-photo {
-    border-color: rgba(211, 211, 211, 0.5) !important;
-    background: #000000 !important;
+    border-color: #374151 !important;
+    background: #0a0a0a !important;
 }
 
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .school-logo-placeholder,
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-photo-placeholder {
-    background: #000000 !important;
-    border-color: rgba(211, 211, 211, 0.5) !important;
-    color: #D3D3D3 !important;
-    box-shadow: none !important;
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+    color: #d1d5db !important;
 }
 
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic {
-    background: #000000 !important;
-    border: 1px solid rgba(211, 211, 211, 0.5) !important;
-    box-shadow: none !important;
-}
-
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-header {
-    background: #000000 !important;
-    border-bottom: 1px solid rgba(211, 211, 211, 0.5) !important;
-}
-
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-name {
-    color: #FFFDD0 !important;
-    /* Cream Accent */
-    text-shadow: none !important;
-}
-
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .student-id {
-    background: rgba(211, 211, 211, 0.1) !important;
-    color: #D3D3D3 !important;
-    border: 1px solid rgba(211, 211, 211, 0.3) !important;
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .profile-section {
+    background: #0a0a0a !important;
+    border: 1px solid #374151 !important;
 }
 
 html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .section-title {
-    color: #FFFDD0 !important;
-    /* Cream Accent */
-    border-bottom: 2px solid rgba(211, 211, 211, 0.5) !important;
+    color: #FFF8F0 !important;
+    /* Cream */
+    border-bottom: 2px solid #374151 !important;
+    font-size: 1.1rem !important;
+}
+
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .field-item {
     background: transparent !important;
 }
 
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .detail-item {
-    background: transparent !important;
-    border-bottom: 1px solid rgba(211, 211, 211, 0.1) !important;
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .field-label {
+    color: #9ca3af !important;
+    /* Light Grey */
+    font-size: 0.85rem !important;
+    /* Slightly Bigger */
 }
 
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .detail-label {
-    color: #A0A0A0 !important;
-}
-
-html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .detail-value {
-    color: #D3D3D3 !important;
+html[data-theme="neon"] body .profile-viewer-container .profile-card.template-classic .field-value {
+    color: #FFF8F0 !important;
+    /* Cream */
+    background: #000000 !important;
+    /* Pure Black */
+    border: 1px solid #374151 !important;
+    font-size: 1rem !important;
+    /* Bigger */
 }

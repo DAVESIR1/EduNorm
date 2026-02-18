@@ -6,6 +6,9 @@
 
 .creator-header {
     margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .creator-header h2 {
@@ -144,7 +147,7 @@
 .creator-actions {
     display: flex;
     gap: 12px;
-    justify-content: flex-end;
+    justify-content: center;
     padding-top: 24px;
     border-top: 1px solid var(--border-color, #e5e7eb);
 }
@@ -243,16 +246,88 @@
     font-style: italic;
 }
 
-/* Dark Theme */
-[data-theme="dark"] .field-row {
-    background: #1f2937;
-    border-color: #374151;
+
+/* === NEON OLED THEME OVERRIDES (Black, Grey, Cream) === */
+[data-theme="neon"] .custom-window-creator,
+[data-theme="neon"] .custom-window-view {
+    background: #000000 !important;
 }
 
-[data-theme="dark"] .input-field {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
+[data-theme="neon"] .creator-header h2,
+[data-theme="neon"] .window-header h2,
+[data-theme="neon"] .fields-section h3 {
+    color: #FFF8F0 !important;
+    /* Cream */
+}
+
+[data-theme="neon"] .creator-header p {
+    color: #d1d5db !important;
+    /* Grey */
+}
+
+[data-theme="neon"] .form-group label,
+[data-theme="neon"] .fields-section h3,
+[data-theme="neon"] .field-item label {
+    color: #9ca3af !important;
+    /* Light Grey */
+}
+
+[data-theme="neon"] .input-field {
+    background: #000000 !important;
+    color: #FFF8F0 !important;
+    /* Cream */
+    border: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .input-field:focus {
+    border-color: #FFF8F0 !important;
+    box-shadow: 0 0 8px rgba(255, 248, 240, 0.1) !important;
+}
+
+[data-theme="neon"] .field-row {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .field-number {
+    background: #111827 !important;
+    border: 1px solid #374151 !important;
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .add-field-btn {
+    border-color: #374151 !important;
+    color: #9ca3af !important;
+    background: #000000 !important;
+}
+
+[data-theme="neon"] .add-field-btn:hover {
+    border-color: #FFF8F0 !important;
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .creator-actions,
+[data-theme="neon"] .window-header {
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .btn-secondary {
+    background: #111827 !important;
+    color: #d1d5db !important;
+    border: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .btn-secondary:hover {
+    background: #1f2937 !important;
+}
+
+[data-theme="neon"] .field-item {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .field-display {
+    color: #FFF8F0 !important;
 }
 
 /* Mobile */
@@ -292,4 +367,39 @@
     .window-actions button {
         flex: 1;
     }
+}
+
+/* Targeted Neon Fixes for Icons in Custom Window */
+[data-theme="neon"] .remove-field-btn {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #ef4444 !important;
+    border: 1px solid #ef4444 !important;
+    opacity: 1 !important;
+}
+
+[data-theme="neon"] .remove-field-btn svg,
+[data-theme="neon"] .remove-field-btn svg * {
+    stroke: #ef4444 !important;
+}
+
+[data-theme="neon"] .add-field-btn {
+    background: #000 !important;
+    border: 1px dashed #555 !important;
+    color: #888 !important;
+}
+
+[data-theme="neon"] .add-field-btn:hover {
+    border-color: #FFFDD0 !important;
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .btn-secondary {
+    background: #FFFDD0 !important;
+    color: #000 !important;
+    border: 1px solid #FFFDD0 !important;
+}
+
+[data-theme="neon"] .btn-secondary svg,
+[data-theme="neon"] .btn-secondary svg * {
+    stroke: #000 !important;
 }

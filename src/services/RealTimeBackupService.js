@@ -9,10 +9,10 @@
 
 import * as LocalBackupService from './LocalBackupService';
 import * as database from './database';
-import * as CloudSyncService from './CloudSyncService';
+import { smartBackup } from './HybridStorageService';
 
 // Configuration
-const DEBOUNCE_MS = 2000;         // 2 seconds after last change
+const DEBOUNCE_MS = 1000;         // 1 second after last change for "immediate" feel
 const MAX_QUEUE_SIZE = 50;        // Max offline queue items
 const QUEUE_STORAGE_KEY = 'edunorm_backup_queue';
 const LAST_BACKUP_KEY = 'edunorm_last_realtime_backup';
@@ -53,6 +53,11 @@ export function init(uid) {
     if (isOnline && userId) {
         processOfflineQueue();
     }
+
+    // NEW: Subscribe to ALL database changes for automatic real-time sync
+    database.subscribeToChanges((type) => {
+        onDataChanged(type);
+    });
 
     console.log('RealTimeBackup: Initialized for user', uid);
     notifyStatus({ type: 'ready', message: 'Real-time backup active' });
@@ -136,8 +141,8 @@ async function performCloudBackup(changeType) {
     notifyStatus({ type: 'syncing', message: 'Syncing to cloud...' });
 
     try {
-        // Primary: Firebase Cloud Backup via CloudSyncService
-        await CloudSyncService.forceBackup(userId);
+        // Hybrid Layered Backup (Firestore + R2 + Mega)
+        await smartBackup(userId);
 
         const now = new Date().toISOString();
         localStorage.setItem(LAST_BACKUP_KEY, now);

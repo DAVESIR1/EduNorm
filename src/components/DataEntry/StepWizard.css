@@ -65,7 +65,8 @@
 
 .wizard-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: var(--space-6);
     align-items: center;
     padding: var(--space-4) var(--space-8);
     background: linear-gradient(0deg, var(--gray-50) 0%, transparent 100%);

@@ -38,6 +38,8 @@
     padding: var(--space-2) var(--space-4);
     background: linear-gradient(135deg, var(--pastel-lavender-light) 0%, var(--pastel-pink-light) 100%);
     border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    height: 60px;
+    /* Fixed header height */
 }
 
 .profile-viewer-header h2 {
@@ -74,8 +76,11 @@
 .options-trigger {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: var(--text-xs);
+    gap: 8px;
+    height: 42px;
+    /* Standardize height */
+    padding: 0 16px;
+    font-size: var(--text-sm);
 }
 
 .options-trigger .rotated {
@@ -284,11 +289,14 @@
     border: 1px solid var(--gray-200);
     display: flex;
     gap: 2px;
+    height: 42px;
+    /* Standardize height */
+    align-items: stretch;
 }
 
 .view-toggle .toggle-btn {
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--text-xs);
+    padding: 0 20px;
+    font-size: var(--text-sm);
     font-weight: 600;
     border: none;
     background: transparent;
@@ -297,7 +305,7 @@
     transition: all var(--transition-base);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     white-space: nowrap;
 }
 
@@ -1061,14 +1069,7 @@ html[data-theme="neon"] body .template-label {
     color: #A0A0A0 !important;
 }
 
-/* Close Button */
-html[data-theme="neon"] body .close-btn {
-    color: #D3D3D3 !important;
-}
-
-html[data-theme="neon"] body .close-btn:hover {
-    color: #FFFDD0 !important;
-}
+/* Close Button handled by global design-system.css */
 
 [data-theme="neon"] .batch-item .name {
     color: #ffffff;
@@ -1107,3 +1108,67 @@ html[data-theme="neon"] body .close-btn:hover {
     /* Cream low opacity */
     color: #FFFDD0;
 }
+
+/* === MINIMAL DARK THEME OVERRIDES (Black, Grey, Cream) === */
+[data-theme="neon"] .profile-viewer-overlay {
+    background: rgba(0, 0, 0, 0.95) !important;
+    /* Almost opaque black */
+}
+
+[data-theme="neon"] .profile-viewer-container {
+    background: #000000 !important;
+    border: 1px solid #FFF8F0 !important;
+    /* Cream Window Border */
+    box-shadow: 0 0 20px rgba(255, 248, 240, 0.1) !important;
+}
+
+[data-theme="neon"] .profile-viewer-header {
+    background: #0a0a0a !important;
+    border-bottom: 2px solid #374151 !important;
+}
+
+[data-theme="neon"] .profile-viewer-header h2 {
+    color: #FFF8F0 !important;
+}
+
+[data-theme="neon"] .profile-controls,
+[data-theme="neon"] .batch-controls,
+[data-theme="neon"] .idcard-controls,
+[data-theme="neon"] .idcard-controls-row {
+    background: #000000 !important;
+    border-bottom: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .profile-display {
+    background: #000000 !important;
+    /* FORCE BLACK BACKGROUND AROUND CARD */
+}
+
+[data-theme="neon"] .export-actions {
+    background: #000000 !important;
+    border-top: 1px solid #374151 !important;
+}
+
+[data-theme="neon"] .options-dropdown {
+    background: #0a0a0a !important;
+    border: 1px solid #d1d5db !important;
+}
+
+[data-theme="neon"] .no-selection {
+    color: #d1d5db !important;
+}
+
+[data-theme="neon"] .batch-grid-list {
+    background: #000000 !important;
+}
+
+[data-theme="neon"] .batch-item {
+    background: #0a0a0a !important;
+    border-color: #374151 !important;
+}
+
+[data-theme="neon"] .batch-info .name {
+    color: #FFF8F0 !important;
+}
+
+/* [data-theme="neon"] .profile-viewer-header handled by global design-system.css window controls */

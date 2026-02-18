@@ -6,7 +6,7 @@ import { useUserTier } from '../../contexts/UserTierContext';
 import { LogoutIcon, ShieldIcon, CrownIcon, SparklesIcon } from '../Icons/CustomIcons';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Menu, Pin, PinOff, Sun, Moon, Palette } from 'lucide-react';
+import { Menu, Pin, PinOff, Sun, Palette } from 'lucide-react';
 import './NewSidebar.css';
 import EduNormLogo from '../Common/EduNormLogo';
 
@@ -437,23 +437,29 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
 
                 {/* User Info */}
                 {isSidebarVisible && user && (
-                    <div className="new-sidebar-user animate-fade-in">
-                        <div className="user-avatar">
+                    <div className={`new-sidebar-user animate-fade-in ${isAdmin ? 'is-admin-user' : ''}`}>
+                        <div
+                            className={`user-avatar ${isAdmin ? 'admin-avatar-trigger' : ''}`}
+                            onClick={isAdmin ? onOpenAdmin : undefined}
+                            title={isAdmin ? "Open Admin Panel" : ""}
+                        >
+                            {isAdmin && <ShieldIcon className="admin-status-shield" size={48} />}
                             {user.photoURL ? (
                                 <img src={user.photoURL} alt="User" />
                             ) : (
-                                <IconMap.studentProfile size={20} />
+                                <IconMap.studentProfile size={isAdmin ? 32 : 20} />
                             )}
                         </div>
                         <div className="user-info">
                             <span className="user-name">{user.displayName || user.email?.split('@')[0] || 'User'}</span>
                             <span className="user-email">{user.email || user.phoneNumber || ''}</span>
                         </div>
-                        <span className={`tier-badge tier-${tier.toLowerCase()}`}>
-                            {tier === 'ADMIN' && <ShieldIcon size={12} />}
-                            {tier === 'PREMIUM' && <CrownIcon size={12} />}
-                            {tier}
-                        </span>
+                        {!isAdmin && (
+                            <span className={`tier-badge tier-${tier.toLowerCase()}`}>
+                                {tier === 'PREMIUM' && <CrownIcon size={12} />}
+                                {tier}
+                            </span>
+                        )}
                         <button className="btn-icon btn-ghost logout-btn" onClick={onLogout} title="Logout">
                             <LogoutIcon size={18} />
                         </button>
@@ -463,12 +469,6 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                 {/* Tier Actions - Don't show to students */}
                 {isSidebarVisible && user?.role !== 'student' && (
                     <div className="tier-actions animate-fade-in">
-                        {isAdmin && onOpenAdmin && (
-                            <button className="tier-action-btn admin-btn" onClick={onOpenAdmin}>
-                                <ShieldIcon size={16} />
-                                Admin Panel
-                            </button>
-                        )}
                         {isFree && onOpenUpgrade && (
                             <button className="tier-action-btn upgrade-btn" onClick={onOpenUpgrade}>
                                 <SparklesIcon size={16} />
@@ -499,15 +499,9 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                                 >
                                     <Palette size={18} />
                                 </button>
-                                <button
-                                    className={`theme-icon-btn ${theme === 'neon' ? 'active' : ''}`}
-                                    onClick={() => changeTheme('neon')}
-                                    title="Neon OLED (Dark Mode)"
-                                >
-                                    <Moon size={18} />
-                                </button>
                             </div>
                         </div>
+
                         <div className="setting-row">
                             <LanguageIcon size={16} />
                             <span>Language:</span>
@@ -523,7 +517,6 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                                 ))}
                             </select>
                         </div>
-
                     </div>
                 )}
 
@@ -582,3 +575,4 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
         </>
     );
 }
+

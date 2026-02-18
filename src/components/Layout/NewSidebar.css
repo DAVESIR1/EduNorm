@@ -340,16 +340,16 @@
 /* Pin/Toggle Button */
 .sidebar-pin-btn {
     width: 42px;
-    /* Match logo size exactly */
     height: 42px;
     border-radius: 10px;
-    /* Match logo radius */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
     transition: all 0.2s ease;
+    margin: 0 auto;
+    /* Ensure centering in collapsed mode */
 }
 
 /* Brand Container */
@@ -543,6 +543,54 @@
     height: 100%;
     border-radius: 12px;
     object-fit: cover;
+}
+
+/* Admin Specific Avatar Layout */
+.admin-avatar-trigger {
+    cursor: pointer;
+    position: relative;
+    width: 52px;
+    height: 52px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.admin-avatar-trigger:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.admin-avatar-trigger .admin-status-shield {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--primary);
+    filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.4));
+    z-index: 1;
+}
+
+.admin-avatar-trigger img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    z-index: 2;
+    border: 1.5px solid white;
+    object-fit: cover;
+    margin-top: -4px;
+    /* Move up slightly within shield */
+}
+
+.admin-avatar-trigger .lucide-studentProfile {
+    z-index: 2;
+    color: white;
+    margin-top: -4px;
+}
+
+.is-admin-user .user-info {
+    margin-left: 4px;
 }
 
 .user-info {
@@ -991,4 +1039,46 @@
 
 [data-theme="colorful"] .sidebar-help-btn:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* === NEON THEME SIDEBAR REFINEMENTS === */
+[data-theme="neon"] .sidebar-help-btn {
+    background: #000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.4) !important;
+    color: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .sidebar-help-btn:hover {
+    background: #111 !important;
+    color: #FFFDD0 !important;
+    border-color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .sidebar-help-btn.active {
+    background: #FFFDD0 !important;
+    color: #000 !important;
+    border-color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .sidebar-help-btn svg {
+    stroke-width: 2.5px !important;
+}
+
+[data-theme="neon"] .sidebar-help-btn:not(.active) svg {
+    stroke: #D3D3D3 !important;
+}
+
+[data-theme="neon"] .sidebar-help-btn.active svg {
+    stroke: #000 !important;
+}
+
+[data-theme="neon"] .logout-btn {
+    background: #000 !important;
+    border: 1px solid rgba(211, 211, 211, 0.4) !important;
+    color: #FFFDD0 !important;
+}
+
+[data-theme="neon"] .logout-btn svg {
+    stroke: #FFFDD0 !important;
+    stroke-width: 2.5px !important;
 }

@@ -11,6 +11,7 @@ import ComponentErrorBoundary from './components/Common/ErrorBoundary';
 import EduNormLogo from './components/Common/EduNormLogo';
 import BrandLoader from './components/Common/BrandLoader';
 import ParticleBackground from './components/Effects/ParticleBackground';
+import { IconMap } from './components/Icons/CustomIcons';
 
 // Lazy-loaded components for code splitting
 const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
@@ -43,10 +44,12 @@ const StudentLogin = lazy(() => import('./components/Student/StudentLogin'));
 const CorrectionRequest = lazy(() => import('./components/Student/CorrectionRequest'));
 const QAChat = lazy(() => import('./components/Student/QAChat'));
 const StudentCertificates = lazy(() => import('./components/Student/StudentCertificates'));
+const ClassManagement = lazy(() => import('./components/HOI/ClassManagement'));
 
 const UsageInstructions = lazy(() => import('./components/Features/UsageInstructions'));
 const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard'));
 import RoleSelectionModal from './components/Common/RoleSelectionModal';
+import AdSense from './components/Common/AdSense';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
     useSettings,
@@ -69,7 +72,7 @@ function AppContent() {
     const { isAuthenticated, loading: authLoading, user, logout } = useAuth();
     const { tier, isAdmin, isFree, setShowUpgradeModal } = useUserTier();
     // State
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
     const [showProfile, setShowProfile] = useState(false);
     const [showLedger, setShowLedger] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -77,7 +80,6 @@ function AppContent() {
     const [isReady, setIsReady] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [isFormMaximized, setIsFormMaximized] = useState(false);
     const [showBackup, setShowBackup] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
     const [showCertificate, setShowCertificate] = useState(false);
@@ -152,13 +154,12 @@ function AppContent() {
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
-                if (isFormMaximized) setIsFormMaximized(false);
                 if (showMenuContent) { setShowMenuContent(false); setMenuContentType(null); }
             }
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isFormMaximized, showMenuContent]);
+    }, [showMenuContent]);
 
     // Auto-sync on login + Initialize real-time backup
     useEffect(() => {
@@ -362,6 +363,36 @@ function AppContent() {
     // Handle menu navigation from MainMenu component
     const handleMenuNavigate = useCallback((menuId, itemId) => {
         console.log('Menu navigate:', menuId, itemId);
+
+        // Modal-only items
+        if (itemId === 'general-register') {
+            setShowLedger(true);
+            return;
+        }
+        if (itemId === 'student-profile' || itemId === 'id-card' || itemId === 'student-view-profile' || itemId === 'download-id-card') {
+            setShowProfile(true);
+            return;
+        }
+        if (itemId === 'certificate') {
+            setShowCertificate(true);
+            return;
+        }
+        if (itemId === 'backup-restore' || itemId === 'export-data' || itemId === 'import-data') {
+            if (itemId === 'export-data') setBackupAction('export');
+            if (itemId === 'import-data') setBackupAction('import');
+            setShowBackup(true);
+            return;
+        }
+        if (itemId === 'cloud-backup') {
+            setShowCloudBackup(true);
+            return;
+        }
+        if (itemId === 'upload-logo') {
+            setMenuContentType('school-profile');
+            setShowMenuContent(true);
+            return;
+        }
+
         setMenuContentType(itemId);
         setShowMenuContent(true);
         // Close other modals when menu is opened
@@ -391,21 +422,9 @@ function AppContent() {
                     onSaveSettings={handleSaveSettings}
                 /></ComponentErrorBoundary>;
             case 'general-register':
-                setShowLedger(true);
-                setShowMenuContent(false);
-                return null;
             case 'student-profile':
-                setShowProfile(true);
-                setShowMenuContent(false);
-                return null;
             case 'certificate':
-                setShowCertificate(true);
-                setShowMenuContent(false);
-                return null;
             case 'id-card':
-                // Open profile viewer which has ID card tab
-                setShowProfile(true);
-                setShowMenuContent(false);
                 return null;
             case 'teachers-profile':
                 return <ComponentErrorBoundary componentName="Teachers Profile List"><TeachersProfileList /></ComponentErrorBoundary>;
@@ -491,21 +510,14 @@ function AppContent() {
                 );
             case 'class-management':
             case 'class-management-teacher':
-                // Already handled by sidebar
-                setShowMenuContent(false);
-                return null;
+                return <ComponentErrorBoundary componentName="Class Management"><ClassManagement /></ComponentErrorBoundary>;
 
             // Student menu items
             case 'student-login':
                 return <ComponentErrorBoundary componentName="Student Login"><StudentLogin onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
             case 'student-view-profile':
-                setShowProfile(true);
-                setShowMenuContent(false);
                 return null;
             case 'download-id-card':
-                // ID Card is part of the profile viewer
-                setShowProfile(true);
-                setShowMenuContent(false);
                 return null;
             case 'correction-request':
                 return <ComponentErrorBoundary componentName="Correction Request"><CorrectionRequest studentData={user} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
@@ -526,32 +538,15 @@ function AppContent() {
 
             // Data Management items
             case 'backup-restore':
-                setShowBackup(true);
-                setShowMenuContent(false);
-                return null;
             case 'cloud-backup':
-                setShowCloudBackup(true);
-                setShowMenuContent(false);
                 return null;
             case 'upload-logo':
-                // Logo upload is in school profile
-                setMenuContentType('school-profile');
-                return null;
             case 'export-data':
-                setBackupAction('export');
-                setShowBackup(true);
-                setShowMenuContent(false);
-                return null;
             case 'import-data':
-                setBackupAction('import');
-                setShowBackup(true);
-                setShowMenuContent(false);
                 return null;
 
             // HOI Password - handled by sidebar directly, but add fallback
             case 'hoi-password':
-                setShowMenuContent(false);
-                setMenuContentType(null);
                 return null;
 
             // Usage Instructions
@@ -714,15 +709,16 @@ function AppContent() {
 
     return (
         <div className="app" data-theme={theme}>
-            {/* Background decorations */}
-            <div className="app-decorations">
-                <div className="blob blob-1"></div>
-                <div className="blob blob-2"></div>
-                <div className="blob blob-3"></div>
-            </div>
-
-            {/* Neon Theme Particles - Only renders if theme is neon (handled inside component) */}
+            <AdSense />
+            {/* Background decorations - Hidden in Minimal Theme */}
             <ParticleBackground />
+            {theme !== 'neon' && (
+                <div className="app-decorations">
+                    <div className="blob blob-1"></div>
+                    <div className="blob blob-2"></div>
+                    <div className="blob blob-3"></div>
+                </div>
+            )}
 
             {/* Sidebar toggle button - always visible */}
             {!sidebarOpen && (
@@ -774,20 +770,19 @@ function AppContent() {
                 )}
 
 
-                {/* Header */}
                 <header className="main-header">
-                    <div className="header-info">
-                        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                            <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 42, height: 42, borderRadius: 10 }} />
-                            <EduNormLogo size="large" />
-                        </div>
-                        {selectedStandard && (
-                            <div className="header-meta">
-                                <span className="badge badge-primary">{selectedStandard}</span>
-                                {teacherName && <span className="badge badge-info">Teacher: {teacherName}</span>}
-                                <span className="badge badge-success">{students.length} Students</span>
-                            </div>
+                    <div className="header-left">
+                        {students.length > 0 && (
+                            <button className="btn btn-secondary total-count-btn">
+                                <IconMap.users size={18} />
+                                {students.length} Students
+                            </button>
                         )}
+                    </div>
+
+                    <div className="header-brand">
+                        <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'contain' }} />
+                        <EduNormLogo size="large" />
                     </div>
 
                     <div className="header-actions">
@@ -797,14 +792,14 @@ function AppContent() {
                                     className="btn btn-secondary"
                                     onClick={() => setShowLedger(true)}
                                 >
-                                    <FileSpreadsheet size={18} />
+                                    <IconMap.grBook size={18} />
                                     View Register
                                 </button>
                                 <button
                                     className="btn btn-primary"
                                     onClick={() => setShowProfile(true)}
                                 >
-                                    <Users size={18} />
+                                    <IconMap.users size={18} />
                                     Student Profile
                                 </button>
                             </>
@@ -853,12 +848,6 @@ function AppContent() {
                 {/* Menu Content - Shows when a menu item is selected */}
                 {showMenuContent && menuContentType ? (
                     <div className="menu-content-area">
-                        <button
-                            className="btn btn-ghost menu-back-btn"
-                            onClick={() => { setShowMenuContent(false); setMenuContentType(null); }}
-                        >
-                            ← Back to Main
-                        </button>
                         <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', gap: '10px' }}><span style={{ width: '24px', height: '24px', border: '3px solid #e2e8f0', borderTopColor: 'var(--primary, #7C3AED)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />Loading...</div>}>
                             {renderMenuContent()}
                         </Suspense>
@@ -877,16 +866,7 @@ function AppContent() {
                         </div>
                     ) : (
                         /* Data Entry Form (Admin/Teacher) */
-                        <div className={`form-container ${isFormMaximized ? 'maximized' : ''}`}>
-                            {selectedStandard && (
-                                <button
-                                    className="form-maximize-btn btn btn-icon btn-ghost"
-                                    onClick={() => setIsFormMaximized(!isFormMaximized)}
-                                    title={isFormMaximized ? 'Minimize' : 'Maximize'}
-                                >
-                                    {isFormMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-                                </button>
-                            )}
+                        <div className="form-container">
                             {selectedStandard ? (
                                 <StepWizard
                                     key={editingStudent?.id || 'new'}
@@ -929,11 +909,12 @@ function AppContent() {
                             )}
                         </div>
                     )
-                )}
-            </main>
+                )
+                }
+            </main >
 
             {/* Profile Viewer Modal */}
-            <ProfileViewer
+            < ProfileViewer
                 isOpen={showProfile}
                 onClose={() => setShowProfile(false)}
                 students={user?.role === 'student' ? [user] : ledger}
@@ -945,7 +926,7 @@ function AppContent() {
             />
 
             {/* General Register Modal */}
-            <GeneralRegister
+            < GeneralRegister
                 isOpen={showLedger}
                 onClose={() => setShowLedger(false)}
                 ledger={ledger}
@@ -973,13 +954,15 @@ function AppContent() {
 
 
             {/* Admin Panel */}
-            {showAdmin && (
-                <AdminPanel
-                    onClose={() => setShowAdmin(false)}
-                    totalStudents={ledger.reduce((sum, s) => sum + (s.students?.length || 0), 0)}
-                    totalStandards={standards.length}
-                />
-            )}
+            {
+                showAdmin && (
+                    <AdminPanel
+                        onClose={() => setShowAdmin(false)}
+                        totalStudents={ledger.reduce((sum, s) => sum + (s.students?.length || 0), 0)}
+                        totalStandards={standards.length}
+                    />
+                )
+            }
 
             {/* Certificate Generator */}
             <CertificateGenerator
@@ -1078,11 +1061,13 @@ function AppContent() {
             />
 
             {/* Ad Banner for Free Users - Only show when content is present */}
-            {(selectedStandard || showMenuContent) && (
-                <div className="bottom-ad-container">
-                    <AdPlacement type="leaderboard" />
-                </div>
-            )}
+            {
+                (selectedStandard || showMenuContent) && (
+                    <div className="bottom-ad-container">
+                        <AdPlacement type="leaderboard" />
+                    </div>
+                )
+            }
 
             {/* Undo/Redo floating bar */}
             <UndoRedoBar />
@@ -1099,7 +1084,7 @@ function AppContent() {
                     <span>© 2026 EduNorm</span>
                 </div>
             </footer>
-        </div>
+        </div >
     );
 }
 
@@ -1111,8 +1096,10 @@ function App() {
                 <UserTierProvider>
                     <MenuProvider>
                         <ThemeProvider>
-                            <AppContent />
-                            <UpgradeModal />
+                            <Suspense fallback={<BrandLoader message="Loading App..." />}>
+                                <AppContent />
+                                <UpgradeModal />
+                            </Suspense>
                         </ThemeProvider>
                     </MenuProvider>
                 </UserTierProvider>

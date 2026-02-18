@@ -72,8 +72,12 @@ export default function CustomWindowCreator({ menuId, onSave, onCancel }) {
     return (
         <div className="custom-window-creator">
             <div className="creator-header">
-                <h2>🪟 Create Custom Window</h2>
-                <p>Create your own data collection window with custom fields</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <div>
+                        <h2>🪟 Create Custom Window</h2>
+                        <p>Create your own data collection window with custom fields</p>
+                    </div>
+                </div>
             </div>
 
             {/* Window Name */}
@@ -187,7 +191,7 @@ export function CustomWindowView({ window, menuId }) {
         <div className="custom-window-view">
             <div className="window-header">
                 <h2>{window.name}</h2>
-                <div className="window-actions">
+                <div className="window-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     {editing ? (
                         <>
                             <button className="btn-primary" onClick={handleSave} disabled={saving}>

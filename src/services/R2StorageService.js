@@ -107,6 +107,21 @@ export async function uploadBackup(userId, data) {
             message: 'Backup uploaded to Cloudflare R2'
         };
     } catch (error) {
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const hasWarned = sessionStorage.getItem('edunorm_r2_cors_warned');
+
+            if (isLocal && !hasWarned) {
+                const corsMsg = 'R2StorageService: Upload failed due to CORS. If on localhost, ensure your R2 bucket CORS policy allows development origins (e.g., http://localhost:5174).';
+                console.info('%c' + corsMsg, 'color: #ff9800; font-weight: bold;');
+                sessionStorage.setItem('edunorm_r2_cors_warned', 'true');
+            } else if (!isLocal) {
+                console.error('R2StorageService: Network/CORS error during upload', error);
+            }
+
+            // Still throw to let the caller know it failed, but don't log red errors repeatedly
+            throw new Error('R2 Layer Sync Paused (CORS/Network)');
+        }
         console.error('R2StorageService: Upload failed', error);
         throw error;
     }

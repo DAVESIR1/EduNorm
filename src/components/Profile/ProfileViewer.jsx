@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { X, Download, Printer, Image, Search, Plus, Minus, Maximize2, Minimize2, ChevronDown, Settings } from 'lucide-react';
+import { X, Download, Printer, Image, Search, Plus, Minus, ChevronDown, Settings } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ProfileCard from './ProfileCard';
@@ -39,10 +39,9 @@ export default function ProfileViewer({
     const [selectedGrNumbers, setSelectedGrNumbers] = useState([]);
     const [grSearchQuery, setGrSearchQuery] = useState('');
     const [visibleIdFields, setVisibleIdFields] = useState(DEFAULT_VISIBLE_FIELDS);
-    const [showFieldCustomizer, setShowFieldCustomizer] = useState(false);
-    const [isMaximized, setIsMaximized] = useState(false);
     const [showOptionsMenu, setShowOptionsMenu] = useState(false);
     const [showBackSide, setShowBackSide] = useState(false);
+    const [showFieldCustomizer, setShowFieldCustomizer] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     const profileRef = useRef(null);
     const idCardRef = useRef(null);
@@ -175,20 +174,13 @@ export default function ProfileViewer({
 
     return (
         <div className="profile-viewer-overlay animate-fade-in" onClick={onClose}>
-            <div className={`profile-viewer-container ${isMaximized ? 'maximized' : ''}`} onClick={e => e.stopPropagation()}>
+            <div className="profile-viewer-container" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="profile-viewer-header no-print">
                     <h2 className="display-font gradient-text">
                         {viewMode === 'idcard' ? '🪪 ID Card' : '👤 Profile'}
                     </h2>
                     <div className="header-actions">
-                        <button
-                            className="btn btn-ghost btn-icon btn-sm"
-                            onClick={() => setIsMaximized(!isMaximized)}
-                            title={isMaximized ? 'Restore' : 'Maximize'}
-                        >
-                            {isMaximized ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-                        </button>
                         <button className="btn btn-ghost btn-icon btn-sm" onClick={onClose}>
                             <X size={20} />
                         </button>
