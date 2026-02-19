@@ -631,3 +631,8 @@ export async function verifyTeacher(teacherCode, govId) {
     return teacher ? { success: true, data: teacher } : null;
 }
 
+
+// Aliases for compatibility
+export const saveStudent = (student) => (student.id ? updateStudent(student.id, student) : addStudent(student));
+export const updateSetting = setSetting;
+export const saveSetting = setSetting;

@@ -507,9 +507,6 @@ function AppContent() {
                 return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
 
             // Data Management items
-            case 'backup-restore':
-            case 'cloud-backup':
-                return null;
             case 'upload-logo':
             case 'export-data':
             case 'import-data':
