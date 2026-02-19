@@ -1,0 +1,267 @@
+{
+  "settings": [
+    {
+      "key": "app_data_version",
+      "value": "2.1.0",
+      "updatedAt": "2026-02-16T15:49:20.077Z"
+    },
+    {
+      "key": "last_sync_timestamp",
+      "value": "1771416355251",
+      "updatedAt": "2026-02-18T12:05:55.252Z"
+    }
+  ],
+  "students": [
+    {
+      "aadharNo": "691095685223",
+      "dob": "",
+      "name": "આશુતોષ દિનેશભાઈ કાગડા",
+      "contactNumber": "7878024192",
+      "email": "",
+      "id": 1,
+      "mobile": "7878024192",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "aadharNumber": "691095685223",
+      "gender": "",
+      "standard": "1A",
+      "govId": "",
+      "grNo": "6605",
+      "sssmId": "",
+      "section": ""
+    },
+    {
+      "section": "",
+      "name": "હમજા હનીફભાઈ અગવાન",
+      "standard": "1A",
+      "email": "",
+      "aadharNumber": "7616 0900 8072",
+      "aadharNo": "7616 0900 8072",
+      "gender": "",
+      "dob": "",
+      "id": 2,
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "contactNumber": "9714392306",
+      "mobile": "9714392306",
+      "grNo": "6614",
+      "sssmId": "",
+      "govId": ""
+    },
+    {
+      "id": 3,
+      "mobile": "9979014604",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "dob": "",
+      "govId": "",
+      "gender": "",
+      "grNo": "6615",
+      "aadharNo": "346613640387",
+      "email": "",
+      "contactNumber": "9979014604",
+      "name": "હર્ષદ વલ્લભભાઈ ટાઢા",
+      "aadharNumber": "346613640387",
+      "standard": "1A",
+      "section": "",
+      "sssmId": ""
+    },
+    {
+      "aadharNo": "702580355433",
+      "dob": "",
+      "sssmId": "",
+      "section": "",
+      "govId": "",
+      "id": 4,
+      "name": "હર્ષિલ ભરતભાઈ ચૌહાણ",
+      "mobile": "9714451470",
+      "aadharNumber": "702580355433",
+      "contactNumber": "9714451470",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "standard": "1A",
+      "gender": "",
+      "email": "",
+      "grNo": "6611"
+    },
+    {
+      "dob": "",
+      "contactNumber": "9904730255",
+      "standard": "1A",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "name": "જય જોરૂભાઈ ચુડાસમા",
+      "aadharNumber": "804015857927",
+      "id": 5,
+      "gender": "",
+      "grNo": "6607",
+      "govId": "",
+      "mobile": "9904730255",
+      "email": "",
+      "sssmId": "",
+      "aadharNo": "804015857927",
+      "section": ""
+    },
+    {
+      "dob": "",
+      "sssmId": "",
+      "mobile": "9316989808",
+      "section": "",
+      "govId": "",
+      "aadharNumber": "776690074870",
+      "id": 6,
+      "aadharNo": "776690074870",
+      "email": "",
+      "standard": "1A",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "gender": "",
+      "contactNumber": "9316989808",
+      "name": "જય મનુભાઈ સાંખટ",
+      "grNo": "6608"
+    },
+    {
+      "aadharNumber": "447802163546",
+      "sssmId": "",
+      "id": 7,
+      "dob": "",
+      "section": "",
+      "govId": "",
+      "standard": "1A",
+      "aadharNo": "447802163546",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "mobile": "9687393965",
+      "contactNumber": "9687393965",
+      "email": "",
+      "name": "જયવીર અર્જુનસિંહ સરવૈયા",
+      "gender": "",
+      "grNo": "6609"
+    },
+    {
+      "email": "",
+      "aadharNo": "455345150032",
+      "section": "",
+      "contactNumber": "6351871727",
+      "mobile": "6351871727",
+      "dob": "",
+      "name": "સુમિત કેશુભાઈ ચૌહાણ",
+      "sssmId": "",
+      "id": 8,
+      "standard": "1A",
+      "grNo": "6613",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "aadharNumber": "455345150032",
+      "govId": "",
+      "gender": ""
+    },
+    {
+      "standard": "1A",
+      "email": "",
+      "aadharNo": "288581602320",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "aadharNumber": "288581602320",
+      "govId": "",
+      "dob": "",
+      "sssmId": "",
+      "contactNumber": "8320806061",
+      "name": "ઉત્તમ કમલેશભાઈ સરવૈયા",
+      "id": 9,
+      "grNo": "6606",
+      "gender": "",
+      "section": "",
+      "mobile": "8320806061"
+    },
+    {
+      "standard": "1A",
+      "section": "",
+      "email": "",
+      "grNo": "6612",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "aadharNo": "592921555697",
+      "id": 10,
+      "gender": "",
+      "sssmId": "",
+      "aadharNumber": "592921555697",
+      "contactNumber": "7359461425",
+      "dob": "",
+      "mobile": "7359461425",
+      "govId": "",
+      "name": "વૈભવ મોહનભાઈ ચુડાસમા"
+    },
+    {
+      "contactNumber": "8140573037",
+      "standard": "1A",
+      "gender": "",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "mobile": "8140573037",
+      "govId": "",
+      "aadharNumber": "403352611286",
+      "dob": "",
+      "sssmId": "",
+      "name": "નિખીલ લખમણભાઈ બારૈયા",
+      "email": "",
+      "id": 11,
+      "aadharNo": "403352611286",
+      "section": "",
+      "grNo": "6610"
+    },
+    {
+      "sssmId": "",
+      "lastUpdated": {
+        "seconds": 1771259931,
+        "nanoseconds": 656000000
+      },
+      "email": "",
+      "dob": "",
+      "aadharNo": "283311096816",
+      "contactNumber": "9510945353",
+      "section": "",
+      "grNo": "6617",
+      "gender": "",
+      "aadharNumber": "283311096816",
+      "name": "પાર્થ જીતુભાઈ મારૂ",
+      "mobile": "9510945353",
+      "govId": "",
+      "id": 12,
+      "standard": "1A"
+    }
+  ],
+  "standards": [
+    {
+      "id": "1A",
+      "name": "1A",
+      "section": "A",
+      "createdAt": "2026-02-08T09:37:35.291Z"
+    }
+  ],
+  "customFields": [],
+  "documents": [],
+  "exportedAt": "2026-02-18T12:20:55.852Z"
+}

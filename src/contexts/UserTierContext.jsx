@@ -45,7 +45,7 @@ export function UserTierProvider({ children }) {
             return;
         }
 
-        // Check if user is admin
+        // Check if user is admin (hardcoded credentials only — HOI is NOT admin)
         const isAdmin =
             user.email === ADMIN_EMAIL ||
             user.phoneNumber === ADMIN_PHONE;

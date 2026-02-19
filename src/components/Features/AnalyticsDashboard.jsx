@@ -4,8 +4,13 @@ import {
     GraduationCap, UserCheck, X, ArrowUp, ArrowDown
 } from 'lucide-react';
 import './AnalyticsDashboard.css';
+import { SovereignBridge } from '../../core/v2/Bridge';
+import { Shield } from 'lucide-react';
 
 export default function AnalyticsDashboard({ isOpen, onClose, students = [], standards = [] }) {
+    const [blindMode, setBlindMode] = React.useState(false);
+    const [blindStats, setBlindStats] = React.useState(null);
+
     // Calculate analytics
     const analytics = useMemo(() => {
         if (!students.length) {
@@ -60,6 +65,17 @@ export default function AnalyticsDashboard({ isOpen, onClose, students = [], sta
         };
     }, [students, standards]);
 
+    // Async Blind Summation Effect
+    React.useEffect(() => {
+        if (blindMode && students.length) {
+            const runBlindAnalysis = async () => {
+                const stats = await SovereignBridge.blindStat(students, 'standard');
+                setBlindStats(stats);
+            };
+            runBlindAnalysis();
+        }
+    }, [blindMode, students]);
+
     if (!isOpen) return null;
 
     const genderTotal = analytics.byGender.male + analytics.byGender.female + analytics.byGender.other;
@@ -71,7 +87,16 @@ export default function AnalyticsDashboard({ isOpen, onClose, students = [], sta
             <div className="analytics-modal" onClick={e => e.stopPropagation()}>
                 <div className="analytics-header">
                     <h2><BarChart3 size={24} /> Analytics Dashboard</h2>
-                    <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <button
+                            className={`blind-mode-btn ${blindMode ? 'active' : ''}`}
+                            onClick={() => setBlindMode(!blindMode)}
+                            title="Sovereign Blind Summation"
+                        >
+                            <Shield size={18} /> {blindMode ? 'Sovereign Mode' : 'Standard Mode'}
+                        </button>
+                        <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                    </div>
                 </div>
 
                 <div className="analytics-content">

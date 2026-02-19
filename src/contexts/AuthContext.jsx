@@ -78,6 +78,23 @@ export function AuthProvider({ children }) {
                             userProfile = { ...userProfile, ...cloudData };
                             // Update local cache
                             localStorage.setItem(`user_profile_${firebaseUser.uid}`, JSON.stringify(userProfile));
+
+                            // TRIGGER BACKGROUND MIGRATION TO SOVEREIGN V2 (only once per user)
+                            const migrationKey = `sovereign_migrated_v2_${firebaseUser.uid}`;
+                            if (!localStorage.getItem(migrationKey)) {
+                                (async () => {
+                                    try {
+                                        const { SovereignBridge } = await import('../core/v2/Bridge.js');
+                                        const { exportAllData } = await import('../services/database');
+                                        const allData = await exportAllData();
+                                        console.log('Sovereign: Starting one-time background migration...');
+                                        await SovereignBridge.migrate([allData], 'total_migration');
+                                        localStorage.setItem(migrationKey, Date.now().toString());
+                                    } catch (e) {
+                                        console.warn('Sovereign: Background migration failed', e);
+                                    }
+                                })();
+                            }
                         }
                     } catch (error) {
                         console.error('Auth: Failed to fetch user profile from cloud:', error);

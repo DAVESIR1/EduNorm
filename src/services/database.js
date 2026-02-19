@@ -364,136 +364,100 @@ export async function exportAllData() {
 // Import/Restore
 export async function importAllData(data) {
     const db = await initDB();
+    const yieldToMain = () => new Promise(resolve => setTimeout(resolve, 0));
 
-    console.log('importAllData: Starting import with:', {
+    console.log('importAllData: Starting optimized import...', {
         settingsCount: data.settings?.length || 0,
-        studentsCount: data.students?.length || 0,
-        standardsCount: data.standards?.length || 0,
-        customFieldsCount: data.customFields?.length || 0
+        studentsCount: data.students?.length || 0
     });
 
-    if (data.settings) {
-        const tx = db.transaction('settings', 'readwrite');
-        for (const item of data.settings) {
-            await tx.store.put(item);
-        }
-        await tx.done;
-        console.log('importAllData: Settings imported');
-    }
-
-    if (data.students && data.students.length > 0) {
-        console.log('importAllData: Importing students with Smart Merge...');
-
-        // --- SMART MERGE & DEDUPLICATION ---
-        const studentMap = new Map();
-
-        // 1. Deduplicate INCOMING records first
-        data.students.forEach(incoming => {
-            if (!incoming.grNo) return; // Skip invalid records without GR
-            const grKey = String(incoming.grNo).trim();
-
-            if (studentMap.has(grKey)) {
-                // Merge strategy: Prioritize info from the "better" record
-                const existing = studentMap.get(grKey);
-
-                // Helper to check if a record has valid ID
-                const hasId = (s) => (s.aadharNo || s.govId || s.aadhar || s.aadharNumber);
-
-                // If incoming has ID and existing doesn't, OVERWRITE existing with incoming
-                if (hasId(incoming) && !hasId(existing)) {
-                    studentMap.set(grKey, incoming);
-                }
-                // If both have ID, or neither, verify other fields (retain most complete)
-                else if (!hasId(existing) && !hasId(incoming)) {
-                    // Simple heuristic: keep the one with more keys
-                    if (Object.keys(incoming).length > Object.keys(existing).length) {
-                        studentMap.set(grKey, incoming);
+    pauseNotifications();
+    try {
+        if (data.settings) {
+            const tx = db.transaction('settings', 'readwrite');
+            for (const item of data.settings) {
+                const existing = await tx.store.get(item.key);
+                if (existing) {
+                    if (typeof existing.value === 'object' && existing.value !== null &&
+                        typeof item.value === 'object' && item.value !== null) {
+                        item.value = { ...existing.value, ...item.value };
                     }
+                    const existingTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+                    const incomingTime = item.updatedAt ? new Date(item.updatedAt).getTime() : 0;
+                    if (incomingTime >= existingTime || !existing.value) await tx.store.put(item);
+                } else {
+                    await tx.store.put(item);
                 }
-                // Else: Existing has ID, keep existing (or merge fields if needed, but for now assumption is one valid record exists)
-
-                // MERGE MISSING FIELDS
-                // Regardless of which "base" record we kept, fill in gaps from the "other" one
-                const base = studentMap.get(grKey);
-                const other = (base === incoming) ? existing : incoming;
-
-                Object.keys(other).forEach(key => {
-                    if ((base[key] === undefined || base[key] === '' || base[key] === null) && other[key]) {
-                        base[key] = other[key];
-                    }
-                });
-                // NORMALIZE FIELDS
-                if (base.aadharNumber && !base.aadharNo) base.aadharNo = base.aadharNumber;
-                if (base.gr_no && !base.grNo) base.grNo = base.gr_no;
-
-                studentMap.set(grKey, base);
-
-            } else {
-                const s = { ...incoming };
-                // NORMALIZE NEW RECORDS TOO
-                if (s.aadharNumber && !s.aadharNo) s.aadharNo = s.aadharNumber;
-                if (s.gr_no && !s.grNo) s.grNo = s.gr_no;
-                studentMap.set(grKey, s);
             }
-        });
+            await tx.done;
+            await yieldToMain();
+        }
 
-        console.log(`importAllData: Deduplicated ${data.students.length} incoming records to ${studentMap.size} unique students.`);
+        if (data.students && data.students.length > 0) {
+            const studentMap = new Map();
+            let count = 0;
 
-        const tx = db.transaction('students', 'readwrite');
-        // Clear existing? No, we merge/update. 
-        // NOTE: If we want a full restore that matches backup exactly, we might want to clear. 
-        // But for "Restore from File" on top of potential local data, update is safer.
-        // However, user said "Restore", implying "Reset to this state".
-        // Let's iterate and put.
-
-        for (const student of studentMap.values()) {
-            // Ensure ID is unique or handled. 
-            // If we use 'put', and ID exists, it updates. 
-            // But duplicate GR check might fail if IDs don't match existing DB.
-            // Best approach for Restore: Look up by GR first in DB?
-            // "importAllData" usually implies a bulk load. 
-            // If IDs in backup conflict with IDs in DB but for DIFFERENT GRs, we have a mess.
-            // SAFEST: Let IndexedDB auto-increment ID if not strictly required, OR strictly use GR as key.
-            // But ID is keyPath.
-
-            // To avoid ConstraintError on unique GR index:
-            // Check if GR exists in DB.
-            const existingInDbIdx = tx.store.index('grNo');
-            const existingInDb = await existingInDbIdx.get(student.grNo);
-
-            if (existingInDb) {
-                // Update existing record, keeping its DB ID to avoid PK collision/change
-                student.id = existingInDb.id;
-            } else {
-                // New record. If student.id is present, it might collide with another AUTO-INCREMENT.
-                // It is safer to DELETE student.id and let DB assign a new one, unless we need to preserve IDs for relations.
-                // For this app, relationships (like fees) likely use ID.
-                // Assuming Backup preserves integrity.
-                // IF we trust backup IDs, use them.
+            for (const incoming of data.students) {
+                if (!incoming.grNo) continue;
+                const grKey = String(incoming.grNo).trim();
+                if (studentMap.has(grKey)) {
+                    const existing = studentMap.get(grKey);
+                    const hasId = (s) => (s.aadharNo || s.govId || s.aadhar || s.aadharNumber);
+                    if (hasId(incoming) && !hasId(existing)) studentMap.set(grKey, incoming);
+                    const base = studentMap.get(grKey);
+                    const other = (base === incoming) ? existing : incoming;
+                    Object.keys(other).forEach(key => {
+                        if ((base[key] === undefined || base[key] === '' || base[key] === null) && other[key]) base[key] = other[key];
+                    });
+                    if (base.aadharNumber && !base.aadharNo) base.aadharNo = base.aadharNumber;
+                    if (base.gr_no && !base.grNo) base.grNo = base.gr_no;
+                    studentMap.set(grKey, base);
+                } else {
+                    const s = { ...incoming };
+                    if (s.aadharNumber && !s.aadharNo) s.aadharNo = s.aadharNumber;
+                    if (s.gr_no && !s.grNo) s.grNo = s.gr_no;
+                    studentMap.set(grKey, s);
+                }
+                if (++count % 500 === 0) await yieldToMain();
             }
 
-            await tx.store.put(student);
-        }
-        await tx.done;
-        console.log('importAllData: All students imported successfully.');
-    }
+            console.log(`importAllData: Deduplicated to ${studentMap.size} unique students.`);
 
-    if (data.standards) {
-        const tx = db.transaction('standards', 'readwrite');
-        for (const item of data.standards) {
-            await tx.store.put(item);
+            const entries = Array.from(studentMap.values());
+            for (let i = 0; i < entries.length; i += 50) {
+                const chunk = entries.slice(i, i + 50);
+                const tx = db.transaction('students', 'readwrite');
+                for (const student of chunk) {
+                    const existingInDbIdx = tx.store.index('grNo');
+                    const existingInDb = await existingInDbIdx.get(student.grNo);
+                    if (existingInDb) {
+                        student.id = existingInDb.id;
+                        Object.keys(existingInDb).forEach(key => {
+                            if ((student[key] === undefined || student[key] === '' || student[key] === null) && existingInDb[key]) student[key] = existingInDb[key];
+                        });
+                    }
+                    await tx.store.put(student);
+                }
+                await tx.done;
+                await yieldToMain();
+                console.log(`importAllData: Processed ${i + chunk.length}/${entries.length} students...`);
+            }
         }
-        await tx.done;
-        console.log('importAllData: Standards imported');
-    }
 
-    if (data.customFields) {
-        const tx = db.transaction('customFields', 'readwrite');
-        for (const item of data.customFields) {
-            await tx.store.put(item);
+        if (data.standards) {
+            const tx = db.transaction('standards', 'readwrite');
+            for (const item of data.standards) await tx.store.put(item);
+            await tx.done;
         }
-        await tx.done;
-        console.log('importAllData: Custom fields imported');
+
+        if (data.customFields) {
+            const tx = db.transaction('customFields', 'readwrite');
+            for (const item of data.customFields) await tx.store.put(item);
+            await tx.done;
+        }
+    } finally {
+        resumeNotifications();
+        notifyChanges('all');
     }
 
     console.log('importAllData: COMPLETE');
@@ -588,7 +552,7 @@ export async function verifyStudent(grNo, govId, schoolCodeArg) {
 
                         // Fire multiple queries in parallel for robustness
                         const queries = [];
-                        queries.push(query(studentsRef, where("grNo", "==", rawGr), limit(1)));
+                        queries.push(query(studentsRef, where("grNo", "==", grNo), limit(1)));
 
                         if (!isNaN(numGr)) {
                             queries.push(query(studentsRef, where("grNo", "==", numGr), limit(1)));

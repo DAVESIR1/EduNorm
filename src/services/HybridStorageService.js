@@ -13,6 +13,7 @@ import * as CloudFirestore from './CloudBackupService';
 import * as R2StorageService from './R2StorageService';
 import * as LocalBackupService from './LocalBackupService';
 import * as database from './database';
+import { SovereignBridge } from '../core/v2/Bridge.js';
 
 // Storage provider types
 export const PROVIDERS = {
@@ -310,7 +311,8 @@ export async function smartBackup(userId) {
         r2: false,
         mega: false,
         localDb: true, // Local DB is our source of truth
-        localFile: false
+        localFile: false,
+        sovereignV2: false
     };
 
     try {
@@ -371,6 +373,18 @@ export async function smartBackup(userId) {
                 } catch (e) {
                     results.mega = false;
                     return { provider: 'mega', success: false, error: e.message };
+                }
+            })(),
+
+            // Layer 4: Sovereign V2 (Zero-Knowledge Polymorphic Map)
+            (async () => {
+                try {
+                    const res = await SovereignBridge.save('school_snapshot', allData);
+                    results.sovereignV2 = res;
+                    return { provider: 'sovereign_v2', success: res };
+                } catch (e) {
+                    results.sovereignV2 = false;
+                    return { provider: 'sovereign_v2', success: false, error: e.message };
                 }
             })()
         ];

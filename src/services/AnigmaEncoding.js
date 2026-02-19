@@ -1,4 +1,5 @@
-import pako from 'pako';
+// NOTE: pako (GZIP) import removed — compression was never applied in encode/decode.
+// If GZIP is needed in the future, re-add: import pako from 'pako';
 
 // Helper lists
 const SAFE_SYMBOLS = "!@#$%^&*()_-[]{}<>?:;|.,~";
@@ -98,17 +99,24 @@ export function decode(encodedString) {
             }
 
             // Small letter pattern: Sym + Digit + Char
-            if (isSymbol(char) && i + 2 < encodedString.length && isSmall(encodedString[i + 2])) {
+            if (isSymbol(char) && i + 2 < encodedString.length &&
+                (encodedString[i + 1] >= '0' && encodedString[i + 1] <= '9') &&
+                isSmall(encodedString[i + 2])) {
                 result += encodedString[i + 2];
                 i += 3;
             }
             // Big letter pattern: Sym + Digit + Sym + Char
-            else if (isSymbol(char) && i + 3 < encodedString.length && isSymbol(encodedString[i + 2]) && (encodedString[i + 3] >= 'A' && encodedString[i + 3] <= 'Z')) {
+            else if (isSymbol(char) && i + 3 < encodedString.length &&
+                (encodedString[i + 1] >= '0' && encodedString[i + 1] <= '9') &&
+                isSymbol(encodedString[i + 2]) &&
+                (encodedString[i + 3] >= 'A' && encodedString[i + 3] <= 'Z')) {
                 result += encodedString[i + 3];
                 i += 4;
             }
             // Number pattern: small + digit + BIG
-            else if (isSmall(char) && i + 2 < encodedString.length && (encodedString[i + 1] >= '0' && encodedString[i + 1] <= '9')) {
+            else if (isSmall(char) && i + 2 < encodedString.length &&
+                (encodedString[i + 1] >= '0' && encodedString[i + 1] <= '9') &&
+                (encodedString[i + 2] >= 'A' && encodedString[i + 2] <= 'Z')) {
                 result += encodedString[i + 1];
                 i += 3;
             }

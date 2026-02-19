@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { DATA_FIELDS } from '../components/DataEntry/StepWizard';
+import { DATA_FIELDS } from '../features/StudentManagement/types';
 
 // Get all field definitions from DATA_FIELDS
 const getAllFieldKeys = () => {

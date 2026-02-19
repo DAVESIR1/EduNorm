@@ -30,14 +30,8 @@ export default function LoginPage() {
         clearError();
 
         if (mode === 'register' && password !== confirmPassword) {
-            // setError is not exposed directly in some versions, using local alert/fail or let AuthContext handle
-            // But checking context, 'setError' IS exposed.
-            // However, to be safe, we rely on the component's internal handling or a toast if available.
-            // For now, let's just use the AuthContext error if possible, or local setSuccess for error msg hack?
-            // Actually, verify AuthContext exposes setError. Yes it does in the backup I read.
-            // But let's check props.
-            // The file view showed `setError` in destructuring.
-            // So we can use it. But wait, I need to make sure I deconstruct it.
+            // Using dynamic import to keep LoginPage lightweight
+            import('../Common/Toast').then(m => m.toast.error('Passwords do not match'));
             return;
         }
 

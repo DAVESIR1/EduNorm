@@ -1,1084 +1,465 @@
-/* ===== NEW SIDEBAR STYLES ===== */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+/* 🌌 SOVEREIGN SIDEBAR: Icon Rail + Hover Flyout */
 
-.new-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    /* Use theme variables instead of hardcoded gradient */
-    background: var(--bg-sidebar);
-    color: var(--text-primary);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-    z-index: 1000;
+/* ── Icon Rail ── */
+.sidebar-rail {
+    grid-area: side;
     display: flex;
     flex-direction: column;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-    border-right: 1px solid var(--border-color);
-}
-
-/* === CRITICAL SCOPE FIX === */
-/* In Modern & Dark themes, the Sidebar is ALWAYS Dark. 
-   We re-define the semantic text variables LOCALLY so all children 
-   (Menus, Sub-menus, Text) automatically inherit White text. */
-[data-theme="modern"] .new-sidebar,
-[data-theme="dark"] .new-sidebar,
-[data-theme="neon"] .new-sidebar {
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-muted: rgba(255, 255, 255, 0.5);
-    --border-color: rgba(255, 255, 255, 0.1);
-    --bg-surface: transparent;
-    /* Prevent white backgrounds on sub-items */
-    --hover-bg: rgba(255, 255, 255, 0.1);
-}
-
-
-/* === COLORFUL THEME OVERRIDES (Vibrant) === */
-[data-theme="colorful"] .new-sidebar {
-    /* Background is gradient from design-system */
-    border-right: 1px solid rgba(255, 255, 255, 0.5);
-    /* Semi-transparent white border */
-    color: var(--text-primary);
-}
-
-[data-theme="colorful"] .sidebar-menu-item {
-    color: var(--text-secondary);
-    /* Deep Violet */
-    font-weight: 700;
-    /* Bolder text for colorful theme */
-}
-
-[data-theme="colorful"] .sidebar-menu-item:hover {
-    background: rgba(255, 255, 255, 0.4);
-    color: var(--primary);
-}
-
-[data-theme="colorful"] .sidebar-menu-item.active {
-    background: rgba(255, 255, 255, 0.6);
-    /* Milky white */
-    backdrop-filter: blur(10px);
-    border-left: 4px solid var(--primary);
-    color: var(--primary-dark);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* Ensure branding text pops */
-[data-theme="colorful"] .brand-logo-container {
-    filter: drop_shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-/* === NEON OLED THEME OVERRIDES (Deep Black) === */
-/* === NEON OLED THEME OVERRIDES (4-Color Rule) === */
-[data-theme="neon"] .new-sidebar {
-    background: #000000;
-    border-right: 1px solid rgba(211, 211, 211, 0.5);
-    /* #D3D3D380 */
-    --text-primary: #D3D3D3;
-    --text-secondary: #D3D3D3;
-    --text-muted: #A0A0A0;
-}
-
-[data-theme="neon"] .sidebar-menu-item {
-    font-family: 'Exo 2', sans-serif;
-    letter-spacing: 0.5px;
-    color: #D3D3D3;
-    border-bottom: 1px solid rgba(211, 211, 211, 0.5);
-    opacity: 1;
-}
-
-[data-theme="neon"] .sidebar-menu-item:hover {
-    background: #111;
-    color: #FFFDD0;
-    /* Cream Accent */
-    text-shadow: 0 0 8px rgba(255, 253, 208, 0.3);
-}
-
-[data-theme="neon"] .sidebar-menu-item.active {
-    background: #000;
-    border-left: 4px solid #FFFDD0;
-    /* Cream Accent */
-    color: #FFFDD0;
-    text-shadow: 0 0 10px rgba(255, 253, 208, 0.4);
-    box-shadow: inset 0 0 20px rgba(255, 253, 208, 0.05);
-}
-
-[data-theme="neon"] .sidebar-pin-btn {
-    border: 1px solid rgba(211, 211, 211, 0.5);
-    color: #D3D3D3;
-}
-
-[data-theme="neon"] .sidebar-pin-btn:hover {
-    color: #FFFDD0;
-    border-color: #FFFDD0;
-    box-shadow: 0 0 5px rgba(255, 253, 208, 0.3);
-}
-
-/* Specific text color override for sidebar if needed, but trying to stick to theme */
-.new-sidebar .sidebar-menu-item,
-.new-sidebar .sidebar-pin-btn {
-    color: var(--text-secondary);
-}
-
-.new-sidebar .sidebar-menu-item:hover,
-.new-sidebar .sidebar-menu-item.active,
-.new-sidebar .sidebar-pin-btn:hover {
-    color: var(--primary);
-}
-
-/* === EDUTECH PRO THEME OVERRIDES === */
-[data-theme="edutech"] .new-sidebar {
-    background: #ffffff;
-    border-right: 1px solid #e2e8f0;
-}
-
-/* Pill-shaped active state for EduTech Pro */
-[data-theme="edutech"] .sidebar-menu-item {
-    margin: 4px 12px;
-    /* Add margin for floating pill look */
-    border-radius: 6px;
-    /* Slightly rounded */
-    border-left: none;
-    /* Remove the vertical bar */
-    color: var(--text-secondary);
-}
-
-[data-theme="edutech"] .sidebar-menu-item:hover {
-    background: var(--gray-50);
-    color: var(--primary);
-}
-
-[data-theme="edutech"] .sidebar-menu-item.active {
-    background: var(--primary);
-    /* Full Blue Background */
-    color: white;
-    /* White Text */
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-    border-left: none;
-    /* No border needed */
-}
-
-/* Adjust nested items for pill shape */
-[data-theme="edutech"] .sidebar-menu-section {
-    padding-bottom: 8px;
-}
-
-/* Dark mode overrides for sidebar specifically if needed */
-[data-theme="dark"] .new-sidebar {
-    background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
-    color: white;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-[data-theme="dark"] .new-sidebar .sidebar-menu-item,
-[data-theme="dark"] .new-sidebar .sidebar-pin-btn {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-[data-theme="dark"] .new-sidebar .sidebar-menu-item:hover,
-[data-theme="dark"] .new-sidebar .sidebar-menu-item.active,
-[data-theme="dark"] .new-sidebar .sidebar-pin-btn:hover {
-    color: white;
-}
-
-[data-theme="dark"] .sidebar-pin-btn.pinned {
-    background: #f59e0b;
-    border-color: #f59e0b;
-    color: #1e1b4b;
-}
-
-/* Light/Colorful Theme Specifics */
-/* Light/Colorful Theme Specifics */
-[data-theme="light"] .new-sidebar,
-[data-theme="colorful"] .new-sidebar {
-    /* Ensure text is readable on light backgrounds */
-    color: var(--gray-800);
-}
-
-/* Modern Theme overrides - Dark Sidebar */
-[data-theme="modern"] .new-sidebar {
-    background: var(--bg-sidebar);
-    /* Dark #111827 */
-    color: white;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-[data-theme="modern"] .new-sidebar .sidebar-menu-item,
-[data-theme="modern"] .new-sidebar .sidebar-pin-btn {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-[data-theme="modern"] .new-sidebar .sidebar-menu-item:hover,
-[data-theme="modern"] .new-sidebar .sidebar-menu-item.active,
-[data-theme="modern"] .new-sidebar .sidebar-pin-btn:hover {
-    color: white;
-}
-
-[data-theme="light"] .sidebar-pin-btn,
-[data-theme="colorful"] .sidebar-pin-btn {
-    background: rgba(0, 0, 0, 0.05);
-    /* Darken slightly on light bg */
-    border-color: rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .sidebar-pin-btn:hover,
-[data-theme="colorful"] .sidebar-pin-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="light"] .sidebar-pin-btn.pinned,
-[data-theme="colorful"] .sidebar-pin-btn.pinned {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-
-/* Scoped variables handle the text color now. only need hover bg. */
-[data-theme="modern"] .sidebar-pin-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-[data-theme="modern"] .sidebar-pin-btn.pinned {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-
-
-.new-sidebar.open {
-    width: 280px;
-}
-
-.new-sidebar.collapsed {
-    width: 80px;
-}
-
-/* Hover expansion */
-.new-sidebar.hover-expanded {
-    width: 280px;
-    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="dark"] .new-sidebar.hover-expanded {
-    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.4);
-}
-
-
-/* Mobile: slide in/out from left */
-@media (max-width: 768px) {
-    .new-sidebar.collapsed {
-        transform: translateX(-100%);
-        width: 80vw;
-        max-width: 280px;
-    }
-
-    .new-sidebar.open {
-        width: 80vw;
-        max-width: 280px;
-        transform: translateX(0);
-    }
-}
-
-/* Backdrop for mobile */
-.sidebar-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-    z-index: 999;
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .sidebar-backdrop {
-        display: block;
-    }
-}
-
-/* ===== HEADER & BRANDING ===== */
-/* Sidebar Header */
-.new-sidebar-header {
-    padding: var(--space-4);
-    min-height: 80px;
-    display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
+    width: 65px;
+    height: 100%;
+    background: var(--card);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 0;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    overflow: visible;
+    gap: 4px;
+    transition: box-shadow 0.3s ease;
 }
 
-[data-theme="dark"] .new-sidebar-header,
-[data-theme="modern"] .new-sidebar-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-}
-
-@media (max-width: 768px) {
-    .sidebar-header-left {
-        justify-content: center;
-        position: relative;
-    }
-
-    .sidebar-brand {
-        margin: 0 auto;
-    }
-
-    /* Move toggle button to absolute left */
-    .sidebar-pin-btn {
-        position: absolute;
-        left: 0;
-    }
-}
-
-/* Pin/Toggle Button */
-.sidebar-pin-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
+/* ── Logo ── */
+.rail-logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-    margin: 0 auto;
-    /* Ensure centering in collapsed mode */
-}
-
-/* Brand Container */
-.sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 42px;
-    /* Force height match */
-    overflow: hidden;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-/* Bigger Logo as requested */
-.logo-image {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    object-fit: contain;
-    flex-shrink: 0;
-    transition: transform 0.2s;
-}
-
-.sidebar-brand:hover .logo-image {
-    transform: scale(1.05);
-    /* Subtle scale */
-}
-
-/* Brand Text Wrapper */
-.brand-text-wrapper {
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: all 0.3s ease;
-    transition-delay: 0.1s;
-    /* FIX: Hide completely when collapsed to prevent overlap */
-    visibility: hidden;
-    width: 0;
-}
-
-.brand-text-wrapper.visible {
-    opacity: 1;
-    transform: translateX(0);
-    visibility: visible;
-    width: auto;
-}
-
-/* ===== CUSTOM BRAND LOGO COMPONENT ===== */
-.brand-logo-container {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 900;
-    font-size: 26px;
-    /* Slightly smaller to fit */
-    display: flex;
-    align-items: center;
-    letter-spacing: -0.5px;
-    position: relative;
-    line-height: 1;
-    /* Fix vertical alignment */
-}
-
-.brand-letter {
-    display: inline-block;
-    position: relative;
-    animation: letterPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    /* Lighter shadow for light mode */
-}
-
-[data-theme="dark"] .brand-letter {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Colorful Letter Styles */
-.letter-e {
-    color: #db2777;
-    animation-delay: 0.1s;
-    transform: rotate(-3deg);
-}
-
-/* Pink/Rose */
-.letter-d {
-    color: #0891b2;
-    animation-delay: 0.15s;
-}
-
-/* Cyan */
-.letter-u {
-    color: #d97706;
-    animation-delay: 0.2s;
-    transform: translateY(-2px);
-}
-
-/* Amber */
-.letter-n {
-    color: #7c3aed;
-    animation-delay: 0.25s;
-}
-
-/* Violet */
-.letter-o {
-    color: #059669;
-    animation-delay: 0.3s;
-    transform: rotate(3deg);
-}
-
-/* Emerald */
-.letter-r {
-    color: #dc2626;
-    animation-delay: 0.35s;
-}
-
-/* Red */
-.letter-m {
-    color: #2563eb;
-    animation-delay: 0.4s;
-}
-
-/* Blue */
-
-@keyframes letterPop {
-    0% {
-        opacity: 0;
-        transform: scale(0.5) translateY(10px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-/* Decorative Dots */
-.brand-dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    animation: fadeSlideUp 0.8s backwards;
-}
-
-.dot-1 {
-    background: #db2777;
-    top: 2px;
-    right: -4px;
-    animation-delay: 0.5s;
-}
-
-.dot-2 {
-    background: #0891b2;
-    bottom: 2px;
-    left: -4px;
-    animation-delay: 0.6s;
-}
-
-/* ===== USER INFO ===== */
-.new-sidebar-user {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--border-color);
-    position: relative;
-    background: rgba(0, 0, 0, 0.02);
-    /* Very subtle bg */
-}
-
-[data-theme="dark"] .new-sidebar-user {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.4s ease forwards;
-}
-
-.user-avatar {
     width: 44px;
     height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 12px;
     flex-shrink: 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    object-fit: cover;
-}
-
-/* Admin Specific Avatar Layout */
-.admin-avatar-trigger {
-    cursor: pointer;
-    position: relative;
-    width: 52px;
-    height: 52px;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.admin-avatar-trigger:hover {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.admin-avatar-trigger .admin-status-shield {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    color: var(--primary);
-    filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.4));
-    z-index: 1;
-}
-
-.admin-avatar-trigger img {
+.rail-logo svg,
+.rail-logo img {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
-    z-index: 2;
-    border: 1.5px solid white;
-    object-fit: cover;
-    margin-top: -4px;
-    /* Move up slightly within shield */
 }
 
-.admin-avatar-trigger .lucide-studentProfile {
-    z-index: 2;
-    color: white;
-    margin-top: -4px;
-}
-
-.is-admin-user .user-info {
-    margin-left: 4px;
-}
-
-.user-info {
+/* ── Nav Area ── */
+.rail-nav {
     flex: 1;
-    min-width: 0;
-}
-
-.user-name {
-    display: block;
-    font-weight: 700;
-    font-size: 15px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-primary);
-}
-
-.user-email {
-    display: block;
-    font-size: 12px;
-    opacity: 0.7;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-secondary);
-}
-
-[data-theme="dark"] .user-name {
-    color: white;
-}
-
-[data-theme="dark"] .user-email {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-/* Modern Theme User Info Override */
-[data-theme="modern"] .user-name {
-    color: white;
-}
-
-[data-theme="modern"] .user-email {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-/* ===== MENU ITEMS ===== */
-.new-sidebar-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px 0;
-}
-
-.sidebar-menu-item {
-    padding: 12px 16px 12px 24px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 2px;
     width: 100%;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    font-weight: 600;
-    /* Bolder text for menu */
-    text-align: left;
+    overflow: visible;
+    padding: 0 6px;
 }
 
-.sidebar-menu-item:hover {
-    background: rgba(0, 0, 0, 0.05);
-}
-
-.sidebar-menu-item.active {
-    background: var(--primary-light);
-    color: var(--gray-900);
-    /* Force dark text on light active background */
-    border-left: 4px solid var(--primary);
-}
-
-[data-theme="colorful"] .sidebar-menu-item.active {
-    background: rgba(255, 255, 255, 0.5);
-    color: var(--primary-dark);
-}
-
-
-/* Sidebar toggled collapsed styles */
-.new-sidebar.collapsed .sidebar-menu-item {
-    padding: 12px;
-    justify-content: center;
-}
-
-/* Dark/Modern Theme Active State OVERRIDE - Use subtle dark-mode style */
-[data-theme="dark"] .new-sidebar .sidebar-menu-item.active,
-[data-theme="modern"] .new-sidebar .sidebar-menu-item.active {
-    background: rgba(255, 255, 255, 0.15);
-    /* Subtle white overlay */
-    color: #ffffff;
-    /* Pure white text */
-    border-left-color: #ffffff;
-    /* White border */
-}
-
-.new-sidebar.collapsed .item-name {
+.rail-nav::-webkit-scrollbar {
     display: none;
 }
 
-/* Scrollbar styling */
-.new-sidebar-content::-webkit-scrollbar {
-    width: 4px;
-}
-
-.new-sidebar-content::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.new-sidebar-content::-webkit-scrollbar-thumb {
-    background: rgba(150, 150, 150, 0.3);
-    border-radius: 4px;
-}
-
-/* ===== UTILS ===== */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Tier Badge */
-.tier-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 9px;
-    padding: 3px 6px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.05);
-    /* Transparent */
-    text-transform: uppercase;
-    font-weight: 700;
-    border: none;
-    color: var(--text-muted);
-}
-
-[data-theme="dark"] .tier-badge {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.logout-btn {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    color: var(--gray-400);
-    padding: 4px;
-    border-radius: 6px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-.logout-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: var(--error);
-}
-
-[data-theme="dark"] .logout-btn {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-[data-theme="dark"] .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-/* Menu Headers (Accordion) */
-.sidebar-menu-header {
+/* ── Icon Group (icon + flyout wrapper) ── */
+.rail-icon-group {
+    position: relative;
     width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 24px;
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
+    justify-content: center;
 }
 
-[data-theme="dark"] .sidebar-menu-header {
-    color: white;
-}
-
-.sidebar-menu-header:hover {
-    background: rgba(0, 0, 0, 0.03);
-}
-
-[data-theme="dark"] .sidebar-menu-header:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.menu-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.chevron {
-    font-size: 10px;
-    transition: transform 0.2s;
-    opacity: 0.5;
-}
-
-.chevron.rotated {
-    transform: rotate(180deg);
-}
-
-/* Sidebar Settings/Dropdowns */
-.sidebar-settings {
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] .sidebar-settings {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-}
-
-.setting-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-[data-theme="dark"] .setting-row {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.theme-select {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    background: rgba(0, 0, 0, 0.05);
-    /* Subtle background instead of white box */
-    color: var(--text-primary);
-    font-size: 13px;
-    cursor: pointer;
-    outline: none;
-    width: 100%;
-    transition: all 0.2s;
-}
-
-.theme-select:hover {
-    background: rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="dark"] .theme-select {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-[data-theme="dark"] .theme-select:hover {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-/* Theme Icon Row (GUI) */
-.theme-icon-row {
-    display: flex;
-    gap: 8px;
-    margin-left: auto;
-    /* Push to right */
-}
-
-.theme-icon-btn {
-    width: 32px;
-    height: 32px;
+/* ── Icon Button ── */
+.rail-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 14px;
     background: transparent;
+    color: var(--text-soft);
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    /* Minimal lining */
-    color: var(--text-secondary);
-}
-
-[data-theme="dark"] .theme-icon-btn,
-[data-theme="neon"] .theme-icon-btn {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.6);
-}
-
-/* Hover States */
-.theme-icon-btn:hover {
-    transform: translateY(-2px);
-    background: rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="dark"] .theme-icon-btn:hover,
-[data-theme="neon"] .theme-icon-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-/* Active States - COLORFUL & UNIQUE */
-.theme-icon-btn.active {
-    border-color: currentColor;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* 1. EduTech (Blue) */
-.theme-icon-btn[title*="EduTech"]:hover,
-.theme-icon-btn[title*="EduTech"].active {
-    color: #2563EB;
-    /* Royal Blue */
-    background: rgba(37, 99, 235, 0.1);
-}
-
-/* 2. Vibrant (Multicolor/Pink) */
-.theme-icon-btn[title*="Vibrant"]:hover,
-.theme-icon-btn[title*="Vibrant"].active {
-    color: #db2777;
-    /* Pink */
-    background: rgba(219, 39, 119, 0.1);
-}
-
-/* 3. Neon (Cream/OLED) */
-.theme-icon-btn[title*="Neon"]:hover,
-.theme-icon-btn[title*="Neon"].active {
-    color: #FFFDD0;
-    /* Cream */
-    background: rgba(255, 253, 208, 0.1);
-    text-shadow: 0 0 8px rgba(255, 253, 208, 0.4);
-}
-
-/* Sidebar Bottom Actions (Help buttons) - Removing white boxes */
-.sidebar-bottom-actions {
-    padding: 16px;
-    margin-top: auto;
-    /* Push to bottom if flex container allows */
-}
-
-/* === CLASSIC THEME OVERRIDE (Explicit Light Mode) === */
-[data-theme="classic"] .new-sidebar,
-[data-theme="light"] .new-sidebar {
-    background: linear-gradient(135deg, #f3e8ff 0%, #e0e7ff 100%);
-    /* Pastel Gradient */
-    color: #111827;
-    /* Force Dark Text */
-    --text-primary: #111827;
-    --text-secondary: #374151;
-    border-right: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Sidebar Branding Header - Pixel Perfect Alignment */
-.new-sidebar-header {
-    height: 64px;
-    /* Fixed height for consistency */
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    /* Horizontal padding */
-    border-bottom: 1px solid transparent;
-    /* Placeholder to prevent layout shift */
-}
-
-.sidebar-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-}
-
-.sidebar-pin-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-    cursor: pointer;
-    background: transparent;
-    color: var(--text-secondary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
     flex-shrink: 0;
-    /* Prevent shrinking */
 }
 
-.sidebar-help-btn {
+.rail-icon:hover {
+    background: transparent;
+    color: var(--accent, #6366f1);
+    transform: scale(1.1);
+}
+
+.rail-icon.active {
+    background: transparent;
+    color: var(--accent, #6366f1);
+}
+
+/* Active indicator bar */
+.rail-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--menu-color, var(--accent));
+    border-radius: 0 4px 4px 0;
+}
+
+/* ── Avatar ── */
+.rail-avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+    padding: 0;
+}
+
+.rail-avatar img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ── Admin Avatar (Shield, not round) ── */
+.rail-admin-avatar {
+    color: var(--accent, #6366f1);
+    border: none;
+    background: transparent;
+}
+
+/* ── Flyout Panel ── */
+/* KEY: left:100% (no gap!) — padding-left creates visual gap while keeping hover zone continuous */
+.rail-flyout {
+    position: absolute;
+    left: 100%;
+    top: -8px;
+    min-width: 230px;
+    max-width: 280px;
+    padding-left: 10px;
+    /* Visual gap between rail and panel, but hover zone is continuous */
+    z-index: 500;
+    animation: flyoutSlideIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rail-flyout>.flyout-inner {
+    background: var(--card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    padding: 8px;
+    overflow: hidden;
+}
+
+/* Bottom-anchored flyouts (tools, user) */
+.rail-flyout.flyout-bottom {
+    top: auto;
+    bottom: -8px;
+}
+
+@keyframes flyoutSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-8px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* ── Flyout Header ── */
+.flyout-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-soft);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    margin-bottom: 4px;
+}
+
+/* ── Flyout Items ── */
+.flyout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* ── Flyout Button ── */
+.flyout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: none;
     border-radius: 10px;
     background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 500;
+    color: var(--text);
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
     text-align: left;
+    white-space: nowrap;
 }
 
-.sidebar-help-btn:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--text-primary);
+.flyout-btn:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--accent, #6366f1);
+    padding-left: 16px;
 }
 
-.sidebar-help-btn.active {
-    background: var(--primary-light);
-    color: var(--primary);
+.flyout-btn.active {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--accent);
+    font-weight: 600;
 }
 
-[data-theme="dark"] .sidebar-help-btn {
-    color: rgba(255, 255, 255, 0.7);
+.flyout-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
-[data-theme="dark"] .sidebar-help-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+.flyout-btn:disabled:hover {
+    background: transparent;
+    padding-left: 12px;
+    color: var(--text);
 }
 
-[data-theme="colorful"] .sidebar-help-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+/* ── Flyout utility classes ── */
+.flyout-email {
+    padding: 4px 12px 8px;
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    opacity: 0.6;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    margin-bottom: 4px;
 }
 
-/* === NEON THEME SIDEBAR REFINEMENTS === */
-[data-theme="neon"] .sidebar-help-btn {
-    background: #000 !important;
-    border: 1px solid rgba(211, 211, 211, 0.4) !important;
-    color: #D3D3D3 !important;
+.flyout-accent {
+    color: var(--accent) !important;
 }
 
-[data-theme="neon"] .sidebar-help-btn:hover {
-    background: #111 !important;
-    color: #FFFDD0 !important;
-    border-color: #FFFDD0 !important;
+.flyout-danger:hover {
+    background: rgba(239, 68, 68, 0.08) !important;
+    color: #ef4444 !important;
 }
 
-[data-theme="neon"] .sidebar-help-btn.active {
-    background: #FFFDD0 !important;
-    color: #000 !important;
-    border-color: #FFFDD0 !important;
+/* ── SOON badge ── */
+.soon-badge {
+    font-size: 0.58rem;
+    padding: 2px 7px;
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border-radius: 100px;
+    font-weight: 700;
+    margin-left: auto;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
 }
 
-[data-theme="neon"] .sidebar-help-btn svg {
-    stroke-width: 2.5px !important;
+/* ── Bottom area ── */
+.rail-bottom {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    padding: 8px 6px 0;
 }
 
-[data-theme="neon"] .sidebar-help-btn:not(.active) svg {
-    stroke: #D3D3D3 !important;
+/* ── Dark Theme ── */
+[data-theme="dark"] .rail-flyout>.flyout-inner {
+    background: rgba(15, 12, 45, 0.96);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-[data-theme="neon"] .sidebar-help-btn.active svg {
-    stroke: #000 !important;
+[data-theme="dark"] .flyout-btn:hover {
+    background: rgba(99, 102, 241, 0.15);
 }
 
-[data-theme="neon"] .logout-btn {
-    background: #000 !important;
-    border: 1px solid rgba(211, 211, 211, 0.4) !important;
-    color: #FFFDD0 !important;
+[data-theme="dark"] .rail-icon:hover {
+    background: transparent;
+    color: var(--accent);
 }
 
-[data-theme="neon"] .logout-btn svg {
-    stroke: #FFFDD0 !important;
-    stroke-width: 2.5px !important;
+/* ═══════════════════════════════════════════════ */
+/* ── Responsive ── */
+/* ═══════════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 1023px) {
+    .sidebar-rail {
+        width: 58px;
+    }
+
+    .rail-icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Mobile: Bottom dock */
+@media (max-width: 767px) {
+    .sidebar-rail {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        width: 100% !important;
+        height: 56px;
+        flex-direction: row;
+        border-radius: 20px 20px 0 0;
+        padding: 4px 8px;
+        z-index: 200;
+        gap: 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .rail-logo {
+        display: none;
+    }
+
+    .rail-nav {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        overflow: visible;
+        gap: 0;
+        padding: 0;
+    }
+
+    .rail-icon-group {
+        position: static;
+        width: auto;
+    }
+
+    .rail-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+    }
+
+    .rail-icon.active::before {
+        left: 50%;
+        top: -4px;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 3px;
+        border-radius: 0 0 3px 3px;
+    }
+
+    /* Flyout goes UP on mobile — use fixed positioning to escape overflow */
+    .rail-flyout {
+        position: fixed;
+        bottom: 62px;
+        left: 50%;
+        top: auto;
+        transform: translateX(-50%);
+        padding-left: 0;
+        padding-bottom: 6px;
+        min-width: 220px;
+        max-width: 90vw;
+        z-index: 9999;
+    }
+
+    @keyframes flyoutSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(8px) scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+    }
+
+    .rail-bottom {
+        flex-direction: row;
+        margin-top: 0;
+        margin-left: auto;
+        padding: 0 4px;
+        border-top: none;
+        border-left: 1px solid var(--border);
+        gap: 2px;
+        width: auto;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 479px) {
+    .sidebar-rail {
+        height: 52px;
+        padding: 2px 4px;
+    }
+
+    .rail-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .flyout-btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ── Password Modal (preserved) ── */
+.password-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-modal-content {
+    background: var(--bg);
+    padding: 2.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }

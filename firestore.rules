@@ -85,6 +85,20 @@ service cloud.firestore {
     match /schoolProfile/{document=**} {
       allow read, write: if isAuth(); 
     }
+
+    // 7. PRO CODES (Admin Panel - Code Generation & Verification)
+    // Read: Any authenticated user (for code verification/activation)
+    // Write: Any authenticated user (admin panel generates codes)
+    match /proCodes/{codeId} {
+      allow read, write: if isAuth();
+    }
+
+    // 8. SOVEREIGN V2 DATA
+    // Purpose: Encrypted, anonymous-safe (via sid) data storage.
+    // Restriction: Requires authentication.
+    match /sovereign_data/{sid} {
+      allow read, write: if isAuth();
+    }
     
     // Default Deny
     match /{document=**} {

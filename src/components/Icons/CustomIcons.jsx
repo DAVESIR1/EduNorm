@@ -462,6 +462,18 @@ export const RotateCwIcon = ({ size = 20, className = '' }) => (
     </svg>
 );
 
+export const InfrastructureIcon = ({ size = 24, className = '' }) => (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className}>
+        <path d="M4 42H44" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M8 42V14L24 6L40 14V42" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M16 42V30H32V42" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M16 20H20" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
+        <path d="M28 20H32" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
+        <path d="M16 26H20" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
+        <path d="M28 26H32" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+);
+
 // Palette Icon for theme selection
 export const PaletteIcon = ({ size = 24, className = '' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -490,6 +502,7 @@ export const IconMap = {
     grBook: GRBookIcon,
     studentData: StudentDataIcon,
     home: HomeIcon,
+    building: SchoolIcon,
     settings: SettingsIcon,
     export: ExportIcon,
     import: ImportIcon,
@@ -540,6 +553,8 @@ export const IconMap = {
     cloud: CloudUploadIcon,
     palette: PaletteIcon,
     language: LanguageIcon,
+    infrastructure: InfrastructureIcon,
+    default: HomeIcon,
 };
 
 export default IconMap;

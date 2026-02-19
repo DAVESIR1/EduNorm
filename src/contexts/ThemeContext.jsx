@@ -7,23 +7,26 @@ export function ThemeProvider({ children }) {
 
     // Initialize theme from local storage
     useEffect(() => {
-        let saved = localStorage.getItem('theme') || 'edutech';
-        // Cleanup: If the user was on Neon (which we are removing), reset to edutech
-        if (saved === 'neon' || saved === 'legacy-neon' || saved === 'dark') {
-            saved = 'edutech';
-            localStorage.setItem('theme', saved);
-        }
+        const saved = localStorage.getItem('enorm_theme') || 'light';
         setTheme(saved);
         document.documentElement.setAttribute('data-theme', saved);
-        document.body.setAttribute('data-theme', saved);
+        if (saved === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
     }, []);
 
     // Change theme function
     const changeTheme = useCallback((newTheme) => {
         setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
+        localStorage.setItem('enorm_theme', newTheme);
         document.documentElement.setAttribute('data-theme', newTheme);
-        document.body.setAttribute('data-theme', newTheme);
+        if (newTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
     }, []);
 
     const value = {

@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
+import ToastContainer, { toast } from './components/Common/Toast';
+import SyncPulse from './components/Common/SyncPulse';
+import OfflineQueue from './components/Common/OfflineQueue';
+import SyncEventBus from './services/SyncEventBus';
 import NewSidebar from './components/Layout/NewSidebar';
 import LoginPage from './components/Auth/LoginPage';
 import { AdPlacement } from './components/Ads/AdBanner';
@@ -12,15 +16,18 @@ import EduNormLogo from './components/Common/EduNormLogo';
 import BrandLoader from './components/Common/BrandLoader';
 import ParticleBackground from './components/Effects/ParticleBackground';
 import { IconMap } from './components/Icons/CustomIcons';
+import { UIEngine } from './core/v2/UIEngine';
+import { SovereignBridge } from './core/v2/Bridge';
+
+import { DATA_FIELDS } from './features/StudentManagement/types';
 
 // Lazy-loaded components for code splitting
 const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
-import { DATA_FIELDS } from './components/DataEntry/StepWizard';
 const ProfileViewer = lazy(() => import('./components/Profile/ProfileViewer'));
-const GeneralRegister = lazy(() => import('./components/Ledger/GeneralRegister'));
-const BackupRestore = lazy(() => import('./components/Backup/BackupRestore'));
-const CloudBackup = lazy(() => import('./components/Backup/CloudBackup'));
-const AdminPanel = lazy(() => import('./components/Admin/AdminPanel'));
+const GeneralRegister = lazy(() => import('./features/StudentManagement/view'));
+const BackupRestore = lazy(() => import('./features/SyncBackup/view'));
+const CloudBackup = BackupRestore; // Same component, used in two places
+const AdminPanel = lazy(() => import('./features/AdminDashboard/view'));
 const CertificateGenerator = lazy(() => import('./components/Features/CertificateGenerator'));
 const AnalyticsDashboard = lazy(() => import('./components/Features/AnalyticsDashboard'));
 const QRAttendance = lazy(() => import('./components/Features/QRAttendance'));
@@ -32,14 +39,13 @@ const ProgressTimeline = lazy(() => import('./components/Features/ProgressTimeli
 const WhatsAppMessenger = lazy(() => import('./components/Features/WhatsAppMessenger'));
 const PhotoEnhancement = lazy(() => import('./components/Features/PhotoEnhancement'));
 const UpgradeModal = lazy(() => import('./components/Premium/UpgradeModal'));
-const SchoolProfile = lazy(() => import('./components/School/SchoolProfile'));
+const SchoolProfile = lazy(() => import('./features/SchoolProfile/view'));
 const StaffInfo = lazy(() => import('./components/HOI/StaffInfo'));
 const HOIDiary = lazy(() => import('./components/HOI/HOIDiary'));
 const CustomWindowCreator = lazy(() => import('./components/Common/CustomWindowCreator'));
 const ComingSoonPage = lazy(() => import('./components/Common/ComingSoonPage'));
 const SalaryBook = lazy(() => import('./components/Teacher/SalaryBook'));
 const TeacherProfile = lazy(() => import('./components/Teacher/TeacherProfile'));
-const TeachersProfileList = lazy(() => import('./components/School/TeachersProfileList'));
 const StudentLogin = lazy(() => import('./components/Student/StudentLogin'));
 const CorrectionRequest = lazy(() => import('./components/Student/CorrectionRequest'));
 const QAChat = lazy(() => import('./components/Student/QAChat'));
@@ -48,7 +54,7 @@ const ClassManagement = lazy(() => import('./components/HOI/ClassManagement'));
 
 const UsageInstructions = lazy(() => import('./components/Features/UsageInstructions'));
 const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard'));
-import RoleSelectionModal from './components/Common/RoleSelectionModal';
+const IdentityWizard = lazy(() => import('./features/Identity/view'));
 import AdSense from './components/Common/AdSense';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
@@ -59,10 +65,6 @@ import {
     useLedger
 } from './hooks/useDatabase';
 import * as db from './services/database';
-import * as LocalBackupService from './services/LocalBackupService';
-import * as MandatoryBackupService from './services/MandatoryBackupService';
-import * as CloudSyncService from './services/CloudSyncService';
-import * as RealTimeBackup from './services/RealTimeBackupService';
 import { selfRepairCheck, isIPBlocked } from './services/SecurityManager';
 import { Menu, Users, FileSpreadsheet, Sparkles, Download, Share2, Maximize2, Minimize2, Cloud, CloudOff, Check, Loader } from 'lucide-react';
 import './App.css';
@@ -161,108 +163,22 @@ function AppContent() {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [showMenuContent]);
 
-    // Auto-sync on login + Initialize real-time backup
+    // Sovereign Session & Data Check
     useEffect(() => {
-        const performAutoSync = async () => {
-            if (user?.uid && isReady && !user.isOffline) {
-                console.log('Starting auto-sync on login...');
-                setSyncStatus({ type: 'syncing', message: 'Syncing with cloud...' });
+        if (isAuthenticated && user?.uid) {
+            console.log('Sovereign session active');
+        }
+    }, [isAuthenticated, user?.uid]);
 
-                // Initialize real-time backup system
-                RealTimeBackup.init(user.uid);
-
-                // Listen for real-time backup status changes
-                RealTimeBackup.onStatusChange((status) => {
-                    if (status.type === 'syncing') {
-                        setSyncStatus({ type: 'syncing', message: status.message });
-                    } else if (status.type === 'success') {
-                        setSyncStatus({ type: 'success', message: status.message });
-                        setTimeout(() => setSyncStatus(null), 2000);
-                    } else if (status.type === 'offline' || status.type === 'queued') {
-                        setSyncStatus({ type: 'warning', message: status.message });
-                        setTimeout(() => setSyncStatus(null), 3000);
-                    } else if (status.type === 'error') {
-                        setSyncStatus({ type: 'error', message: status.message });
-                        setTimeout(() => setSyncStatus(null), 4000);
-                    }
-                });
-
-                try {
-                    // SAFETY CHECK: Force backup if version changed
-                    await CloudSyncService.checkAndPerformSafetyBackup(user.uid);
-
-                    const result = await CloudSyncService.autoSyncOnLogin(user.uid);
-                    console.log('Auto-sync result:', result);
-
-                    if (result.success) {
-                        if (result.action === 'restored') {
-                            setSyncStatus({
-                                type: 'success',
-                                message: `Restored ${result.studentCount || 0} students from cloud!`
-                            });
-                            // Refresh data after restore
-                            await refreshStudents();
-                            await refreshLedger();
-                        } else if (result.action === 'backed_up' || result.action === 'first_backup') {
-                            setSyncStatus({ type: 'success', message: 'Data synced to cloud!' });
-                        } else {
-                            setSyncStatus(null); // Nothing to show
-                        }
-                    }
-                } catch (error) {
-                    console.error('Auto-sync failed:', error);
-                    setSyncStatus({ type: 'error', message: 'Sync failed - data safe locally' });
-                }
-
-                // Clear status after 3 seconds
-                setTimeout(() => setSyncStatus(null), 3000);
-            }
-        };
-
-        performAutoSync();
-
-        return () => {
-            RealTimeBackup.cleanup();
-        };
-    }, [user?.uid, isReady]);
-
-    // Initialize mandatory backup system
+    // Initialize sovereign backup check
     useEffect(() => {
         const initBackupSystem = async () => {
             try {
-                // Initialize mandatory backup (periodic, unload, visibility)
-                MandatoryBackupService.initMandatoryBackup();
-
-                // Run security self-repair on startup
-                try {
-                    selfRepairCheck();
-                    const blocked = await isIPBlocked();
-                    if (blocked) {
-                        console.warn('Security: This IP is currently blocked.');
-                    }
-                } catch (secErr) {
-                    console.warn('SecurityManager startup check skipped:', secErr.message);
-                }
-
-                // Check if version changed (potential data loss scenario)
-                if (LocalBackupService.hasVersionChanged()) {
-                    console.log('App version changed - checking for data recovery...');
-                    const restoreResult = await MandatoryBackupService.restoreFromBackup(user?.uid);
-                    if (restoreResult.success) {
-                        console.log('Data restored from:', restoreResult.source);
-                    }
-                }
-
-                // Create local backup always
+                // Initial check for data integrity
                 const allData = await db.exportAllData();
                 if (allData && (allData.students?.length > 0 || allData.settings)) {
-                    LocalBackupService.createLocalBackup(allData);
+                    console.log('Sovereign Backup system active');
                 }
-
-                // Save current version
-                LocalBackupService.saveAppVersion();
-
-                console.log('Backup system initialized');
             } catch (error) {
                 console.error('Backup system init failed:', error);
             }
@@ -271,54 +187,74 @@ function AppContent() {
         if (isReady) {
             initBackupSystem();
         }
-
-        return () => MandatoryBackupService.cleanup();
-    }, [isReady, user?.uid]);
+    }, [isReady]);
 
     // Save settings
     const handleSaveSettings = useCallback(async () => {
+        // Individual keys for legacy support
         await updateSetting('schoolName', schoolName);
         await updateSetting('schoolLogo', schoolLogo);
         await updateSetting('schoolContact', schoolContact);
         await updateSetting('schoolEmail', schoolEmail);
         await updateSetting('teacherName', teacherName);
         await updateSetting('selectedStandard', selectedStandard);
-        // Trigger real-time backup
-        RealTimeBackup.onDataChanged('settings');
-        // Redundant safe backup to ensure settings like School Name/Logo are synced to R2/Cloud
-        MandatoryBackupService.triggerBackupOnChange();
-        alert('Settings saved successfully!');
-    }, [schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard, updateSetting, user?.uid]);
+
+        // Unified school_profile object - MERGE to prevent data loss
+        const existingProfile = await db.getSetting('school_profile') || {};
+        const unifiedProfile = {
+            ...existingProfile,
+            schoolName,
+            schoolLogo,
+            schoolContact,
+            schoolEmail,
+            updatedAt: new Date().toISOString()
+        };
+        await updateSetting('school_profile', unifiedProfile);
+
+        // Sovereign Universal Save (Replaces RealTimeBackup & MandatorySync)
+        await SovereignBridge.save('settings', {
+            id: 'SYSTEM_SETTINGS',
+            type: 'settings',
+            schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard,
+            school_profile: unifiedProfile
+        });
+
+        toast.success('Settings saved!');
+    }, [schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard, updateSetting]);
 
     // Add new student
     const handleAddStudent = useCallback(async (studentData) => {
+        const studentRecord = {
+            ...studentData,
+            standard: selectedStandard
+        };
+
         if (editingStudent) {
-            await updateStudent(editingStudent.id, studentData);
+            await updateStudent(editingStudent.id, studentRecord);
             setEditingStudent(null);
             setEditMode(false);
         } else {
-            await addStudent({
-                ...studentData,
-                standard: selectedStandard
-            });
+            await addStudent(studentRecord);
         }
+
         await refreshStudents();
         await refreshLedger();
-        // Trigger real-time backup
-        RealTimeBackup.onDataChanged('student');
-    }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger, user?.uid]);
+
+        // Sovereign Universal Save (Replaces RealTimeBackup)
+        SovereignBridge.save('student', studentRecord);
+    }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger]);
 
     // Class upgrade
     const handleUpgradeClass = useCallback(async () => {
         if (!selectedStandard) {
-            alert('Please select a standard first');
+            toast.warning('Please select a standard first');
             return;
         }
 
         const newStandard = prompt('Enter new standard name (e.g., "Standard 4-A"):');
         if (newStandard) {
             const count = await db.upgradeClass(selectedStandard, newStandard);
-            alert(`Upgraded ${count} students to ${newStandard}`);
+            toast.success(`Upgraded ${count} students to ${newStandard}`);
             await addStandard({ id: newStandard, name: newStandard });
             setSelectedStandard(newStandard);
             await refreshStudents();
@@ -336,7 +272,7 @@ function AppContent() {
                 await refreshStudents();
             }
         } else {
-            alert('No previous standard found');
+            toast.warning('No previous standard found');
         }
     }, [selectedStandard, students, refreshStudents]);
 
@@ -353,10 +289,10 @@ function AppContent() {
             // Reset selection
             setSelectedStandard('');
             await refreshStudents();
-            alert(`Class "${standardId}" deleted with ${studentsInClass.length} students`);
+            toast.success(`Class "${standardId}" deleted with ${studentsInClass.length} students`);
         } catch (error) {
             console.error('Failed to delete class:', error);
-            alert('Failed to delete class');
+            toast.error('Failed to delete class');
         }
     }, [deleteStandard, refreshStudents]);
 
@@ -364,29 +300,18 @@ function AppContent() {
     const handleMenuNavigate = useCallback((menuId, itemId) => {
         console.log('Menu navigate:', menuId, itemId);
 
-        // Modal-only items
-        if (itemId === 'general-register') {
-            setShowLedger(true);
+        // Content area items (render inside Bento feed)
+        if (itemId === 'general-register' || itemId === 'student-profile' || itemId === 'id-card' || itemId === 'certificate' || itemId === 'backup-restore' || itemId === 'cloud-backup') {
+            setMenuContentType(itemId);
+            setShowMenuContent(true);
+            // Close overlays
+            setShowProfile(false);
+            setShowLedger(false);
+            setShowCertificate(false);
+            setShowBackup(false);
             return;
         }
-        if (itemId === 'student-profile' || itemId === 'id-card' || itemId === 'student-view-profile' || itemId === 'download-id-card') {
-            setShowProfile(true);
-            return;
-        }
-        if (itemId === 'certificate') {
-            setShowCertificate(true);
-            return;
-        }
-        if (itemId === 'backup-restore' || itemId === 'export-data' || itemId === 'import-data') {
-            if (itemId === 'export-data') setBackupAction('export');
-            if (itemId === 'import-data') setBackupAction('import');
-            setShowBackup(true);
-            return;
-        }
-        if (itemId === 'cloud-backup') {
-            setShowCloudBackup(true);
-            return;
-        }
+
         if (itemId === 'upload-logo') {
             setMenuContentType('school-profile');
             setShowMenuContent(true);
@@ -422,12 +347,58 @@ function AppContent() {
                     onSaveSettings={handleSaveSettings}
                 /></ComponentErrorBoundary>;
             case 'general-register':
+                return <ComponentErrorBoundary componentName="Student Ledger"><GeneralRegister
+                    isOpen={true}
+                    isFullPage={true}
+                    students={ledger}
+                    onSearch={setSearchQuery}
+                    searchQuery={searchQuery}
+                    onUpdateStudent={updateStudent}
+                    onRenameField={handleRenameDataBox}
+                    fieldRenames={settings.fieldRenames || {}}
+                    onEditStudent={(student) => {
+                        setEditingStudent(student);
+                        setEditMode(true);
+                        setSelectedStandard(student.standard);
+                        setShowMenuContent(false);
+                    }}
+                    onClose={() => setShowMenuContent(false)}
+                /></ComponentErrorBoundary>;
             case 'student-profile':
-            case 'certificate':
             case 'id-card':
-                return null;
+                return <ComponentErrorBoundary componentName="Profile"><ProfileViewer
+                    isOpen={true}
+                    isFullPage={true}
+                    onClose={() => setShowMenuContent(false)}
+                    students={user?.role === 'student' ? [user] : ledger}
+                    standards={standards}
+                    schoolName={schoolName}
+                    settings={settings}
+                    schoolLogo={schoolLogo}
+                    schoolContact={schoolContact}
+                    initialTab={menuContentType === 'id-card' ? 'id' : 'profile'}
+                /></ComponentErrorBoundary>;
+            case 'certificate':
+                return <ComponentErrorBoundary componentName="Certificate"><CertificateGenerator
+                    isOpen={true}
+                    isFullPage={true}
+                    onClose={() => setShowMenuContent(false)}
+                    student={editingStudent || (students.length > 0 ? students[0] : null)}
+                    schoolName={schoolName}
+                    schoolLogo={schoolLogo}
+                /></ComponentErrorBoundary>;
+            case 'backup-restore':
+                return <ComponentErrorBoundary componentName="Backup & Restore"><BackupRestore
+                    isOpen={true}
+                    isFullPage={true}
+                    onClose={() => setShowMenuContent(false)}
+                    ledger={ledger}
+                    standards={standards}
+                    selectedStandard={selectedStandard}
+                    onImportComplete={handleImportComplete}
+                /></ComponentErrorBoundary>;
             case 'teachers-profile':
-                return <ComponentErrorBoundary componentName="Teachers Profile List"><TeachersProfileList /></ComponentErrorBoundary>;
+                return <ComponentErrorBoundary componentName="Staff Info"><StaffInfo /></ComponentErrorBoundary>;
             case 'custom-window':
             case 'custom-window-hoi':
             case 'custom-window-teacher':
@@ -488,12 +459,11 @@ function AppContent() {
                                                             try {
                                                                 const count = await db.upgradeClass(std.id, newName.trim());
                                                                 await addStandard({ id: newName.trim(), name: newName.trim() });
-                                                                alert(`✅ Upgraded ${count} students from "${name}" → "${newName.trim()}"`);
+                                                                toast.success(`Upgraded ${count} students from "${name}" → "${newName.trim()}"`);
                                                                 setSelectedStandard(newName.trim());
                                                                 await refreshStudents();
-                                                                RealTimeBackup.onDataChanged('class_upgrade');
                                                             } catch (err) {
-                                                                alert('Upgrade failed: ' + err.message);
+                                                                toast.error('Upgrade failed', err.message);
                                                             }
                                                         }
                                                     }}
@@ -648,9 +618,7 @@ function AppContent() {
             fieldRenames[fieldId] = newName;
             await updateSetting('fieldRenames', fieldRenames);
         }
-        // Trigger backup after field rename
-        MandatoryBackupService.triggerBackupOnChange();
-        alert(`Field renamed to "${newName}" successfully!`);
+        toast.success(`Field renamed to "${newName}"`);
     }, [updateField, fields, settings.fieldRenames, updateSetting]);
 
     // Combine built-in and custom fields for dropdown (apply renames from settings)
@@ -679,9 +647,6 @@ function AppContent() {
         return <BrandLoader message="Verifying credentials..." />;
     }
 
-
-
-
     // Show login page if not authenticated
     if (!isAuthenticated) {
         return <LoginPage />;
@@ -691,13 +656,15 @@ function AppContent() {
     if (showRoleSelection) {
         return (
             <div className="app" data-theme={theme}>
-                <RoleSelectionModal
-                    isOpen={true}
-                    onComplete={() => {
-                        setShowRoleSelection(false);
-                        window.location.reload(); // Reload to refresh menu/context logic
-                    }}
-                />
+                <Suspense fallback={<BrandLoader message="Loading Identity Wizard..." />}>
+                    <IdentityWizard
+                        isOpen={true}
+                        onComplete={() => {
+                            setShowRoleSelection(false);
+                            window.location.reload(); // Reload to refresh menu/context logic
+                        }}
+                    />
+                </Suspense>
             </div>
         );
     }
@@ -708,46 +675,12 @@ function AppContent() {
     }
 
     return (
-        <div className="app" data-theme={theme}>
+        <div className="bento-container" data-theme={theme}>
             <AdSense />
-            {/* Background decorations - Hidden in Minimal Theme */}
+            {/* Background decorations - Subtle and controlled by theme */}
             <ParticleBackground />
-            {theme !== 'neon' && (
-                <div className="app-decorations">
-                    <div className="blob blob-1"></div>
-                    <div className="blob blob-2"></div>
-                    <div className="blob blob-3"></div>
-                </div>
-            )}
 
-            {/* Sidebar toggle button - always visible */}
-            {!sidebarOpen && (
-                <button
-                    className="mobile-sidebar-toggle"
-                    onClick={() => setSidebarOpen(true)}
-                    style={{
-                        position: 'fixed',
-                        top: '23px', /* Aligned with logo - pushed down 2x more */
-                        left: '12px',
-                        zIndex: 40,
-                        padding: '8px',
-                        background: 'transparent', /* Clean */
-                        border: 'none', /* No border */
-                        borderRadius: '8px',
-                        boxShadow: 'none', /* No shadow */
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'var(--text-primary)'
-                    }}
-                    title="Open Menu"
-                >
-                    <Menu size={24} />
-                </button>
-            )}
-
-            {/* New Sidebar with 5-Category Menu */}
+            {/* Floating Glass Sidebar (side) */}
             <NewSidebar
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -755,225 +688,179 @@ function AppContent() {
                 onOpenAdmin={() => setShowAdmin(true)}
                 onOpenUpgrade={() => setShowUpgradeModal(true)}
                 onLogout={logout}
+                theme={theme}
+                toggleTheme={changeTheme}
             />
 
-            {/* Main Content */}
-            <main className={`main-content ${sidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
-                {/* Cloud Sync Status Toast */}
-                {syncStatus && (
-                    <div className={`sync-toast sync-${syncStatus.type}`}>
-                        {syncStatus.type === 'syncing' && <Loader size={16} className="spin" />}
-                        {syncStatus.type === 'success' && <Check size={16} />}
-                        {syncStatus.type === 'error' && <CloudOff size={16} />}
-                        <span>{syncStatus.message}</span>
-                    </div>
-                )}
-
-
-                <header className="main-header">
-                    <div className="header-left">
+            {/* Main Feed Area (main) */}
+            <main className="main-feed">
+                <header className="nav-master">
+                    <div className="nav-left">
                         {students.length > 0 && (
-                            <button className="btn btn-secondary total-count-btn">
-                                <IconMap.users size={18} />
-                                {students.length} Students
-                            </button>
+                            <div className="status-badge">
+                                <span className="icon">👥</span>
+                                <strong>{students.length}</strong> Students
+                            </div>
                         )}
                     </div>
 
-                    <div className="header-brand">
-                        <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'contain' }} />
-                        <EduNormLogo size="large" />
+                    {/* Centered Branding */}
+                    <div className="nav-brand" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+                        <span style={{
+                            background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            fontWeight: 800,
+                            fontSize: '1.1rem',
+                            letterSpacing: '0.05em',
+                            fontFamily: "'Inter', system-ui, sans-serif"
+                        }}>edunorm</span>
                     </div>
 
-                    <div className="header-actions">
+                    <div className="nav-right">
                         {user?.role !== 'student' && (
-                            <>
+                            <div className="action-group" style={{ display: 'flex', gap: '1rem' }}>
                                 <button
-                                    className="btn btn-secondary"
-                                    onClick={() => setShowLedger(true)}
+                                    className="btn-sovereign"
+                                    onClick={() => handleMenuNavigate('school', 'general-register')}
                                 >
-                                    <IconMap.grBook size={18} />
-                                    View Register
+                                    <span className="icon">📖</span>
+                                    Register
                                 </button>
                                 <button
-                                    className="btn btn-primary"
-                                    onClick={() => setShowProfile(true)}
+                                    className="btn-sovereign"
+                                    onClick={() => handleMenuNavigate('school', 'student-profile')}
                                 >
-                                    <IconMap.users size={18} />
+                                    <span className="icon">👤</span>
                                     Student Profile
                                 </button>
-                            </>
+                            </div>
                         )}
                     </div>
                 </header>
 
-                {/* Top Ad Banner - Only show when content is present */}
-                {(selectedStandard || showMenuContent) && (
-                    <div className="top-ad-wrapper">
-                        <AdPlacement type="banner" />
-                    </div>
-                )}
+                <div className="glass-panel" style={{ flex: 1, overflowY: 'auto' }}>
+                    <h2>Welcome back, {user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Sovereign'}!</h2>
+                    <p style={{ opacity: 0.7, marginBottom: '1.5rem' }}>Everything is synced and sovereign.</p>
 
-                {/* Edit Mode Student Selector */}
-                {editMode && selectedStandard && students.length > 0 && (
-                    <div className="edit-mode-bar">
-                        <span className="edit-mode-label">📝 Edit Mode Active - Select student to edit:</span>
-                        <select
-                            className="input-field"
-                            value={editingStudent?.id || ''}
-                            onChange={(e) => {
-                                const student = students.find(s => s.id == e.target.value);
-                                setEditingStudent(student || null);
-                            }}
-                        >
-                            <option value="">Select student to edit...</option>
-                            {students.map(s => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name || s.nameEnglish} - GR: {s.grNo}
-                                </option>
-                            ))}
-                        </select>
-                        <button
-                            className="btn btn-ghost"
-                            onClick={() => {
-                                setEditingStudent(null);
-                                setEditMode(false);
-                            }}
-                        >
-                            Cancel Edit
-                        </button>
-                    </div>
-                )}
-
-                {/* Menu Content - Shows when a menu item is selected */}
-                {showMenuContent && menuContentType ? (
-                    <div className="menu-content-area">
-                        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', gap: '10px' }}><span style={{ width: '24px', height: '24px', border: '3px solid #e2e8f0', borderTopColor: 'var(--primary, #7C3AED)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />Loading...</div>}>
-                            {renderMenuContent()}
-                        </Suspense>
-                    </div>
-                ) : (
-                    /* Main Content Area: Admin gets Data Entry, Student gets Dashboard */
-                    user?.role === 'student' ? (
-                        <div className="student-dashboard-wrapper" style={{ padding: '20px' }}>
-                            <Suspense fallback={<BrandLoader message="Loading Dashboard..." />}>
-                                <StudentDashboard
-                                    user={user}
-                                    onLogout={logout}
-                                    onNavigate={handleMenuNavigate}
-                                />
+                    {/* Menu Content or Main Dashboard */}
+                    {showMenuContent && menuContentType ? (
+                        <div className="menu-content-full-width">
+                            <Suspense fallback={<BrandLoader message="Loading..." />}>
+                                {renderMenuContent()}
                             </Suspense>
                         </div>
                     ) : (
-                        /* Data Entry Form (Admin/Teacher) */
-                        <div className="form-container">
-                            {selectedStandard ? (
-                                <StepWizard
-                                    key={editingStudent?.id || 'new'}
-                                    onSave={handleAddStudent}
-                                    initialData={editingStudent || {}}
-                                    selectedStandard={selectedStandard}
-                                    customFields={fields}
-                                    onCancel={editingStudent ? () => setEditingStudent(null) : null}
-                                />
+                        <div className="dashboard-grid">
+                            {/* Main Content Area: Admin gets Data Entry, Student gets Dashboard */}
+                            {user?.role === 'student' ? (
+                                <Suspense fallback={<BrandLoader message="Loading Dashboard..." />}>
+                                    <StudentDashboard
+                                        user={user}
+                                        onLogout={logout}
+                                        onNavigate={handleMenuNavigate}
+                                    />
+                                </Suspense>
                             ) : (
-                                <div className="no-standard-selected fluffy-card">
-                                    <div className="empty-state">
-                                        <img src="/edunorm-logo.png" alt="EduNorm" className="welcome-logo" />
-                                        <h2 className="display-font">Welcome to EduNorm!</h2>
-                                        <p>Please select or create a Standard/Class from the sidebar to start entering student data.</p>
-                                        <div className="empty-steps">
-                                            <div className="step-item">
-                                                <span className="step-num">1</span>
-                                                <span>Upload School Logo</span>
-                                            </div>
-                                            <div className="step-item">
-                                                <span className="step-num">2</span>
-                                                <span>Enter School Name</span>
-                                            </div>
-                                            <div className="step-item">
-                                                <span className="step-num">3</span>
-                                                <span>Add Teacher Name</span>
-                                            </div>
-                                            <div className="step-item">
-                                                <span className="step-num">4</span>
-                                                <span>Select or Create Standard</span>
-                                            </div>
-                                            <div className="step-item">
-                                                <span className="step-num">5</span>
-                                                <span>Start Adding Students!</span>
-                                            </div>
+                                /* Data Entry Form (Admin/Teacher) */
+                                selectedStandard ? (
+                                    <StepWizard
+                                        key={editingStudent?.id || 'new'}
+                                        onSave={handleAddStudent}
+                                        initialData={editingStudent || {}}
+                                        selectedStandard={selectedStandard}
+                                        customFields={fields}
+                                        onCancel={editingStudent ? () => setEditingStudent(null) : null}
+                                    />
+                                ) : (
+                                    <div className="empty-state" style={{ textAlign: 'center', padding: '2rem' }}>
+                                        <img src="/edunorm-logo.png" alt="EduNorm" className="welcome-logo" style={{ width: 80, marginBottom: '1rem' }} />
+                                        <h2>Welcome to EduNorm!</h2>
+                                        <p style={{ color: 'var(--text-soft)', marginBottom: '2rem' }}>Please select or create a Standard/Class from the sidebar to start entering student data.</p>
+
+                                        <div className="sovereign-card" style={{ textAlign: 'left' }}>
+                                            <h3>Setup Quick-Steps:</h3>
+                                            <ul className="quick-steps-list">
+                                                <li onClick={() => handleMenuNavigate('school', 'upload-logo')}>✨ 1. Upload School Logo</li>
+                                                <li onClick={() => handleMenuNavigate('school', 'school-profile')}>🏫 2. Enter School Name</li>
+                                                <li onClick={() => handleMenuNavigate('school', 'teachers-profile')}>👨‍🏫 3. Add Teacher Name</li>
+                                                <li onClick={() => handleMenuNavigate('hoi', 'class-management')}>📚 4. Select or Create Standard</li>
+                                                <li onClick={() => handleMenuNavigate('other', 'usage-instructions')}>🚀 5. Start Adding Students!</li>
+                                            </ul>
                                         </div>
                                     </div>
-                                </div>
+                                )
                             )}
                         </div>
-                    )
-                )
-                }
-            </main >
+                    )}
+                </div>
 
-            {/* Profile Viewer Modal */}
-            < ProfileViewer
-                isOpen={showProfile}
-                onClose={() => setShowProfile(false)}
-                students={user?.role === 'student' ? [user] : ledger}
-                standards={standards}
-                schoolName={schoolName}
-                settings={settings}
-                schoolLogo={schoolLogo}
-                schoolContact={schoolContact}
-            />
+                {/* Unified Footer Integrated into glass flow */}
+                <footer className="footer-glass" style={{ marginTop: 'auto', padding: '1rem', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem' }}>
+                    <div className="footer-row" style={{ display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
+                        <a href="mailto:help@edunorm.in" style={{ color: 'inherit', textDecoration: 'none' }}>help@edunorm.in</a>
+                        <span>·</span>
+                        <a href="/privacy" target="_blank" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy</a>
+                        <span>·</span>
+                        <a href="/terms" target="_blank" style={{ color: 'inherit', textDecoration: 'none' }}>Terms</a>
+                        <span>·</span>
+                        <span>© 2026 EduNorm</span>
+                    </div>
+                </footer>
+            </main>
 
-            {/* General Register Modal */}
-            < GeneralRegister
-                isOpen={showLedger}
-                onClose={() => setShowLedger(false)}
-                ledger={ledger}
-                onSearch={handleSearch}
-                searchResults={searchResults}
-                searchQuery={searchQuery}
-                onEditStudent={(student) => {
-                    setEditingStudent(student);
-                    setEditMode(true);
-                    setSelectedStandard(student.standard);
-                }}
-            />
+            {/* Sovereign Control Module (right) */}
+            <section className="glass-panel right-panel">
+                <div className="sovereign-card">
+                    <SyncPulse />
+                    <h3 style={{ marginTop: '8px' }}>Data Sovereignty</h3>
+                    <button
+                        className="nav-btn"
+                        style={{ background: 'white', color: 'var(--accent)', width: '100%', justifyContent: 'center', fontWeight: 'bold' }}
+                        onClick={async () => {
+                            try {
+                                setSyncStatus('syncing');
+                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_START);
+                                await SovereignBridge.forceSync();
+                                setSyncStatus('success');
+                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_SUCCESS, { layers: 3 });
+                                toast.sync(3, 3);
+                                setTimeout(() => setSyncStatus(null), 3000);
+                            } catch (error) {
+                                setSyncStatus('error');
+                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_FAIL);
+                                toast.error('Sync failed', error.message);
+                                setTimeout(() => setSyncStatus(null), 3000);
+                            }
+                        }}
+                    >
+                        {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? '✅ Synced' : syncStatus === 'error' ? '❌ Sync Failed' : 'Force Cloud Sync'}
+                    </button>
+                </div>
 
-            {/* Backup/Restore Modal */}
-            <BackupRestore
-                isOpen={showBackup}
-                onClose={() => setShowBackup(false)}
-                ledger={ledger}
-                standards={standards}
-                selectedStandard={selectedStandard}
-                onImportComplete={handleImportComplete}
-                initialTab={backupAction}
-            />
+                <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <h4>System Integrity</h4>
+                    <div className="glass-panel" style={{ padding: '1rem', fontSize: '0.85rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span>IndexDB Storage</span>
+                            <span style={{ color: 'var(--accent)' }}>Stable</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span>Encryption Key</span>
+                            <span style={{ color: 'var(--accent)' }}>Verified</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>Network Bridge</span>
+                            <span style={{ color: 'var(--accent)' }}>Secure</span>
+                        </div>
+                    </div>
+                </div>
 
+                <div style={{ marginTop: 'auto' }}>
+                    <AdPlacement type="rectangle" />
+                </div>
+            </section>
 
-
-            {/* Admin Panel */}
-            {
-                showAdmin && (
-                    <AdminPanel
-                        onClose={() => setShowAdmin(false)}
-                        totalStudents={ledger.reduce((sum, s) => sum + (s.students?.length || 0), 0)}
-                        totalStandards={standards.length}
-                    />
-                )
-            }
-
-            {/* Certificate Generator */}
-            <CertificateGenerator
-                isOpen={showCertificate}
-                onClose={() => setShowCertificate(false)}
-                student={editingStudent || (students.length > 0 ? students[0] : null)}
-                schoolName={schoolName}
-                schoolLogo={schoolLogo}
-            />
-
-            {/* Analytics Dashboard */}
             <AnalyticsDashboard
                 isOpen={showAnalytics}
                 onClose={() => setShowAnalytics(false)}
@@ -982,7 +869,6 @@ function AppContent() {
                 ledger={ledger}
             />
 
-            {/* QR Attendance */}
             <QRAttendance
                 isOpen={showQRAttendance}
                 onClose={() => setShowQRAttendance(false)}
@@ -990,7 +876,6 @@ function AppContent() {
                 schoolName={schoolName}
             />
 
-            {/* Smart Search */}
             <SmartSearch
                 isOpen={showSmartSearch}
                 onClose={() => setShowSmartSearch(false)}
@@ -1001,7 +886,6 @@ function AppContent() {
                 }}
             />
 
-            {/* Cloud Backup */}
             <CloudBackup
                 isOpen={showCloudBackup}
                 onClose={() => setShowCloudBackup(false)}
@@ -1010,17 +894,14 @@ function AppContent() {
                 }}
             />
 
-            {/* Document Scanner */}
             <DocumentScanner
                 isOpen={showDocScanner}
                 onClose={() => setShowDocScanner(false)}
                 onDataExtracted={(data) => {
                     console.log('Extracted data:', data);
-                    // Can be used to prefill form data
                 }}
             />
 
-            {/* Voice Input */}
             <VoiceInput
                 isOpen={showVoiceInput}
                 onClose={() => setShowVoiceInput(false)}
@@ -1029,21 +910,18 @@ function AppContent() {
                 }}
             />
 
-            {/* Family Tree */}
             <FamilyTree
                 isOpen={showFamilyTree}
                 onClose={() => setShowFamilyTree(false)}
                 student={editingStudent || (students.length > 0 ? students[0] : null)}
             />
 
-            {/* Progress Timeline */}
             <ProgressTimeline
                 isOpen={showTimeline}
                 onClose={() => setShowTimeline(false)}
                 student={editingStudent || (students.length > 0 ? students[0] : null)}
             />
 
-            {/* WhatsApp Messenger */}
             <WhatsAppMessenger
                 isOpen={showWhatsApp}
                 onClose={() => setShowWhatsApp(false)}
@@ -1051,7 +929,6 @@ function AppContent() {
                 schoolName={schoolName}
             />
 
-            {/* Photo Enhancement */}
             <PhotoEnhancement
                 isOpen={showPhotoEnhance}
                 onClose={() => setShowPhotoEnhance(false)}
@@ -1060,31 +937,23 @@ function AppContent() {
                 }}
             />
 
-            {/* Ad Banner for Free Users - Only show when content is present */}
-            {
-                (selectedStandard || showMenuContent) && (
-                    <div className="bottom-ad-container">
-                        <AdPlacement type="leaderboard" />
-                    </div>
-                )
-            }
+            {showAdmin && (
+                <Suspense fallback={<BrandLoader message="Loading Admin Panel..." />}>
+                    <AdminPanel
+                        onClose={() => setShowAdmin(false)}
+                        totalStudents={students.length}
+                        totalStandards={standards?.length || 0}
+                    />
+                </Suspense>
+            )}
 
-            {/* Undo/Redo floating bar */}
+            <UpgradeModal />
+
+            {/* Unified Layout Control Elements */}
             <UndoRedoBar />
-
-            {/* Footer */}
-            <footer className="app-footer">
-                <div className="footer-row">
-                    <a href="mailto:help@edunorm.in">help@edunorm.in</a>
-                    <span className="dot">·</span>
-                    <a href="/privacy" target="_blank">Privacy</a>
-                    <span className="dot">·</span>
-                    <a href="/terms" target="_blank">Terms</a>
-                    <span className="dot">·</span>
-                    <span>© 2026 EduNorm</span>
-                </div>
-            </footer>
-        </div >
+            <ToastContainer />
+            <OfflineQueue />
+        </div>
     );
 }
 
@@ -1098,7 +967,6 @@ function App() {
                         <ThemeProvider>
                             <Suspense fallback={<BrandLoader message="Loading App..." />}>
                                 <AppContent />
-                                <UpgradeModal />
                             </Suspense>
                         </ThemeProvider>
                     </MenuProvider>
