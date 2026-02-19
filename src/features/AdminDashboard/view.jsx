@@ -4,6 +4,7 @@ import { Shield, X, Key, Copy, Trash2, Check, Star, Users, FileText, Crown, BarC
 import { AdminLogic } from './logic.js';
 import { useUserTier } from '../../contexts/UserTierContext';
 import { useAuth } from '../../contexts/AuthContext';
+import './AdminDashboard.css';
 
 /**
  * SOVEREIGN ADMIN DASHBOARD: VIEW
