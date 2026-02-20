@@ -432,3 +432,260 @@
         border-radius: 16px;
     }
 }
+
+/* ── Full-width sync action buttons (replaces clipping 2-col grid) ── */
+.sync-full-action {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sync-full-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sync-full-action:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.sync-action-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.sync-action-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.sync-action-text strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sync-action-text span {
+    font-size: 0.78rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sync-full-action.primary {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+}
+
+.sync-full-action.primary:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+    transform: translateY(-2px);
+}
+
+.sync-full-action.secondary {
+    background: var(--bg-secondary, #f3f4f6);
+    color: var(--text, #111);
+    border: 1.5px solid var(--border, #e5e7eb);
+}
+
+.sync-full-action.secondary .sync-action-icon {
+    background: var(--border, #e5e7eb);
+}
+
+.sync-full-action.secondary:hover:not(:disabled) {
+    border-color: var(--accent, #6366f1);
+    transform: translateY(-2px);
+}
+
+/* ── Live Layer Verification Panel ── */
+.layer-verify-panel {
+    border-radius: 14px;
+    border: 1.5px solid var(--border, #e5e7eb);
+    padding: 14px 16px;
+    background: var(--bg-secondary, #f9fafb);
+}
+
+.layer-verify-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-soft, #6b7280);
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.layer-verify-stats {
+    font-size: 0.78rem;
+    color: var(--text-soft, #6b7280);
+    margin: 8px 0 0;
+    text-align: center;
+}
+
+/* ── Layer Status Chips ── */
+.layer-status-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.layer-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    flex: 1;
+    min-width: 90px;
+    justify-content: center;
+    border: 1.5px solid var(--border, #e5e7eb);
+}
+
+.layer-name {
+    font-size: 0.75rem;
+}
+
+.layer-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-soft, #9ca3af);
+}
+
+.layer-chip.ok {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+}
+
+.layer-chip.fail {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+.layer-chip.idle {
+    background: var(--bg-secondary, #f3f4f6);
+    color: var(--text-soft, #9ca3af);
+}
+
+/* Dark mode layer chips */
+[data-theme="dark"] .layer-verify-panel,
+.dark .layer-verify-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .sync-full-action.secondary,
+.dark .sync-full-action.secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+}
+
+/* ── Inline Restore Confirm Dialog ── */
+.sync-confirm-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.sync-confirm-box {
+    background: var(--bg, #fff);
+    border-radius: 18px;
+    padding: 24px 20px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.sync-confirm-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.sync-confirm-box h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text, #111);
+    margin: 0 0 8px;
+}
+
+.sync-confirm-box p {
+    font-size: 0.83rem;
+    color: var(--text-soft, #6b7280);
+    margin: 0 0 18px;
+    line-height: 1.5;
+}
+
+.sync-confirm-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.sync-confirm-cancel {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border, #e5e7eb);
+    background: transparent;
+    color: var(--text-soft, #6b7280);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.sync-confirm-ok {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.sync-confirm-ok:hover {
+    opacity: 0.9;
+}
+
+.sync-confirm-cancel:hover {
+    background: var(--bg-secondary, #f3f4f6);
+}
+
+/* Fix: sync-modal needs position:relative for overlay to work */
+.sync-modal {
+    position: relative;
+}

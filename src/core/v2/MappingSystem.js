@@ -22,13 +22,24 @@ export const MappingSystem = {
      */
     async mapToSovereign(rawInput, originVersion = "1.0.0") {
         try {
-            // Step A: Validate mandatory fields (Allow 'settings' to bypass or use 'id')
-            if (rawInput.type !== 'settings' && !rawInput.id && !rawInput.uid && !rawInput.grNo) {
+            // Step A: Validate mandatory fields
+            // Use != null so numeric IDs (0, 1, etc.) from IndexedDB pass through
+            // Settings objects bypass this check entirely
+            const hasIdentifier = rawInput.type === 'settings' ||
+                rawInput.id != null ||
+                rawInput.uid != null ||
+                rawInput.grNo != null;
+
+            if (!hasIdentifier) {
                 throw new Error("CRITICAL_ERR: Missing ID/UID/GRNo for Sovereign Mapping");
             }
 
             // Step B: Generate Blind Search Index (The 'sid')
-            const searchKey = rawInput.email || rawInput.grNo || rawInput.id || rawInput.uid;
+            // Fallback chain: email → grNo → id → uid → timestamp (never null)
+            const searchKey = rawInput.email || rawInput.grNo ||
+                (rawInput.id != null ? String(rawInput.id) : null) ||
+                rawInput.uid ||
+                `fallback_${Date.now()}`;
             const sid = await SovereignCore.getSearchHash(searchKey);
 
             // Step C: Construct the Sovereign Envelope

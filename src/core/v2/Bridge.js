@@ -108,9 +108,14 @@ export const SovereignBridge = {
         let syncCount = 0;
         let failCount = 0;
 
-        if (data.settings) {
+        if (data.settings && data.settings.length > 0) {
             try {
-                await this.save('settings', { settings: data.settings });
+                // Must pass type:'settings' so MappingSystem bypasses the ID check
+                await this.save('settings', {
+                    type: 'settings',
+                    id: 'school_settings',
+                    settings: data.settings
+                });
                 syncCount++;
             } catch (e) {
                 console.warn('Settings sync warning:', e.message);
@@ -122,7 +127,10 @@ export const SovereignBridge = {
         if (data.students && data.students.length > 0) {
             for (let i = 0; i < data.students.length; i += 10) {
                 const chunk = data.students.slice(i, i + 10);
-                const results = await Promise.allSettled(chunk.map(s => this.save('student', s)));
+                // Tag each student with type:'student' so MappingSystem knows how to handle it
+                const results = await Promise.allSettled(
+                    chunk.map(s => this.save('student', { ...s, type: s.type || 'student' }))
+                );
                 syncCount += results.filter(r => r.status === 'fulfilled').length;
                 failCount += results.filter(r => r.status === 'rejected').length;
                 await yieldToMain();
@@ -133,6 +141,7 @@ export const SovereignBridge = {
         console.log(`✅ SovereignBridge: Force Sync Complete. ${syncCount} synced, ${failCount} failed.`);
         return { synced: syncCount, failed: failCount };
     },
+
 
     /**
      * Mapping Blueprint

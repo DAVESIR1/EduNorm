@@ -147,14 +147,40 @@ export function SchoolProfileView({
                         <h1 className="gradient-text" style={{ textAlign: 'center' }}>{schoolName || 'Your School'}</h1>
                         <p className="dim-text" style={{ textAlign: 'center' }}>{udiseNumber ? `UDISE: ${udiseNumber}` : 'Global Education Registry'}</p>
                     </div>
-                </div>
-                <div className="header-actions">
-                    {editMode ? (
-                        <button className="btn btn-primary" onClick={handleSave} disabled={saving}><Save size={18} /> {saving ? 'Saving...' : 'Save'}</button>
-                    ) : (
-                        <button className="btn btn-outline" onClick={() => setEditMode(true)}><Edit size={18} /> Edit Profile</button>
-                    )}
-                    <button className="btn btn-ghost" onClick={() => window.print()}><Printer size={18} /> Print</button>
+                    {/* Edit/Save actions — always visible, centered below logo */}
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginTop: '4px',
+                        width: '100%'
+                    }}>
+                        {editMode ? (
+                            <button
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 22px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+                                onClick={handleSave}
+                                disabled={saving}
+                            >
+                                <Save size={17} /> {saving ? 'Saving...' : 'Save Profile'}
+                            </button>
+                        ) : (
+                            <button
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 22px', borderRadius: '12px', border: '2px solid #6366f1', background: 'transparent', color: '#6366f1', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+                                onClick={() => setEditMode(true)}
+                            >
+                                <Edit size={17} /> Edit Profile
+                            </button>
+                        )}
+                        <button
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'transparent', color: '#6b7280', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
+                            onClick={() => window.print()}
+                        >
+                            <Printer size={17} /> Print
+                        </button>
+                    </div>
                 </div>
             </div>
 

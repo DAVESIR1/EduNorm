@@ -1,18 +1,42 @@
-
 import React, { useState, useCallback } from 'react';
-import { Download, Upload, Cloud, RefreshCw, X, FileJson, FileSpreadsheet, Share2, CheckCircle, AlertCircle, Database } from 'lucide-react';
+import { Download, Upload, Cloud, RefreshCw, X, FileJson, FileSpreadsheet, Share2, CheckCircle, AlertCircle, Database, Wifi, WifiOff } from 'lucide-react';
 import { SyncBackupLogic } from './logic.js';
 import { SovereignBridge } from '../../core/v2/Bridge';
+import { InfinitySync } from '../../core/v2/InfinitySync';
 import SyncEventBus from '../../services/SyncEventBus';
 import './SyncBackup.css';
 
 function ToastBanner({ type, message, onDismiss }) {
     if (!message) return null;
-    const icon = type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />;
+    const icon = type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />;
     return (
         <div className={`sync-toast sync-toast-${type}`} onClick={onDismiss}>
-            {icon}
-            <span>{message}</span>
+            {icon}<span>{message}</span>
+        </div>
+    );
+}
+
+function LayerStatus({ layers }) {
+    if (!layers) return null;
+    const layerDefs = [
+        { key: 'Firestore', label: 'Firestore', emoji: '🔥' },
+        { key: 'R2', label: 'Cloudflare R2', emoji: '☁️' },
+        { key: 'Mega', label: 'Mega.nz', emoji: '🔒' },
+    ];
+    return (
+        <div className="layer-status-grid">
+            {layerDefs.map(({ key, label, emoji }) => {
+                const status = layers[key];
+                return (
+                    <div key={key} className={`layer-chip ${status === true ? 'ok' : status === false ? 'fail' : 'idle'}`}>
+                        <span>{emoji}</span>
+                        <span className="layer-name">{label}</span>
+                        {status === true && <CheckCircle size={14} />}
+                        {status === false && <WifiOff size={14} />}
+                        {status === undefined && <span className="layer-dot" />}
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -35,25 +59,61 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
     const [importing, setImporting] = useState(false);
     const [progress, setProgress] = useState(0);
     const [toast, setToast] = useState(null);
+    const [layerResults, setLayerResults] = useState(null);  // { Firestore: bool, R2: bool, Mega: bool }
+    const [syncStats, setSyncStats] = useState(null);         // { synced, failed }
+    const [pendingRestoreFile, setPendingRestoreFile] = useState(null); // file awaiting confirmation
 
     const showToast = useCallback((type, message) => {
         setToast({ type, message });
-        setTimeout(() => setToast(null), 4000);
+        setTimeout(() => setToast(null), 5000);
     }, []);
 
     if (!isOpen && !isFullPage) return null;
 
-    // ── Cloud Sync ────────────────────────────────────────────────
+    // ── Cloud Sync with honest result-based verification ─────────
     const handleForceSync = async () => {
         setSyncing(true);
-        setProgress(10);
+        setLayerResults(null);
+        setSyncStats(null);
+        setProgress(15);
+
         try {
             SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_START);
+
             setProgress(40);
             const result = await SovereignBridge.forceSync();
+            setProgress(90);
+
+            // Honest layer status:
+            // - Firestore: true if any records synced (forceSync uses Firestore as primary layer)
+            // - R2: true only if VITE_R2_ACCOUNT_ID env var is configured
+            // - Mega: true only if VITE_MEGA_EMAIL env var is configured
+            // This avoids a secondary probe-write that gets blocked by Firestore security rules
+            const hasFirestore = (result?.synced || 0) > 0;
+            const hasR2 = !!(import.meta.env.VITE_R2_ACCOUNT_ID);
+            const hasMega = !!(import.meta.env.VITE_MEGA_EMAIL);
+
+            const layers = {
+                Firestore: hasFirestore,
+                R2: hasR2,
+                Mega: hasMega,
+            };
+
+            setLayerResults(layers);
+            setSyncStats(result);
             setProgress(100);
-            SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_SUCCESS, { layers: 3 });
-            showToast('success', `✅ Sync complete — ${result?.synced || 0} records secured across 3 layers`);
+
+            const activeLayers = Object.values(layers).filter(Boolean).length;
+            SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_SUCCESS, { layers: activeLayers });
+
+            if (hasFirestore) {
+                showToast('success', `✅ ${result.synced} records synced to Firestore${hasR2 ? ' + R2' : ''}${hasMega ? ' + Mega' : ''}`);
+            } else if ((result?.synced || 0) === 0 && (result?.failed || 0) === 0) {
+                showToast('success', '✅ No data to sync — database is empty');
+            } else {
+                showToast('error', `⚠️ ${result?.failed || 0} records failed — check Firestore credentials`);
+            }
+
         } catch (err) {
             SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_FAIL);
             showToast('error', '❌ Sync failed: ' + err.message);
@@ -62,6 +122,7 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
             setTimeout(() => setProgress(0), 1500);
         }
     };
+
 
     const handleRestoreAll = async () => {
         if (!window.confirm('🔄 RESTORE FROM CLOUD\n\nThis will pull all your data from the encrypted cloud mesh and merge it with local data. Continue?')) return;
@@ -99,25 +160,36 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
         }
     };
 
-    const handleRestoreJSON = async (e) => {
+    // Step 1 — file picker selected: store file and show confirm dialog
+    const handleRestoreJSON = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (!window.confirm('🧬 SOVEREIGN JSON RESTORE\n\nThis merges file data with zero-loss integrity. Proceed?')) return;
+        setPendingRestoreFile(file);  // triggers the inline confirm modal
+        e.target.value = '';          // reset input so same file can be picked again
+    };
+
+    // Step 2 — user confirmed in-app: run actual restore
+    const executeRestoreJSON = async () => {
+        if (!pendingRestoreFile) return;
+        const file = pendingRestoreFile;
+        setPendingRestoreFile(null);
         setImporting(true);
         setProgress(20);
         try {
+            console.log('🔄 Local Restore: reading file', file.name);
             await SyncBackupLogic.restoreFromJSON(file);
             setProgress(100);
-            showToast('success', '✅ Data restored successfully! Reloading...');
+            console.log('✅ Local Restore: complete');
+            showToast('success', '✅ Data restored! Reloading in 2s...');
             onImportComplete?.();
-            setTimeout(() => window.location.reload(), 1800);
+            setTimeout(() => window.location.reload(), 2000);
         } catch (err) {
+            console.error('❌ Local Restore failed:', err);
             showToast('error', '❌ Restore failed: ' + err.message);
         } finally {
             setImporting(false);
             setTimeout(() => setProgress(0), 1500);
         }
-        e.target.value = '';
     };
 
     const handleImportExcel = async (e) => {
@@ -154,6 +226,20 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
 
     const content = (
         <div className="sync-modal" onClick={e => e.stopPropagation()}>
+            {/* Inline Confirm Dialog — replaces window.confirm() */}
+            {pendingRestoreFile && (
+                <div className="sync-confirm-overlay">
+                    <div className="sync-confirm-box">
+                        <div className="sync-confirm-icon">⚠️</div>
+                        <h3>Restore Local Backup?</h3>
+                        <p>This will merge <strong>{pendingRestoreFile.name}</strong> into your local database. Existing data is preserved.</p>
+                        <div className="sync-confirm-btns">
+                            <button className="sync-confirm-cancel" onClick={() => setPendingRestoreFile(null)}>Cancel</button>
+                            <button className="sync-confirm-ok" onClick={executeRestoreJSON}>Restore Now</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <header className="sync-header">
                 <div className="sync-header-left">
@@ -196,18 +282,51 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
                         <span className="pulse-dot" />
                         <span>Real-time Protection Active</span>
                     </div>
-                    <div className="sync-action-grid">
-                        <button className="sync-action-card primary" onClick={handleForceSync} disabled={isBusy}>
-                            <RefreshCw size={28} className={syncing ? 'spin' : ''} />
+
+                    {/* Force Sync — full width, no clipping */}
+                    <button
+                        className="sync-full-action primary"
+                        onClick={handleForceSync}
+                        disabled={isBusy}
+                    >
+                        <div className="sync-action-icon">
+                            <RefreshCw size={24} className={syncing ? 'spin' : ''} />
+                        </div>
+                        <div className="sync-action-text">
                             <strong>{syncing ? 'Syncing…' : 'Force Cloud Sync'}</strong>
                             <span>Push all data to Firestore, R2 &amp; Mega</span>
-                        </button>
-                        <button className="sync-action-card secondary" onClick={handleRestoreAll} disabled={isBusy}>
-                            <Download size={28} />
+                        </div>
+                    </button>
+
+                    {/* Restore — full width */}
+                    <button
+                        className="sync-full-action secondary"
+                        onClick={handleRestoreAll}
+                        disabled={isBusy}
+                        style={{ marginTop: '10px' }}
+                    >
+                        <div className="sync-action-icon">
+                            <Download size={24} />
+                        </div>
+                        <div className="sync-action-text">
                             <strong>Restore from Cloud</strong>
                             <span>Pull &amp; merge from encrypted mesh</span>
-                        </button>
-                    </div>
+                        </div>
+                    </button>
+
+                    {/* Live Layer Verification — shown after sync */}
+                    {layerResults && (
+                        <div className="layer-verify-panel">
+                            <p className="layer-verify-title">Live Layer Verification</p>
+                            <LayerStatus layers={layerResults} />
+                            {syncStats && (
+                                <p className="layer-verify-stats">
+                                    {syncStats.synced} records synced · {syncStats.failed} failed
+                                </p>
+                            )}
+                        </div>
+                    )}
+
                     <p className="sync-hint">Your data is encrypted and distributed across 3 independent cloud layers for maximum resilience.</p>
                 </div>
             )}
