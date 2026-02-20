@@ -92,31 +92,46 @@ export const SovereignBridge = {
     /**
      * Force Synchronization
      * Manually triggers a full tri-layer sync.
+     * Uses static named imports to avoid the dynamic-import default-export crash.
      */
     async forceSync() {
-        const { default: db } = await import('../../services/database');
-        const data = await db.exportAllData();
+        // Use named exports directly — database.js has no default export
+        const { exportAllData, importAllData } = await import('../../services/database');
+        const data = await exportAllData();
+
+        if (!data) throw new Error('exportAllData returned nothing — IndexedDB may be empty.');
+
         const yieldToMain = () => new Promise(resolve => setTimeout(resolve, 0));
 
         console.log(`🚀 SovereignBridge: Starting Force Sync (${data.students?.length || 0} students)...`);
 
+        let syncCount = 0;
+        let failCount = 0;
+
         if (data.settings) {
-            await this.save('settings', data.settings);
+            try {
+                await this.save('settings', { settings: data.settings });
+                syncCount++;
+            } catch (e) {
+                console.warn('Settings sync warning:', e.message);
+                failCount++;
+            }
             await yieldToMain();
         }
 
         if (data.students && data.students.length > 0) {
-            // Process students in blocks of 10 to keep browser responsive
             for (let i = 0; i < data.students.length; i += 10) {
                 const chunk = data.students.slice(i, i + 10);
-                await Promise.all(chunk.map(s => this.save('student', s)));
+                const results = await Promise.allSettled(chunk.map(s => this.save('student', s)));
+                syncCount += results.filter(r => r.status === 'fulfilled').length;
+                failCount += results.filter(r => r.status === 'rejected').length;
                 await yieldToMain();
-                if (i % 50 === 0) console.log(`Syncing: ${i}/${data.students.length}...`);
+                if (i % 50 === 0 && i > 0) console.log(`Syncing: ${i}/${data.students.length}...`);
             }
         }
 
-        console.log("✅ SovereignBridge: Force Sync Complete.");
-        return true;
+        console.log(`✅ SovereignBridge: Force Sync Complete. ${syncCount} synced, ${failCount} failed.`);
+        return { synced: syncCount, failed: failCount };
     },
 
     /**

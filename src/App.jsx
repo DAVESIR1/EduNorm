@@ -388,6 +388,7 @@ function AppContent() {
                     schoolLogo={schoolLogo}
                 /></ComponentErrorBoundary>;
             case 'backup-restore':
+            case 'cloud-backup':
                 return <ComponentErrorBoundary componentName="Backup & Restore"><BackupRestore
                     isOpen={true}
                     isFullPage={true}
@@ -707,10 +708,13 @@ function AppContent() {
                             background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
-                            fontWeight: 800,
-                            fontSize: '1.1rem',
-                            letterSpacing: '0.05em',
-                            fontFamily: "'Inter', system-ui, sans-serif"
+                            backgroundClip: 'text',
+                            fontWeight: 900,
+                            fontSize: '1.25rem',
+                            letterSpacing: '0.08em',
+                            fontFamily: "'Inter', system-ui, sans-serif",
+                            userSelect: 'none',
+                            filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.25))'
                         }}>edunorm</span>
                     </div>
 
@@ -818,15 +822,16 @@ function AppContent() {
                             try {
                                 setSyncStatus('syncing');
                                 SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_START);
-                                await SovereignBridge.forceSync();
+                                const result = await SovereignBridge.forceSync();
+                                const layers = result?.synced > 0 ? 3 : 1;
                                 setSyncStatus('success');
-                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_SUCCESS, { layers: 3 });
-                                toast.sync(3, 3);
+                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_SUCCESS, { layers });
+                                toast.success(`Sync complete — ${result?.synced || 0} records secured`);
                                 setTimeout(() => setSyncStatus(null), 3000);
                             } catch (error) {
                                 setSyncStatus('error');
                                 SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_FAIL);
-                                toast.error('Sync failed', error.message);
+                                toast.error('Sync failed: ' + error.message);
                                 setTimeout(() => setSyncStatus(null), 3000);
                             }
                         }}

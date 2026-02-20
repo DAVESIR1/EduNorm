@@ -8,13 +8,12 @@
     align-items: center;
     width: 65px;
     height: 100%;
-    background: var(--card);
-    backdrop-filter: var(--blur);
-    -webkit-backdrop-filter: var(--blur);
+    /* Solid, opaque background — no white column bleed */
+    background: var(--bg, #ffffff);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 12px 0;
-    box-shadow: var(--shadow);
+    box-shadow: none;
     z-index: 100;
     overflow: visible;
     gap: 4px;
@@ -146,15 +145,13 @@
 }
 
 .rail-flyout>.flyout-inner {
-    background: var(--card);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    /* Solid background — prevents main content text from bleeding through */
+    background: var(--bg, #ffffff);
     border: 1px solid var(--border);
     border-radius: 16px;
     box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.15),
-        0 4px 12px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        0 12px 40px rgba(0, 0, 0, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 8px;
     overflow: hidden;
 }
@@ -335,7 +332,9 @@
         padding: 4px 8px;
         z-index: 200;
         gap: 0;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+        /* Solid on mobile too — no transparency */
+        background: var(--bg, #ffffff);
+        box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.12);
     }
 
     .rail-logo {

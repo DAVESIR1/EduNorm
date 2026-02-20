@@ -125,8 +125,9 @@ export const InfinitySync = {
         if (!mega) return false;
         let v2Folder = mega.root.children?.find(f => f.name === 'EduNorm_V2');
         if (!v2Folder) v2Folder = await mega.root.mkdir('EduNorm_V2');
-        const buffer = Buffer.from(JSON.stringify(env));
-        await v2Folder.upload(`${env.header.sid}.enorm`, buffer).complete;
+        // Use TextEncoder instead of Buffer.from (Buffer is Node.js only, not available in browsers)
+        const encoded = new TextEncoder().encode(JSON.stringify(env));
+        await v2Folder.upload(`${env.header.sid}.enorm`, encoded).complete;
         return true;
     },
 
