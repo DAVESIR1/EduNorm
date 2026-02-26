@@ -54,11 +54,11 @@ const noCrossFeatureImport = {
     },
 
     create(context) {
-        const filename = context.getFilename().replace(/\\/g, '/');
-        const srcIndex = filename.lastIndexOf('/src/');
+        const filename = context.filename || context.getFilename();
+        const srcIndex = filename.replace(/\\/g, '/').lastIndexOf('/src/');
         if (srcIndex === -1) return {}; // Not in src/ — skip
 
-        const relativePath = filename.substring(srcIndex + 1); // e.g. src/features/StudentManagement/view.jsx
+        const relativePath = filename.substring(srcIndex + 1).replace(/\\/g, '/'); // e.g. src/features/StudentManagement/view.jsx
 
         // Only enforce for files inside src/features/
         const featureMatch = relativePath.match(/^src\/features\/([^/]+)\//);

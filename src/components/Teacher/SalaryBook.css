@@ -16,7 +16,7 @@
 .salary-header h2 {
     margin: 0;
     font-size: 24px;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .salary-controls {
@@ -30,7 +30,7 @@
     border-radius: 10px;
     font-size: 14px;
     background: var(--surface-color, white);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
     min-width: 200px;
 }
 
@@ -86,7 +86,7 @@
 
 .month-name {
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .amount.earnings {
@@ -98,7 +98,7 @@
 }
 
 .amount.net {
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
     font-weight: 600;
 }
 
@@ -127,7 +127,7 @@
 
 .btn-icon-sm:hover {
     background: var(--hover-bg, #f3f4f6);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 /* Month Edit Form */
@@ -192,7 +192,7 @@
     display: block;
     font-size: 13px;
     font-weight: 500;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
     margin-bottom: 6px;
 }
 
@@ -219,11 +219,11 @@
     border: 2px solid var(--border-color, #e5e7eb);
     font-size: 14px;
     background: var(--input-bg, white);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .currency-input .input-field:focus {
-    border-color: #8B5CF6;
+    border-color: #e07b67;
     outline: none;
 }
 
@@ -269,7 +269,7 @@
 }
 
 .summary-item.net span:last-child {
-    color: #8B5CF6;
+    color: #e07b67;
 }
 
 /* Form Actions */
@@ -296,13 +296,13 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    background: linear-gradient(135deg, #e07b67, #c9604b);
     color: white;
 }
 
 .btn-secondary {
     background: var(--hover-bg, #f3f4f6);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .btn-accent {
@@ -323,7 +323,7 @@
 .salary-slip {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
+    background: var(--card-strong, rgba(255,255,255,0.55));
     padding: 40px;
     border-radius: 16px;
     border: 1px solid #e5e7eb;
@@ -333,7 +333,7 @@
     text-align: center;
     margin-bottom: 32px;
     padding-bottom: 24px;
-    border-bottom: 2px solid #1f2937;
+    border-bottom: 2px solid var(--card, rgba(15,23,20,0.4));
 }
 
 .slip-header h2 {
@@ -405,7 +405,7 @@
 
 /* Dark Theme */
 [data-theme="dark"] .salary-table {
-    background: #1f2937;
+    background: var(--card, rgba(15,23,20,0.4));
 }
 
 [data-theme="dark"] .salary-table th {
@@ -413,7 +413,7 @@
 }
 
 [data-theme="dark"] .month-edit-form {
-    background: #1f2937;
+    background: var(--card, rgba(15,23,20,0.4));
     border-color: #374151;
 }
 
@@ -433,11 +433,11 @@
 }
 
 [data-theme="dark"] .summary-item {
-    background: #1f2937;
+    background: var(--card, rgba(15,23,20,0.4));
 }
 
 [data-theme="dark"] .salary-slip {
-    background: #1f2937;
+    background: var(--card, rgba(15,23,20,0.4));
     border-color: #374151;
 }
 

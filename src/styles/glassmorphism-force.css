@@ -1,0 +1,1263 @@
+/* ═══════════════════════════════════════════════════════════════
+   GLASSMORPHISM FORCE — COMPREHENSIVE DEEP FIX
+   
+   Pure CSS gradient bg + animated blobs
+   No window partitions. No duplicate layers.
+   Sidebar & nav = transparent (floating icons/text)
+   Logo colors preserved. All submenus themed.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   UNIVERSAL RESET — kill ALL inherited glass
+   Then re-enable ONLY on the specific glass containers below.
+   ════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* ════════════════════════════════════════════
+   ANIMATED BLOB KEYFRAMES
+   ════════════════════════════════════════════ */
+@keyframes blob-drift-1 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(80px, -60px) scale(1.12);
+    }
+
+    50% {
+        transform: translate(-40px, 80px) scale(0.92);
+    }
+
+    75% {
+        transform: translate(60px, 40px) scale(1.05);
+    }
+}
+
+@keyframes blob-drift-2 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    20% {
+        transform: translate(-70px, 50px) scale(1.15);
+    }
+
+    40% {
+        transform: translate(50px, -80px) scale(0.88);
+    }
+
+    60% {
+        transform: translate(-30px, -30px) scale(1.08);
+    }
+
+    80% {
+        transform: translate(60px, 70px) scale(0.95);
+    }
+}
+
+@keyframes blob-drift-3 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(90px, 60px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-80px, -50px) scale(0.9);
+    }
+}
+
+@keyframes blob-drift-4 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(-50px, -70px) scale(1.08) rotate(5deg);
+    }
+
+    50% {
+        transform: translate(70px, 30px) scale(0.93) rotate(-3deg);
+    }
+
+    75% {
+        transform: translate(-30px, 60px) scale(1.05) rotate(2deg);
+    }
+}
+
+/* ════════════════════════════════════════════
+   BODY — CSS GRADIENT + FLOATING BLOBS
+   ════════════════════════════════════════════ */
+html {
+    min-height: 100vh !important;
+}
+
+body {
+    background: linear-gradient(135deg, #fce4d6 0%, #f8c4b4 25%, #f4a08a 50%, #f8b4c8 75%, #fce4d6 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
+}
+
+body::before {
+    content: '' !important;
+    position: fixed !important;
+    width: 550px !important;
+    height: 550px !important;
+    background: radial-gradient(circle, rgba(244, 160, 138, 0.6) 0%, rgba(248, 196, 180, 0.3) 40%, transparent 70%) !important;
+    top: -8% !important;
+    right: -5% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: blob-drift-1 20s ease-in-out infinite !important;
+}
+
+body::after {
+    content: '' !important;
+    position: fixed !important;
+    width: 480px !important;
+    height: 480px !important;
+    background: radial-gradient(circle, rgba(232, 145, 122, 0.5) 0%, rgba(244, 114, 182, 0.2) 40%, transparent 70%) !important;
+    bottom: -8% !important;
+    left: -3% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: blob-drift-2 25s ease-in-out infinite !important;
+}
+
+#root::before {
+    content: '' !important;
+    position: fixed !important;
+    width: 400px !important;
+    height: 400px !important;
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.35) 0%, rgba(252, 211, 77, 0.15) 40%, transparent 70%) !important;
+    top: 40% !important;
+    left: 55% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: blob-drift-3 22s ease-in-out infinite !important;
+}
+
+#root::after {
+    content: '' !important;
+    position: fixed !important;
+    width: 350px !important;
+    height: 350px !important;
+    background: radial-gradient(circle, rgba(196, 181, 253, 0.25) 0%, rgba(232, 121, 249, 0.1) 40%, transparent 70%) !important;
+    top: 15% !important;
+    left: -2% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: blob-drift-4 18s ease-in-out infinite !important;
+}
+
+#root {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* ════════════════════════════════════════════
+   ALL CONTAINERS — TRANSPARENT, NO PARTITIONS
+   ════════════════════════════════════════════ */
+.bento-container,
+.main-feed,
+.right-panel,
+.main-content,
+.dashboard-grid,
+.menu-content-area,
+.menu-content-full-width,
+.form-container,
+.empty-state,
+.footer-glass {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* ════════════════════════════════════════════
+   SIDEBAR & NAV — NO BOXES, just floating icons
+   ════════════════════════════════════════════ */
+.sidebar-rail {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.sidebar-rail .rail-icon,
+.sidebar-rail .rail-icon svg,
+.sidebar-rail .rail-icon-btn,
+.sidebar-rail .rail-icon-btn svg {
+    color: #4a2e1e !important;
+    stroke: #4a2e1e !important;
+    opacity: 0.85 !important;
+}
+
+.nav-master {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* ════════════════════════════════════════════
+   LOGO — PRESERVE ORIGINAL COLORS
+   Never override .brand-letter colors
+   ════════════════════════════════════════════ */
+.brand-logo-container,
+.brand-logo-container *,
+.brand-letter,
+.letter-e,
+.letter-d,
+.letter-u,
+.letter-n,
+.letter-o,
+.letter-r,
+.letter-m,
+.brand-dot {
+    color: unset !important;
+}
+
+/* Re-apply the original letter colors explicitly */
+.letter-e {
+    color: #db2777 !important;
+}
+
+.letter-d {
+    color: #0891b2 !important;
+}
+
+.letter-u {
+    color: #d97706 !important;
+}
+
+.letter-n {
+    color: #c9604b !important;
+}
+
+.letter-o {
+    color: #059669 !important;
+}
+
+.letter-r {
+    color: #dc2626 !important;
+}
+
+.letter-m {
+    color: #c9604b !important;
+}
+
+/* ════════════════════════════════════════════
+   GLASS BOXES — only these elements get glass
+   ════════════════════════════════════════════ */
+
+/* Main content glass panel — full height */
+.main-feed>.glass-panel {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 8px 32px rgba(180, 100, 80, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+    min-height: calc(100vh - 100px) !important;
+}
+
+/* Right panel standalone cards */
+.right-panel>.sovereign-card,
+.right-panel>div>.sovereign-card,
+.right-panel>section>.sovereign-card {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px rgba(180, 100, 80, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Right panel system integrity */
+.right-panel .glass-panel {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 16px rgba(180, 100, 80, 0.04) !important;
+}
+
+/* Right panel h4 headings (e.g. System Integrity) */
+.right-panel h4 {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 14px !important;
+    padding: 10px 16px !important;
+    display: inline-block !important;
+}
+
+/* Ad container */
+.ad-container {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 18px !important;
+}
+
+/* Flyout panel */
+.rail-flyout>.flyout-inner {
+    background: rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 20px 60px rgba(180, 100, 80, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Modals */
+.modal-content,
+.password-modal-content,
+.password-modal {
+    background: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 20px 60px rgba(180, 100, 80, 0.12) !important;
+}
+
+.modal-overlay,
+.password-modal-overlay {
+    background: rgba(92, 61, 46, 0.2) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Sync toast */
+.sync-toast {
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 16px !important;
+}
+
+/* ════════════════════════════════════════════
+   COMPONENT GLASS — StepWizard, Menu, etc.
+   These components draw their own boxes
+   ════════════════════════════════════════════ */
+
+/* Step Wizard */
+.step-wizard {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 8px 24px rgba(180, 100, 80, 0.06) !important;
+}
+
+.wizard-header {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.15), rgba(244, 162, 122, 0.1)) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.wizard-footer {
+    background: transparent !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Menu sections inside flyouts */
+.menu-section {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+}
+
+.menu-header {
+    background: transparent !important;
+    color: #3d2518 !important;
+    border-left-color: rgba(224, 123, 103, 0.6) !important;
+}
+
+.menu-header:hover {
+    background: rgba(224, 123, 103, 0.08) !important;
+}
+
+.menu-item {
+    color: #3d2518 !important;
+}
+
+.menu-item:hover:not(.disabled) {
+    background: rgba(224, 123, 103, 0.08) !important;
+}
+
+.menu-item.active {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.8), rgba(201, 96, 75, 0.8)) !important;
+    color: white !important;
+}
+
+/* DataStep / InputField */
+.data-step,
+.input-group,
+.field-group {
+    background: transparent !important;
+}
+
+/* ProfileCard, IdCard */
+.profile-card,
+.id-card-container {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+}
+
+/* Admin Dashboard, General Register, Ledger */
+.admin-dashboard,
+.general-register,
+.ledger-search {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+}
+
+/* Settings, HOI, Staff */
+.hoi-diary,
+.staff-info,
+.class-management,
+.salary-book {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+}
+
+/* Feature pages */
+.analytics-dashboard,
+.certificate-generator,
+.smart-search,
+.voice-input,
+.qr-attendance,
+.whatsapp-messenger,
+.family-tree,
+.progress-timeline,
+.document-scanner,
+.photo-enhancement {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+}
+
+/* Coming Soon page */
+.coming-soon-page {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+}
+
+/* Backup/Cloud pages */
+.backup-restore,
+.cloud-backup,
+.drive-backup {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 22px !important;
+}
+
+/* ════════════════════════════════════════════
+   STANDALONE BUTTONS & INPUTS (outside glass)
+   Only when NOT inside a glass container
+   ════════════════════════════════════════════ */
+.btn-sovereign,
+button.btn {
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    border-radius: 14px !important;
+    color: #3d2518 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-sovereign:hover,
+button.btn:hover {
+    background: rgba(255, 255, 255, 0.45) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #e8917a, #d4705a) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+input,
+select,
+textarea,
+.input-field {
+    background: rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    border-radius: 14px !important;
+    color: #3d2518 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: rgba(224, 123, 103, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.12) !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(61, 37, 24, 0.4) !important;
+}
+
+/* Step items */
+.step-item {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.55), rgba(244, 160, 138, 0.45)) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 14px !important;
+    color: white !important;
+}
+
+/* ════════════════════════════════════════════
+   ███ ANTI-DOUBLE-LAYER — THE CORE RULE ███
+   
+   Anything inside a glass container = NO GLASS
+   This covers ALL nesting combinations.
+   ════════════════════════════════════════════ */
+
+/* Universal: any element with backdrop-filter inside a glass parent = strip it */
+.glass-panel button,
+.glass-panel .btn-sovereign,
+.glass-panel .btn,
+.glass-panel input,
+.glass-panel select,
+.glass-panel textarea,
+.glass-panel .step-item,
+.glass-panel .badge,
+.glass-panel .status-badge,
+.glass-panel .sovereign-card,
+.sovereign-card button,
+.sovereign-card .btn-sovereign,
+.sovereign-card .btn,
+.sovereign-card input,
+.sovereign-card select,
+.sovereign-card .badge,
+.nav-master button,
+.nav-master .btn-sovereign,
+.nav-master .btn,
+.nav-master input,
+.ad-container button,
+.ad-container .btn,
+.ad-container .badge,
+.ad-container>*,
+.ad-container div,
+.modal-content button,
+.modal-content .btn,
+.modal-content input,
+.modal-content select,
+.modal-content textarea,
+.password-modal button,
+.password-modal input,
+.rail-flyout button,
+.rail-flyout .btn,
+.rail-flyout input,
+.step-wizard button,
+.step-wizard .btn,
+.step-wizard input,
+.step-wizard select,
+.step-wizard textarea,
+.profile-card button,
+.profile-card input,
+.admin-dashboard button,
+.admin-dashboard input,
+.general-register button,
+.general-register input,
+.coming-soon-page button {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Nested elements — just tints, no glass */
+.glass-panel button,
+.glass-panel .btn-sovereign,
+.sovereign-card button,
+.sovereign-card .btn-sovereign,
+.nav-master button,
+.nav-master .btn-sovereign {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+}
+
+.glass-panel button:hover,
+.sovereign-card button:hover,
+.nav-master button:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Primary buttons inside glass = solid */
+.glass-panel .btn-primary,
+.sovereign-card .btn-primary,
+.nav-master .btn-primary,
+.step-wizard .btn-primary,
+.modal-content .btn-primary {
+    background: linear-gradient(135deg, #e8917a, #d4705a) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* Inputs inside glass = tinted */
+.glass-panel input,
+.glass-panel select,
+.glass-panel textarea,
+.sovereign-card input,
+.modal-content input,
+.modal-content select,
+.modal-content textarea,
+.step-wizard input,
+.step-wizard select,
+.step-wizard textarea {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+}
+
+/* Sovereign card inside glass-panel = tint only */
+.glass-panel .sovereign-card {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.1), rgba(244, 162, 122, 0.06)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: none !important;
+}
+
+/* Step items inside glass = no blur */
+.glass-panel .step-item {
+    box-shadow: none !important;
+}
+
+/* Ad internals = transparent */
+.ad-container>*,
+.ad-container div {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.ad-container button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 12px !important;
+}
+
+/* Badges inside glass = flat */
+.glass-panel .badge,
+.glass-panel .status-badge,
+.sovereign-card .badge,
+.ad-container .badge {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ════════════════════════════════════════════
+   TEXT COLORS — SURGICAL (exclude brand)
+   ════════════════════════════════════════════ */
+
+/* Main content text — dark brown */
+.main-feed h1,
+.main-feed h2,
+.main-feed h3,
+.main-feed p,
+.main-feed label,
+.main-feed li,
+.main-feed td,
+.main-feed th {
+    color: #3d2518 !important;
+}
+
+/* Explicit exclude for h4 which might be inside brand */
+.main-feed h4 {
+    color: #3d2518 !important;
+}
+
+/* Spans — only direct content spans, NOT brand or icon spans */
+.main-feed>.glass-panel span:not(.brand-letter):not(.brand-dot):not([class*="letter-"]) {
+    color: #3d2518 !important;
+}
+
+/* Right panel text */
+.right-panel h1,
+.right-panel h2,
+.right-panel h3,
+.right-panel h4,
+.right-panel p,
+.right-panel label,
+.right-panel span:not(.brand-letter):not(.brand-dot):not([class*="letter-"]) {
+    color: #3d2518 !important;
+}
+
+/* Nav buttons text — dark but NOT brand spans */
+.nav-master button {
+    color: #3d2518 !important;
+}
+
+/* Flyout text */
+.flyout-inner {
+    color: #3d2518 !important;
+}
+
+.flyout-btn {
+    color: #3d2518 !important;
+}
+
+.flyout-header {
+    color: rgba(61, 37, 24, 0.6) !important;
+}
+
+/* Menu text */
+.menu-header {
+    color: #3d2518 !important;
+}
+
+.menu-item {
+    color: #3d2518 !important;
+}
+
+.menu-fullname {
+    color: rgba(61, 37, 24, 0.5) !important;
+}
+
+/* Scrollbar */
+*::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(224, 123, 103, 0.2) !important;
+    border-radius: 10px !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(224, 123, 103, 0.35) !important;
+}
+
+::selection {
+    background: rgba(224, 123, 103, 0.2) !important;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   ██████   █████  ██████  ██   ██    ████████ ██   ██
+   ██   ██ ██   ██ ██   ██ ██  ██        ██    ██   ██
+   ██   ██ ███████ ██████  █████         ██    ███████
+   ██   ██ ██   ██ ██   ██ ██  ██        ██    ██   ██
+   ██████  ██   ██ ██   ██ ██   ██       ██    ██   ██
+   
+   DARK MODE — Deep charcoal + warm glow
+   Opaque glass. Bright text. Logo colors preserved.
+   ══════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] body,
+html[data-theme="dark"] body {
+    background: linear-gradient(135deg, #0f1a14 0%, #152018 25%, #0d1510 50%, #1a2520 75%, #0f1a14 100%) !important;
+    background-attachment: fixed !important;
+}
+
+[data-theme="dark"] body::before {
+    background: radial-gradient(circle, rgba(224, 123, 103, 0.12) 0%, rgba(201, 96, 75, 0.05) 40%, transparent 70%) !important;
+}
+
+[data-theme="dark"] body::after {
+    background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, rgba(16, 185, 129, 0.03) 40%, transparent 70%) !important;
+}
+
+[data-theme="dark"] #root::before {
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.06) 0%, transparent 60%) !important;
+}
+
+[data-theme="dark"] #root::after {
+    background: radial-gradient(circle, rgba(224, 123, 103, 0.08) 0%, transparent 60%) !important;
+}
+
+/* Dark sidebar & nav — transparent */
+[data-theme="dark"] .sidebar-rail {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .sidebar-rail .rail-icon,
+[data-theme="dark"] .sidebar-rail .rail-icon svg,
+[data-theme="dark"] .sidebar-rail .rail-icon-btn,
+[data-theme="dark"] .sidebar-rail .rail-icon-btn svg {
+    color: #b8ccc0 !important;
+    stroke: #b8ccc0 !important;
+}
+
+[data-theme="dark"] .nav-master {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Dark glass panel */
+[data-theme="dark"] .main-feed>.glass-panel {
+    background: rgba(12, 20, 16, 0.6) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Dark right panel cards */
+[data-theme="dark"] .right-panel>.sovereign-card,
+[data-theme="dark"] .right-panel>div>.sovereign-card,
+[data-theme="dark"] .right-panel>section>.sovereign-card {
+    background: rgba(12, 20, 16, 0.6) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .right-panel h4 {
+    background: rgba(12, 20, 16, 0.6) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .right-panel .glass-panel {
+    background: rgba(12, 20, 16, 0.55) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Dark ad */
+[data-theme="dark"] .ad-container {
+    background: rgba(12, 20, 16, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Dark flyout */
+[data-theme="dark"] .rail-flyout>.flyout-inner {
+    background: rgba(12, 20, 16, 0.75) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark modals */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .password-modal-content,
+[data-theme="dark"] .password-modal {
+    background: rgba(12, 20, 16, 0.75) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="dark"] .modal-overlay,
+[data-theme="dark"] .password-modal-overlay {
+    background: rgba(5, 10, 8, 0.5) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Dark component glass */
+[data-theme="dark"] .step-wizard {
+    background: rgba(12, 20, 16, 0.6) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .wizard-header {
+    background: rgba(224, 123, 103, 0.06) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .id-card-container,
+[data-theme="dark"] .admin-dashboard,
+[data-theme="dark"] .general-register,
+[data-theme="dark"] .ledger-search,
+[data-theme="dark"] .hoi-diary,
+[data-theme="dark"] .staff-info,
+[data-theme="dark"] .class-management,
+[data-theme="dark"] .salary-book,
+[data-theme="dark"] .analytics-dashboard,
+[data-theme="dark"] .certificate-generator,
+[data-theme="dark"] .smart-search,
+[data-theme="dark"] .voice-input,
+[data-theme="dark"] .qr-attendance,
+[data-theme="dark"] .whatsapp-messenger,
+[data-theme="dark"] .family-tree,
+[data-theme="dark"] .progress-timeline,
+[data-theme="dark"] .document-scanner,
+[data-theme="dark"] .photo-enhancement,
+[data-theme="dark"] .backup-restore,
+[data-theme="dark"] .cloud-backup,
+[data-theme="dark"] .drive-backup,
+[data-theme="dark"] .coming-soon-page {
+    background: rgba(12, 20, 16, 0.6) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Dark menu */
+[data-theme="dark"] .menu-section {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="dark"] .menu-header {
+    color: #d4e4d8 !important;
+    border-left-color: rgba(224, 123, 103, 0.4) !important;
+}
+
+[data-theme="dark"] .menu-header:hover {
+    background: rgba(224, 123, 103, 0.06) !important;
+}
+
+[data-theme="dark"] .menu-item {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .menu-item:hover:not(.disabled) {
+    background: rgba(224, 123, 103, 0.06) !important;
+}
+
+[data-theme="dark"] .menu-item.active {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.6), rgba(201, 96, 75, 0.6)) !important;
+    color: white !important;
+}
+
+/* Dark buttons (standalone) */
+[data-theme="dark"] .btn-sovereign,
+[data-theme="dark"] button.btn {
+    background: rgba(12, 20, 16, 0.45) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .btn-primary {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.65), rgba(201, 96, 75, 0.65)) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* Dark inputs (standalone) */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .input-field {
+    background: rgba(12, 20, 16, 0.45) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: rgba(180, 200, 190, 0.4) !important;
+}
+
+/* Dark step items */
+[data-theme="dark"] .step-item {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.25), rgba(201, 96, 75, 0.18)) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Dark sync toast */
+[data-theme="dark"] .sync-toast {
+    background: rgba(12, 20, 16, 0.6) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* ─── DARK ANTI-DOUBLE LAYER ─── */
+[data-theme="dark"] .glass-panel button,
+[data-theme="dark"] .glass-panel input,
+[data-theme="dark"] .glass-panel select,
+[data-theme="dark"] .glass-panel textarea,
+[data-theme="dark"] .glass-panel .step-item,
+[data-theme="dark"] .glass-panel .sovereign-card,
+[data-theme="dark"] .sovereign-card button,
+[data-theme="dark"] .sovereign-card input,
+[data-theme="dark"] .nav-master button,
+[data-theme="dark"] .ad-container button,
+[data-theme="dark"] .ad-container>*,
+[data-theme="dark"] .ad-container div,
+[data-theme="dark"] .modal-content button,
+[data-theme="dark"] .modal-content input,
+[data-theme="dark"] .step-wizard button,
+[data-theme="dark"] .step-wizard input,
+[data-theme="dark"] .step-wizard select,
+[data-theme="dark"] .step-wizard textarea {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="dark"] .glass-panel button,
+[data-theme="dark"] .sovereign-card button,
+[data-theme="dark"] .nav-master button {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .glass-panel .btn-primary,
+[data-theme="dark"] .sovereign-card .btn-primary,
+[data-theme="dark"] .nav-master .btn-primary,
+[data-theme="dark"] .step-wizard .btn-primary {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.65), rgba(201, 96, 75, 0.65)) !important;
+}
+
+[data-theme="dark"] .glass-panel input,
+[data-theme="dark"] .sovereign-card input,
+[data-theme="dark"] .modal-content input,
+[data-theme="dark"] .step-wizard input {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .glass-panel .sovereign-card {
+    background: rgba(224, 123, 103, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="dark"] .ad-container>*,
+[data-theme="dark"] .ad-container div {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .ad-container button {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ─── DARK TEXT — surgical, brand excluded ─── */
+[data-theme="dark"] .main-feed h1,
+[data-theme="dark"] .main-feed h2,
+[data-theme="dark"] .main-feed h3,
+[data-theme="dark"] .main-feed h4,
+[data-theme="dark"] .main-feed p,
+[data-theme="dark"] .main-feed label,
+[data-theme="dark"] .main-feed li,
+[data-theme="dark"] .main-feed td,
+[data-theme="dark"] .main-feed th {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .main-feed>.glass-panel span:not(.brand-letter):not(.brand-dot):not([class*="letter-"]) {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .right-panel h1,
+[data-theme="dark"] .right-panel h2,
+[data-theme="dark"] .right-panel h3,
+[data-theme="dark"] .right-panel h4,
+[data-theme="dark"] .right-panel p,
+[data-theme="dark"] .right-panel label,
+[data-theme="dark"] .right-panel span:not(.brand-letter):not(.brand-dot):not([class*="letter-"]) {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .nav-master button {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .flyout-inner {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .flyout-btn {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .flyout-header {
+    color: rgba(212, 228, 216, 0.5) !important;
+}
+
+/* Dark scrollbar */
+[data-theme="dark"] *::-webkit-scrollbar-thumb {
+    background: rgba(224, 123, 103, 0.1) !important;
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+    background: rgba(224, 123, 103, 0.2) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SMART GLOBAL RULES — Minimal, clean, no-conflict approach
+   
+   PRINCIPLE: Set defaults at highest level. Let components inherit.
+   Only use !important for glass containers and dark mode essentials.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── LIGHT: Body-level defaults — everything inherits from here ── */
+body {
+    color: var(--text, #5c3d2e);
+    background: var(--bg, linear-gradient(135deg, #fff0eb 0%, #fde0d9 30%, #fce4dc 60%, #fdf0ea 100%));
+}
+
+/* ── Inputs/selects get glass treatment ── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+select,
+textarea {
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(224, 123, 103, 0.2);
+    color: var(--text, #5c3d2e);
+    border-radius: 8px;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent, #e07b67);
+    box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.15);
+    outline: none;
+}
+
+/* ── Primary buttons: peach gradient ── */
+.btn-primary, .btn-sovereign {
+    background: linear-gradient(135deg, #e07b67, #c9604b) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* ── Tables inherit theme colors ── */
+table th {
+    background: rgba(224, 123, 103, 0.08);
+    color: var(--text-soft, #a68b78);
+}
+
+table td {
+    color: var(--text, #5c3d2e);
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.5));
+}
+
+table tr:hover {
+    background: rgba(224, 123, 103, 0.06);
+}
+
+/* ── Progress bars ── */
+[class*="progress-fill"] {
+    background: var(--accent, #e07b67) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE — Smart overrides (only what CSS vars don't cover)
+   ═══════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] body {
+    color: var(--text, #eef5ee);
+    background: var(--bg);
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: rgba(15, 23, 20, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text, #eef5ee);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: rgba(212, 228, 216, 0.4);
+}
+
+[data-theme="dark"] table th {
+    background: rgba(224, 123, 103, 0.08);
+    color: var(--text-soft, #7a9080);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] table td {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+    color: var(--text, #eef5ee);
+}
+
+[data-theme="dark"] select option {
+    background: #0f1412;
+    color: #d4e4d8;
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-thumb {
+    background: rgba(224, 123, 103, 0.1);
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+    background: rgba(224, 123, 103, 0.2);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT PROTECTION — Never apply glass to print
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+    * {
+        background: white !important;
+        color: black !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+}

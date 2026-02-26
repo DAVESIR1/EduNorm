@@ -1,6 +1,6 @@
-/* 🌌 SOVEREIGN SIDEBAR: Icon Rail + Hover Flyout */
+/* 🌌 SOVEREIGN SIDEBAR — GLASSMORPHISM */
 
-/* ── Icon Rail ── */
+/* ── Icon Rail — Frosted Glass ── */
 .sidebar-rail {
     grid-area: side;
     display: flex;
@@ -8,12 +8,13 @@
     align-items: center;
     width: 65px;
     height: 100%;
-    /* Solid, opaque background — no white column bleed */
-    background: var(--bg, #ffffff);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
     padding: 12px 0;
-    box-shadow: none;
+    box-shadow: var(--glass-shadow);
     z-index: 100;
     overflow: visible;
     gap: 4px;
@@ -53,7 +54,7 @@
     display: none;
 }
 
-/* ── Icon Group (icon + flyout wrapper) ── */
+/* ── Icon Group ── */
 .rail-icon-group {
     position: relative;
     width: 100%;
@@ -71,7 +72,7 @@
     border: none;
     border-radius: 14px;
     background: transparent;
-    color: var(--text-soft);
+    color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -79,14 +80,14 @@
 }
 
 .rail-icon:hover {
-    background: transparent;
-    color: var(--accent, #6366f1);
-    transform: scale(1.1);
+    background: rgba(224, 123, 103, 0.1);
+    color: var(--primary);
+    transform: scale(1.08);
 }
 
 .rail-icon.active {
-    background: transparent;
-    color: var(--accent, #6366f1);
+    background: rgba(224, 123, 103, 0.12);
+    color: var(--primary);
 }
 
 /* Active indicator bar */
@@ -98,7 +99,7 @@
     transform: translateY(-50%);
     width: 3px;
     height: 20px;
-    background: var(--menu-color, var(--accent));
+    background: var(--primary);
     border-radius: 0 4px 4px 0;
 }
 
@@ -106,7 +107,7 @@
 .rail-avatar {
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid var(--border);
+    border: 2px solid var(--glass-border);
     width: 36px !important;
     height: 36px !important;
     min-width: 36px;
@@ -123,15 +124,14 @@
     display: block;
 }
 
-/* ── Admin Avatar (Shield, not round) ── */
+/* ── Admin Avatar ── */
 .rail-admin-avatar {
-    color: var(--accent, #6366f1);
+    color: var(--primary);
     border: none;
     background: transparent;
 }
 
-/* ── Flyout Panel ── */
-/* KEY: left:100% (no gap!) — padding-left creates visual gap while keeping hover zone continuous */
+/* ── Flyout Panel — Frosted Glass ── */
 .rail-flyout {
     position: absolute;
     left: 100%;
@@ -139,24 +139,24 @@
     min-width: 230px;
     max-width: 280px;
     padding-left: 10px;
-    /* Visual gap between rail and panel, but hover zone is continuous */
     z-index: 500;
     animation: flyoutSlideIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rail-flyout>.flyout-inner {
-    /* Solid background — prevents main content text from bleeding through */
-    background: var(--bg, #ffffff);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
     box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.18),
-        0 4px 12px rgba(0, 0, 0, 0.1);
+        0 12px 40px rgba(92, 61, 46, 0.15),
+        0 0 0 1px var(--glass-highlight);
     padding: 8px;
     overflow: hidden;
 }
 
-/* Bottom-anchored flyouts (tools, user) */
+/* Bottom-anchored flyouts */
 .rail-flyout.flyout-bottom {
     top: auto;
     bottom: -8px;
@@ -184,8 +184,8 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: var(--text-soft);
-    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--glass-border);
     margin-bottom: 4px;
 }
 
@@ -196,16 +196,16 @@
     gap: 2px;
 }
 
-/* ── Flyout Button ── */
+/* ── Flyout Button — Glass Hover ── */
 .flyout-btn {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: transparent;
-    color: var(--text);
+    color: var(--text-primary);
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -215,14 +215,14 @@
 }
 
 .flyout-btn:hover {
-    background: rgba(99, 102, 241, 0.08);
-    color: var(--accent, #6366f1);
+    background: rgba(224, 123, 103, 0.1);
+    color: var(--primary);
     padding-left: 16px;
 }
 
 .flyout-btn.active {
-    background: rgba(99, 102, 241, 0.12);
-    color: var(--accent);
+    background: rgba(224, 123, 103, 0.15);
+    color: var(--primary);
     font-weight: 600;
 }
 
@@ -234,25 +234,25 @@
 .flyout-btn:disabled:hover {
     background: transparent;
     padding-left: 12px;
-    color: var(--text);
+    color: var(--text-primary);
 }
 
 /* ── Flyout utility classes ── */
 .flyout-email {
     padding: 4px 12px 8px;
     font-size: 0.72rem;
-    color: var(--text-soft);
+    color: var(--text-muted);
     opacity: 0.6;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+    border-bottom: 1px solid var(--glass-border);
     margin-bottom: 4px;
 }
 
 .flyout-accent {
-    color: var(--accent) !important;
+    color: var(--primary) !important;
 }
 
 .flyout-danger:hover {
-    background: rgba(239, 68, 68, 0.08) !important;
+    background: rgba(239, 68, 68, 0.1) !important;
     color: #ef4444 !important;
 }
 
@@ -277,28 +277,32 @@
     align-items: center;
     gap: 4px;
     padding-top: 8px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--glass-border);
     width: 100%;
     padding: 8px 6px 0;
 }
 
 /* ── Dark Theme ── */
+[data-theme="dark"] .sidebar-rail {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+}
+
 [data-theme="dark"] .rail-flyout>.flyout-inner {
-    background: rgba(15, 12, 45, 0.96);
-    border-color: rgba(255, 255, 255, 0.06);
+    background: var(--glass-bg-strong);
+    border-color: var(--glass-border);
     box-shadow:
         0 16px 48px rgba(0, 0, 0, 0.5),
-        0 4px 12px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="dark"] .flyout-btn:hover {
-    background: rgba(99, 102, 241, 0.15);
+    background: rgba(224, 123, 103, 0.15);
 }
 
 [data-theme="dark"] .rail-icon:hover {
-    background: transparent;
-    color: var(--accent);
+    background: rgba(224, 123, 103, 0.12);
+    color: var(--primary);
 }
 
 /* ═══════════════════════════════════════════════ */
@@ -317,7 +321,7 @@
     }
 }
 
-/* Mobile: Bottom dock */
+/* Mobile: Bottom dock — Frosted Glass */
 @media (max-width: 767px) {
     .sidebar-rail {
         position: fixed;
@@ -332,9 +336,12 @@
         padding: 4px 8px;
         z-index: 200;
         gap: 0;
-        /* Solid on mobile too — no transparency */
-        background: var(--bg, #ffffff);
-        box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.12);
+        background: var(--glass-bg-strong);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--glass-border);
+        border-bottom: none;
+        box-shadow: 0 -4px 20px rgba(92, 61, 46, 0.1);
     }
 
     .rail-logo {
@@ -370,7 +377,7 @@
         border-radius: 0 0 3px 3px;
     }
 
-    /* Flyout goes UP on mobile — use fixed positioning to escape overflow */
+    /* Flyout goes UP on mobile */
     .rail-flyout {
         position: fixed;
         bottom: 62px;
@@ -402,7 +409,7 @@
         margin-left: auto;
         padding: 0 4px;
         border-top: none;
-        border-left: 1px solid var(--border);
+        border-left: 1px solid var(--glass-border);
         gap: 2px;
         width: auto;
     }
@@ -426,12 +433,13 @@
     }
 }
 
-/* ── Password Modal (preserved) ── */
+/* ── Password Modal — Glass ── */
 .password-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 2000;
     display: flex;
     align-items: center;
@@ -439,11 +447,13 @@
 }
 
 .password-modal-content {
-    background: var(--bg);
+    background: var(--glass-bg-strong);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     padding: 2.5rem;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
     max-width: 400px;
     width: 90%;
     text-align: center;

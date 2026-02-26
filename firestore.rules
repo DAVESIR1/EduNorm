@@ -68,6 +68,15 @@ service cloud.firestore {
       }
     }
 
+    // 5.7 SYNC V3 COLLECTION (AES-256-GCM encrypted cloud sync)
+    match /sync/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      match /{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
     // 5.6 ADMIN BACKUPS (For redundancy)
     match /admin-backups/{userId}/{document=**} {
       allow create: if isOwner(userId); // Allow users to push their auto-backup

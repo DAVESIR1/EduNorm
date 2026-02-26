@@ -1,6 +1,6 @@
 import React from 'react';
 import IdCard from './IdCard';
-import '../Common/PrintStyles.css';
+import '../../../components/Common/PrintStyles.css';
 
 const IdCardPrintDocument = ({
     students,

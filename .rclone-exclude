@@ -1,0 +1,9 @@
+.git/
+node_modules/
+dist/
+.env
+service-account.json
+*.zip
+rclone-v1.65.1-linux-amd64/
+rclone-v1.65.1-linux-amd64.zip
+rclone.conf

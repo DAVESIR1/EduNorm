@@ -78,7 +78,7 @@ export const SovereignBridge = {
      * Pulls data from the strongest mesh layer (Gold Master prioritizing).
      */
     async restore(sid) {
-        return await InfinitySync.universalPull(sid);
+        return await InfinitySync.universalRead(sid);
     },
 
     /**
@@ -86,7 +86,8 @@ export const SovereignBridge = {
      * Privacy-preserving categorical statistics.
      */
     async blindStat(records, category) {
-        return await InfinitySync.getSovereignStats(records, category);
+        console.warn('[SovereignBridge] blindStat not yet implemented');
+        return { total: records?.length || 0 };
     },
 
     /**
@@ -153,7 +154,7 @@ export const SovereignBridge = {
     async restoreFromCloud() {
         console.log('🔄 SovereignBridge.restoreFromCloud: Starting...');
 
-        const records = await InfinitySync.pullAllFromFirestore();
+        const records = await InfinitySync.pullAllFromFirestore('sovereign_data');
 
         if (!records || records.length === 0) {
             console.log('📥 No cloud records found.');

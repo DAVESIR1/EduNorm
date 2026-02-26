@@ -67,9 +67,9 @@ export default function IdentityWizard({ isOpen, onComplete }) {
             await sendOtp(targetEmail);
             setTimer(60);
             setCanResend(false);
-            alert('OTP Resent Successfully!');
+            window.alert('OTP Resent Successfully!');
         } catch (err) {
-            alert('Failed to resend OTP.');
+            window.alert('Failed to resend OTP.');
         } finally {
             setLoading(false);
         }
@@ -109,11 +109,11 @@ export default function IdentityWizard({ isOpen, onComplete }) {
                 setFoundProfile(result.data);
                 setStep('preview');
             } else {
-                alert(result.error);
+                window.alert(result.error);
             }
         } catch (err) {
             console.error(err);
-            alert('Verification failed: ' + err.message);
+            window.alert('Verification failed: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -133,10 +133,10 @@ export default function IdentityWizard({ isOpen, onComplete }) {
                 ...foundProfile // Merge student/teacher data
             });
 
-            alert(`Identity Mapped! Welcome, ${foundProfile.name}.`);
+            window.alert(`Identity Mapped! Welcome, ${foundProfile.name}.`);
             onComplete();
         } catch (err) {
-            alert('Mapping failed: ' + err.message);
+            window.alert('Mapping failed: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -196,7 +196,7 @@ export default function IdentityWizard({ isOpen, onComplete }) {
             }
 
         } catch (err) {
-            alert('OTP Verification Failed: ' + err.message);
+            window.alert('OTP Verification Failed: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -297,7 +297,7 @@ export default function IdentityWizard({ isOpen, onComplete }) {
                                             required
                                         />
                                         <p className="input-note">
-                                            <Info size={12} /> You can type any ID that's available in school data
+                                            <Info size={12} /> You can type any ID that&apos;s available in school data
                                         </p>
                                     </div>
                                 </>
@@ -339,11 +339,11 @@ export default function IdentityWizard({ isOpen, onComplete }) {
                         </div>
 
                         <div className="confirmation-warning">
-                            <small>By clicking "Confirm", you link this professional record to your account <b>{user.email}</b>. This action is permanent.</small>
+                            <small>By clicking &quot;Confirm&quot;, you link this professional record to your account <b>{user.email}</b>. This action is permanent.</small>
                         </div>
 
                         <button className="btn btn-primary btn-large btn-block" onClick={finalizeMapping} disabled={loading}>
-                            {loading ? <Loader2 className="spin" /> : 'Yes, That\'s Me - Finish'}
+                            {loading ? <Loader2 className="spin" /> : 'Yes, That&apos;s Me - Finish'}
                         </button>
                     </div>
                 )}

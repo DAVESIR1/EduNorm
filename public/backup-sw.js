@@ -11,7 +11,7 @@
  *   On reconnect, Background Sync fires 'backup-sync' automatically.
  */
 
-const SW_VERSION = 'edunorm-backup-v1';
+const SW_VERSION = 'edunorm-backup-v2';
 const QUEUE_DB_NAME = 'edunorm-backup-queue';
 const QUEUE_STORE = 'pending-snapshots';
 const SYNC_TAG = 'backup-sync';
@@ -172,6 +172,29 @@ async function processQueue() {
             }
 
             const { settings = [], standards = [], customFields = [], students = [] } = snapshot;
+
+            // Strip large binary data from settings (base64 logos > 10KB)
+            const cleanSettings = settings.map(s => {
+                if (!s || typeof s !== 'object') return s;
+                const clean = { ...s };
+                if (typeof clean.value === 'string' && clean.value.length > 10000 &&
+                    (clean.value.startsWith('data:') || /^[A-Za-z0-9+/=]{10000,}/.test(clean.value))) {
+                    clean.value = '[BINARY_STRIPPED]';
+                }
+                if (clean.value && typeof clean.value === 'object') {
+                    try {
+                        clean.value = JSON.parse(JSON.stringify(clean.value, (key, val) => {
+                            if (typeof val === 'string' && val.length > 10000 &&
+                                (val.startsWith('data:') || /^[A-Za-z0-9+/=]{10000,}/.test(val))) {
+                                return '[BINARY_STRIPPED]';
+                            }
+                            return val;
+                        }));
+                    } catch (e) { /* keep original */ }
+                }
+                return clean;
+            });
+
             const CHUNK_SIZE = 200;
             const chunks = [];
             for (let i = 0; i < students.length; i += CHUNK_SIZE) {
@@ -181,7 +204,7 @@ async function processQueue() {
             // Write meta document
             const metaPath = `backups/${userId}/meta/data`;
             await firestoreSet(projectId, metaPath, {
-                settings: JSON.stringify(settings),
+                settings: JSON.stringify(cleanSettings),
                 standards: JSON.stringify(standards),
                 customFields: JSON.stringify(customFields),
                 totalStudents: students.length,
@@ -206,7 +229,23 @@ async function processQueue() {
 
         } catch (err) {
             console.error(`[BackupSW] ❌ Failed item ${item.queueId}:`, err.message);
-            // Leave in queue — will retry on next sync event
+            // Track retries — remove after 3 failures
+            const retries = (item.retries || 0) + 1;
+            if (retries >= 3) {
+                await queueDelete(db, queueId);
+                console.warn(`[BackupSW] 🗑️ Removed stale item ${queueId} after ${retries} failed attempts`);
+            } else {
+                // Update retry count
+                try {
+                    const tx = db.transaction('backupQueue', 'readwrite');
+                    const existing = await tx.store.get(queueId);
+                    if (existing) {
+                        existing.retries = retries;
+                        await tx.store.put(existing);
+                    }
+                    await tx.done;
+                } catch (_) { /* ignore */ }
+            }
         }
     }
 }
@@ -220,7 +259,24 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
     console.log(`[BackupSW] Activated ${SW_VERSION}`);
-    event.waitUntil(self.clients.claim()); // Take control of all pages immediately
+    event.waitUntil((async () => {
+        await self.clients.claim();
+        // Clear stale queue from previous version
+        try {
+            const db = await openQueueDB();
+            const tx = db.transaction(QUEUE_STORE, 'readwrite');
+            const allItems = await tx.store.getAll();
+            let cleared = 0;
+            for (const item of allItems) {
+                if (item.retries >= 2 || !item.userId) {
+                    await tx.store.delete(item.queueId);
+                    cleared++;
+                }
+            }
+            await tx.done;
+            if (cleared > 0) console.log(`[BackupSW] 🗑️ Cleared ${cleared} stale queue items`);
+        } catch (e) { /* ignore — queue may not exist yet */ }
+    })());
 });
 
 // Background Sync: fires automatically when network is restored

@@ -51,7 +51,7 @@
     width: 44px;
     height: 44px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #6366f1, #a855f7);
+    background: linear-gradient(135deg, #e07b67, #a855f7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -102,7 +102,7 @@
 
 .sync-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #a855f7);
+    background: linear-gradient(90deg, #e07b67, #a855f7);
     border-radius: 2px;
     transition: width 0.4s ease;
 }
@@ -182,7 +182,7 @@
 
 .sync-tab.active {
     background: var(--bg, #fff);
-    color: var(--accent, #6366f1);
+    color: var(--accent, #e07b67);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -273,7 +273,7 @@
 }
 
 .sync-action-card.primary {
-    background: linear-gradient(135deg, #6366f1, #a855f7);
+    background: linear-gradient(135deg, #e07b67, #a855f7);
     color: #fff;
     box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
 }
@@ -338,9 +338,9 @@
 }
 
 .sync-option-card:hover:not(.disabled) {
-    border-color: var(--accent, #6366f1);
+    border-color: var(--accent, #e07b67);
     background: var(--bg, #fff);
-    color: var(--accent, #6366f1);
+    color: var(--accent, #e07b67);
     transform: translateY(-2px);
 }
 
@@ -492,7 +492,7 @@
 }
 
 .sync-full-action.primary {
-    background: linear-gradient(135deg, #6366f1, #a855f7);
+    background: linear-gradient(135deg, #e07b67, #a855f7);
     color: #fff;
     box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
 }
@@ -513,7 +513,7 @@
 }
 
 .sync-full-action.secondary:hover:not(:disabled) {
-    border-color: var(--accent, #6366f1);
+    border-color: var(--accent, #e07b67);
     transform: translateY(-2px);
 }
 
@@ -669,7 +669,7 @@
     padding: 10px;
     border-radius: 12px;
     border: none;
-    background: linear-gradient(135deg, #6366f1, #a855f7);
+    background: linear-gradient(135deg, #e07b67, #a855f7);
     color: #fff;
     font-weight: 700;
     font-size: 0.88rem;

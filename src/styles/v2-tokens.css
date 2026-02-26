@@ -1,4 +1,62 @@
-/* 🌌 THE ULTIMATE SOVEREIGN: BENTO-GLASS SYSTEM */
+/* 🌌 GLASSMORPHISM BENTO-GLASS SYSTEM */
+
+/* ─── ANIMATED GRADIENT BLOB KEYFRAMES ─── */
+@keyframes blob-drift-1 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(80px, -60px) scale(1.1);
+    }
+
+    50% {
+        transform: translate(-40px, 80px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(60px, 40px) scale(1.05);
+    }
+}
+
+@keyframes blob-drift-2 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(-70px, 50px) scale(1.15);
+    }
+
+    50% {
+        transform: translate(60px, -80px) scale(0.9);
+    }
+
+    75% {
+        transform: translate(-50px, -30px) scale(1.08);
+    }
+}
+
+@keyframes blob-drift-3 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(100px, 60px) scale(1.12);
+    }
+
+    66% {
+        transform: translate(-80px, -50px) scale(0.92);
+    }
+}
+
 :root {
     /* Fluid Math for spacing */
     --gap: clamp(1rem, 2vw, 2rem);
@@ -6,27 +64,62 @@
     --sb-width: 280px;
     --rp-width: 350px;
 
-    /* Light: Ultra-Clean "Snow" Theme */
-    --bg: #f0f2f5;
-    --card: rgba(255, 255, 255, 0.7);
-    --text: #0f172a;
-    --text-soft: #64748b;
-    --accent: #6366f1;
-    --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
-    --border: rgba(255, 255, 255, 0.4);
-    --blur: blur(20px);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    /* ─── GLASSMORPHISM CORE TOKENS (short names) ─── */
+    --bg: linear-gradient(135deg, #fff0eb 0%, #fde0d9 30%, #fce4dc 60%, #fdf0ea 100%);
+    --card: rgba(255, 255, 255, 0.35);
+    --card-strong: rgba(255, 255, 255, 0.55);
+    --text: #5c3d2e;
+    --text-soft: #a68b78;
+    --accent: #e07b67;
+    --accent-gradient: linear-gradient(135deg, #e07b67, #f4a27a, #e8917a);
+    --border: rgba(255, 255, 255, 0.5);
+    --blur: blur(28px);
+    --shadow: 0 8px 32px rgba(92, 61, 46, 0.1);
+    --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+
+    /* ─── BRIDGE: map short → long names (used by design-system.css) ─── */
+    --text-primary: #5c3d2e;
+    --text-secondary: #7a5c4a;
+    --text-muted: #a68b78;
+    --bg-main: #fff0eb;
+    --bg-sidebar: rgba(255, 255, 255, 0.2);
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-bg-strong: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.35);
+    --glass-shadow: 0 8px 32px rgba(92, 61, 46, 0.15);
+    --border-color: rgba(255, 255, 255, 0.35);
+    --primary: #e07b67;
+    --primary-dark: #c9604b;
+    --primary-light: #fde0d9;
 }
 
 [data-theme="dark"] {
-    /* Dark: Deep "Night" Theme */
-    --bg: #020617;
-    --card: rgba(15, 23, 42, 0.6);
-    --text: #f8fafc;
-    --text-soft: #94a3b8;
-    --accent: #818cf8;
-    --border: rgba(255, 255, 255, 0.05);
-    --shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    /* ─── SHORT NAMES ─── */
+    --bg: linear-gradient(135deg, #0f1512 0%, #162018 30%, #0d1b14 60%, #0f1a12 100%);
+    --card: rgba(15, 23, 20, 0.4);
+    --card-strong: rgba(15, 23, 20, 0.6);
+    --text: #eef5ee;
+    --text-soft: #7a9080;
+    --accent: #f4a08a;
+    --accent-gradient: linear-gradient(135deg, #f4a08a, #e07b67, #e8917a);
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+    /* ─── BRIDGE: map short → long names for dark mode ─── */
+    --text-primary: #eef5ee;
+    --text-secondary: #a0b8a5;
+    --text-muted: #7a9080;
+    --bg-main: #0f1512;
+    --bg-sidebar: rgba(15, 23, 20, 0.6);
+    --glass-bg: rgba(15, 20, 18, 0.45);
+    --glass-bg-strong: rgba(15, 20, 18, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --primary: #f4a08a;
+    --primary-dark: #e07b67;
+    --primary-light: rgba(224, 123, 103, 0.2);
 }
 
 /* --- THE LAW OF THE GRID --- */
@@ -39,10 +132,60 @@
 
 body {
     background: var(--bg);
+    background-attachment: fixed;
     color: var(--text);
     font-family: 'Inter', system-ui, sans-serif;
     overflow: hidden;
     height: 100vh;
+    position: relative;
+}
+
+/* ─── ANIMATED GRADIENT BLOBS ─── */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    z-index: 0;
+    filter: blur(80px);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+body::before {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.5) 0%, rgba(236, 72, 153, 0.3) 50%, transparent 70%);
+    top: -10%;
+    right: -5%;
+    animation: blob-drift-1 20s ease-in-out infinite;
+}
+
+body::after {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, rgba(52, 211, 153, 0.3) 50%, transparent 70%);
+    bottom: -10%;
+    left: -5%;
+    animation: blob-drift-2 25s ease-in-out infinite;
+}
+
+/* Third blob via #root pseudo-element */
+#root::before {
+    content: '';
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.35) 0%, rgba(244, 114, 182, 0.3) 50%, transparent 70%);
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+    animation: blob-drift-3 22s ease-in-out infinite;
 }
 
 .bento-container {
@@ -53,7 +196,8 @@ body {
     grid-template-columns: 65px 1fr var(--rp-width);
     grid-template-rows: 1fr;
     grid-template-areas: "side main right";
-    background: var(--bg);
+    position: relative;
+    z-index: 1;
     overflow: hidden;
 }
 
@@ -98,7 +242,7 @@ body {
     }
 }
 
-/* ─── Mobile (below 768px): Single column, sidebar-rail becomes bottom dock ─── */
+/* ─── Mobile (below 768px): Single column, sidebar becomes bottom dock ─── */
 @media (max-width: 767px) {
     body {
         overflow: auto;
@@ -115,7 +259,6 @@ body {
         gap: 0;
         overflow-y: auto;
         padding-bottom: 60px;
-        /* Space for bottom dock */
     }
 
     .right-panel {
@@ -139,7 +282,6 @@ body {
         margin: 0 4px;
     }
 
-    /* Mobile header: stack branding and buttons */
     .nav-master {
         flex-wrap: wrap;
         justify-content: center;
@@ -176,7 +318,7 @@ body {
     }
 }
 
-/* ─── Small Mobile (below 480px): Tighter spacing ─── */
+/* ─── Small Mobile (below 480px) ─── */
 @media (max-width: 479px) {
     .glass-panel {
         border-radius: 12px;
@@ -201,7 +343,7 @@ body {
     }
 }
 
-/* Floating Glass Panel DNA */
+/* ═══════ GLASSMORPHISM PANEL DNA ═══════ */
 .glass-panel {
     background: var(--card);
     backdrop-filter: var(--blur);
@@ -209,13 +351,26 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.5rem;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow), var(--glass-highlight);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
 }
 
-/* --- SOVEREIGN COMPONENTS --- */
+/* Top highlight line for glass panels */
+.glass-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+    pointer-events: none;
+}
+
+/* ═══════ SOVEREIGN COMPONENTS ═══════ */
 .sovereign-card {
     background: var(--accent-gradient);
     color: white;
@@ -224,19 +379,22 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 10px 30px rgba(224, 123, 103, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .sync-status {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 8px 15px;
     border-radius: 50px;
     font-size: 0.8rem;
     width: fit-content;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .nav-btn {
@@ -260,8 +418,8 @@ body {
     background: var(--accent);
     color: white;
     transform: translateX(5px);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(224, 123, 103, 0.25);
 }
 
 .nav-btn svg {
@@ -269,7 +427,7 @@ body {
     height: 20px;
 }
 
-/* --- MAIN CONTENT AREAS --- */
+/* ═══════ MAIN CONTENT AREAS ═══════ */
 .main-feed {
     grid-area: main;
     display: flex;
@@ -279,7 +437,7 @@ body {
     padding-right: 4px;
 }
 
-/* Custom Scrollbar for Glass Feed */
+/* Glass scrollbar */
 .main-feed::-webkit-scrollbar {
     width: 6px;
 }
@@ -289,11 +447,15 @@ body {
 }
 
 .main-feed::-webkit-scrollbar-thumb {
-    background: var(--border);
+    background: rgba(224, 123, 103, 0.25);
     border-radius: 10px;
 }
 
-/* Dashboard Grid within Feed */
+.main-feed::-webkit-scrollbar-thumb:hover {
+    background: rgba(224, 123, 103, 0.4);
+}
+
+/* Dashboard Grid */
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -325,6 +487,7 @@ body {
     padding: 0.6rem 1.2rem;
     background: var(--card);
     backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
     border: 1px solid var(--border);
     border-radius: 100px;
     font-size: 0.9rem;
@@ -340,6 +503,8 @@ body {
     font-weight: 600;
     border: 1px solid var(--border);
     background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: var(--text);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -347,6 +512,31 @@ body {
 
 .btn-sovereign:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 24px rgba(224, 123, 103, 0.2);
     border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ═══════ GLOBAL GLASS OVERRIDES ═══════ */
+/* Ensure ALL cards/containers get glass treatment */
+.form-container,
+.menu-content-area {
+    background: var(--card-strong) !important;
+    backdrop-filter: var(--blur) !important;
+    -webkit-backdrop-filter: var(--blur) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow), var(--glass-highlight) !important;
+}
+
+.app-footer {
+    background: var(--card) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-top: 1px solid var(--border) !important;
+}
+
+/* Glass selection */
+::selection {
+    background: rgba(224, 123, 103, 0.3);
+    color: inherit;
 }

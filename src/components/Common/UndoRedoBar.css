@@ -40,7 +40,7 @@
 }
 
 .undo-redo-bar button.active {
-    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    background: linear-gradient(135deg, #e07b67, #c9604b);
     color: white;
 }
 

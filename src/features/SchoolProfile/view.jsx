@@ -78,9 +78,9 @@ export function SchoolProfileView({
 
             onSaveSettings?.();
             setEditMode(false);
-            alert('School Profile Updated!');
+            window.alert('School Profile Updated!');
         } catch (e) {
-            alert('Save failed: ' + e.message);
+            window.alert('Save failed: ' + e.message);
         } finally {
             setSaving(false);
         }
@@ -103,7 +103,7 @@ export function SchoolProfileView({
     };
 
     const removeCustomField = (id) => {
-        if (confirm('Remove this custom field?')) {
+        if (window.confirm('Remove this custom field?')) {
             setCustomFields(prev => prev.filter(f => f.id !== id));
         }
     };

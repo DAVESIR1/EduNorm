@@ -14,6 +14,11 @@ import { UIEngine } from './core/v2/UIEngine'
 // Initialize Sovereign UI Engine & Sentinel
 UIEngine.init();
 
+// Boot Doctor Bridge (Real-time error capture for Doctor tool)
+if (import.meta.env.DEV) {
+    import('./core/v2/DoctorBridge').then(m => m.initDoctorBridge?.());
+}
+
 // Boot Sentinel (Matches user specification for protection before rendering)
 (async () => {
     try {

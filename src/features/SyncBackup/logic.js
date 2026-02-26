@@ -68,13 +68,32 @@ export const SyncBackupLogic = {
     },
 
     /**
-     * Restores entire DB from JSON
+     * SMART RESTORE from JSON backup.
+     * importAllData already handles: skip BINARY_STRIPPED, only fill empty fields,
+     * never overwrite non-empty local data. This just parses + delegates + syncs cloud.
      */
-    async restoreFromJSON(file) {
+    async restoreFromJSON(file, user) {
         const text = await file.text();
-        const data = JSON.parse(text);
-        if (!data.students && !data.standards && !data.settings) throw new Error("Invalid Sovereign Data Format");
-        await db.importAllData(data);
+        const jsonData = JSON.parse(text);
+        if (!jsonData.students && !jsonData.standards && !jsonData.settings) throw new Error("Invalid Data Format");
+
+        console.log('🔄 Smart Restore: importing...',
+            `${jsonData.students?.length || 0} students,`,
+            `${jsonData.settings?.length || 0} settings`);
+
+        // importAllData handles smart merge: only fills empty fields, never overwrites
+        await db.importAllData(jsonData);
+
+        // Sync to cloud so cloud+local are identical
+        if (user?.uid) {
+            try {
+                const { syncToCloud } = await import('../../services/DirectBackupService.js');
+                await syncToCloud(user.uid);
+                console.log('✅ Smart Restore: Cloud synced — cloud+local identical');
+            } catch (e) {
+                console.warn('⚠️ Smart Restore: Cloud sync failed (data safe locally):', e.message);
+            }
+        }
     },
 
     downloadTemplate() {

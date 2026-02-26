@@ -173,7 +173,7 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
         setProgress(20);
         try {
             console.log('🔄 Local Restore: reading file', file.name);
-            await SyncBackupLogic.restoreFromJSON(file);
+            await SyncBackupLogic.restoreFromJSON(file, user);
             setProgress(100);
             console.log('✅ Local Restore: complete');
             showToast('success', '✅ Data restored! Reloading in 2s...');
@@ -241,8 +241,8 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
                 <div className="sync-header-left">
                     <div className="sync-icon-badge"><Database size={20} /></div>
                     <div>
-                        <h2>Data Sovereignty</h2>
-                        <p>Universal Backups &amp; Cloud Sync</p>
+                        <h2>Backup & Sync</h2>
+                        <p>Cloud Backup & Auto Sync</p>
                     </div>
                 </div>
                 {!isFullPage && <button className="sync-close-btn" onClick={onClose}><X size={20} /></button>}
@@ -290,7 +290,7 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
                         </div>
                         <div className="sync-action-text">
                             <strong>{syncing ? 'Syncing…' : 'Force Cloud Sync'}</strong>
-                            <span>Push all data to Firestore, R2 &amp; Mega</span>
+                            <span>Push all local data to cloud backup</span>
                         </div>
                     </button>
 
@@ -306,7 +306,7 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
                         </div>
                         <div className="sync-action-text">
                             <strong>Restore from Cloud</strong>
-                            <span>Pull &amp; merge from encrypted mesh</span>
+                            <span>Pull &amp; merge from cloud backup</span>
                         </div>
                     </button>
 
@@ -323,7 +323,7 @@ export function SyncBackupView({ isOpen, isFullPage = false, onClose, ledger, se
                         </div>
                     )}
 
-                    <p className="sync-hint">Your data is encrypted and distributed across 3 independent cloud layers for maximum resilience.</p>
+                    <p className="sync-hint">Your data is backed up to Firestore. Local IndexedDB is always the source of truth — your data is never lost.</p>
                 </div>
             )}
 

@@ -51,7 +51,7 @@
     min-width: 24px;
     max-width: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #db2777);
+    background: linear-gradient(135deg, #c9604b, #db2777);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -76,7 +76,7 @@
 .user-name {
     font-weight: 600;
     font-size: var(--text-sm);
-    color: #1f2937;
+    color: var(--text, #5c3d2e);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -84,7 +84,7 @@
 
 .user-email {
     font-size: var(--text-xs);
-    color: #6b7280;
+    color: var(--text-soft, #a68b78);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -124,7 +124,7 @@
 }
 
 .tier-badge.tier-admin {
-    background: linear-gradient(135deg, #7c3aed, #db2777);
+    background: linear-gradient(135deg, #c9604b, #db2777);
     color: white;
 }
 
@@ -152,13 +152,13 @@
 }
 
 .tier-action-btn.admin-btn {
-    background: linear-gradient(135deg, #7c3aed, #db2777);
+    background: linear-gradient(135deg, #c9604b, #db2777);
     color: white;
 }
 
 .tier-action-btn.admin-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 4px 12px rgba(224, 123, 103, 0.4);
 }
 
 .tier-action-btn.upgrade-btn {
@@ -248,7 +248,7 @@
     font-family: var(--font-heading);
     font-weight: 600;
     font-size: var(--text-sm);
-    color: #374151;
+    color: var(--text, #5c3d2e);
     margin-bottom: var(--space-1);
 }
 
@@ -269,7 +269,7 @@
     font-family: var(--font-body);
     font-size: var(--text-sm);
     font-weight: 500;
-    color: #1f2937;
+    color: var(--text, #5c3d2e);
     cursor: pointer;
     transition: all var(--transition-base);
     text-align: left;
@@ -282,23 +282,23 @@
 }
 
 .sidebar-action-btn.primary {
-    background: #fcd34d;
-    border-color: #f59e0b;
-    color: #1f2937;
+    background: var(--accent, #e07b67);
+    border-color: var(--accent, #e07b67);
+    color: var(--text, #5c3d2e);
 }
 
 .sidebar-action-btn.primary:hover {
-    background: #fde68a;
+    background: rgba(224, 123, 103, 0.3);
 }
 
 .sidebar-action-btn.accent {
-    background: #a7f3d0;
-    border-color: #10b981;
-    color: #065f46;
+    background: rgba(224, 123, 103, 0.15);
+    border-color: var(--accent, #e07b67);
+    color: var(--text, #5c3d2e);
 }
 
 .sidebar-action-btn.accent:hover {
-    background: #6ee7b7;
+    background: rgba(224, 123, 103, 0.25);
 }
 
 .sidebar-action-btn.success {
@@ -512,17 +512,17 @@
 
 /* Gradient Button for Special Features */
 .sidebar-action-btn.gradient-btn {
-    background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #f59e0b 100%);
+    background: linear-gradient(135deg, #c9604b 0%, #db2777 50%, #f59e0b 100%);
     color: white;
     border: none;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 15px rgba(224, 123, 103, 0.3);
     transition: all 0.05s ease;
 }
 
 .sidebar-action-btn.gradient-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 6px 20px rgba(224, 123, 103, 0.4);
 }
 
 .sidebar-action-btn.gradient-btn svg {
@@ -550,11 +550,11 @@
 }
 
 [data-theme="dark"] .user-name {
-    color: #FAFAFF;
+    color: var(--text, #eef5ee);
 }
 
 [data-theme="dark"] .user-email {
-    color: #B5B5D0;
+    color: var(--text-soft, #7a9080);
 }
 
 [data-theme="dark"] .tier-actions {
@@ -562,17 +562,17 @@
 }
 
 [data-theme="dark"] .sidebar-label {
-    color: #E5E7EB;
+    color: var(--text, #eef5ee);
 }
 
 [data-theme="dark"] .sidebar-content {
-    scrollbar-color: rgba(160, 136, 200, 0.5) transparent;
+    scrollbar-color: rgba(244, 160, 138, 0.4) transparent;
 }
 
 [data-theme="dark"] .sidebar-action-btn {
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.15);
-    color: #EAEAF5;
+    color: var(--text, #eef5ee);
 }
 
 [data-theme="dark"] .sidebar-action-btn:hover {
@@ -582,25 +582,25 @@
 [data-theme="dark"] .sidebar-action-btn.primary {
     background: rgba(252, 211, 77, 0.25);
     border-color: rgba(245, 158, 11, 0.4);
-    color: #FCD34D;
+    color: var(--accent, #f4a08a);
 }
 
 [data-theme="dark"] .sidebar-action-btn.accent {
     background: rgba(16, 185, 129, 0.2);
     border-color: rgba(16, 185, 129, 0.3);
-    color: #6EE7B7;
+    color: var(--accent, #f4a08a);
 }
 
 [data-theme="dark"] .sidebar-action-btn.success {
     background: rgba(16, 185, 129, 0.2);
     border-color: rgba(16, 185, 129, 0.3);
-    color: #6EE7B7;
+    color: var(--accent, #f4a08a);
 }
 
 [data-theme="dark"] .sidebar-action-btn.warning {
     background: rgba(234, 179, 8, 0.2);
     border-color: rgba(234, 179, 8, 0.3);
-    color: #FDE68A;
+    color: var(--accent, #f4a08a);
 }
 
 [data-theme="dark"] .sidebar-divider {
@@ -616,34 +616,34 @@
 }
 
 [data-theme="dark"] .theme-btn.active {
-    background: rgba(160, 136, 200, 0.3);
+    background: rgba(224, 123, 103, 0.2);
     border-color: var(--primary);
 }
 
 [data-theme="dark"] .input-field {
-    background: rgba(60, 55, 75, 0.8);
+    background: rgba(15, 23, 20, 0.6);
     border-color: rgba(255, 255, 255, 0.15);
-    color: #FAFAFF;
+    color: var(--text, #eef5ee);
 }
 
 [data-theme="dark"] .input-field::placeholder {
-    color: #9595B8;
+    color: var(--text-soft, #7a9080);
 }
 
 [data-theme="dark"] .input-field:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(160, 136, 200, 0.25);
+    box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.2);
 }
 
 [data-theme="dark"] select.input-field option {
-    background: #2d2640;
-    color: #FAFAFF;
+    background: var(--card, rgba(15, 23, 20, 0.4));
+    color: var(--text, #eef5ee);
 }
 
 [data-theme="dark"] .upload-logo-btn {
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--primary);
-    color: #D5D5E8;
+    color: var(--text-soft, #7a9080);
 }
 
 [data-theme="dark"] .upload-logo-btn:hover {
@@ -657,12 +657,12 @@
 [data-theme="dark"] .custom-field-item {
     background: rgba(16, 185, 129, 0.15);
     border-color: rgba(16, 185, 129, 0.3);
-    color: #A7F3D0;
+    color: var(--accent, #f4a08a);
 }
 
 [data-theme="dark"] .collapsed-icon {
     background: rgba(255, 255, 255, 0.1);
-    color: #D5D5E8;
+    color: var(--text-soft, #7a9080);
 }
 
 [data-theme="dark"] .collapsed-icon:hover {
@@ -672,23 +672,23 @@
 /* ================== COLORFUL THEME SIDEBAR ================== */
 [data-theme="colorful"] .sidebar-action-btn {
     background: rgba(255, 255, 255, 0.9);
-    color: #1f2937 !important;
+    color: var(--text, #5c3d2e) !important;
     border-color: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="colorful"] .sidebar-action-btn:hover {
     background: rgba(255, 255, 255, 1);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    color: #111827 !important;
+    color: var(--text, #5c3d2e) !important;
 }
 
 [data-theme="colorful"] .sidebar-action-btn span,
 [data-theme="colorful"] .sidebar-action-btn svg {
-    color: #374151 !important;
+    color: var(--text, #5c3d2e) !important;
 }
 
 [data-theme="colorful"] .sidebar-label {
-    color: #4b5563 !important;
+    color: var(--text-soft, #a68b78) !important;
 }
 
 [data-theme="colorful"] .sidebar-divider {
@@ -697,12 +697,12 @@
 
 [data-theme="colorful"] .input-field {
     background: rgba(255, 255, 255, 0.9);
-    color: #1f2937;
+    color: var(--text, #5c3d2e);
     border-color: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="colorful"] .input-field::placeholder {
-    color: #6b7280;
+    color: var(--text-soft, #a68b78);
 }
 
 /* Sidebar backdrop overlay - only visible on mobile */

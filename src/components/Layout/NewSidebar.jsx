@@ -239,7 +239,7 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
             <aside className="sidebar-rail" style={{ gridArea: 'side' }}>
                 {/* Logo */}
                 <div className="rail-logo" title="EduNorm v2">
-                    <EduNormLogo size="small" />
+                    <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }} />
                 </div>
 
                 {/* Menu Icons */}
@@ -275,7 +275,7 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                                             <div className="flyout-items">
                                                 {items.map(item => {
                                                     const ItemIcon = IconMap[item.icon] || IconMap[item.id] || IconMap.default;
-                                                    const isComingSoon = item.comingSoon;
+                                                    const isComingSoon = item.status === 'coming-soon';
                                                     return (
                                                         <button
                                                             key={item.id}

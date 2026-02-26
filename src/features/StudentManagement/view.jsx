@@ -38,25 +38,6 @@ export function StudentLedgerView({
         return StudentLogic.sort(data, sort.field, sort.dir);
     }, [students, searchQuery, sort]);
 
-    if (!isOpen && !isFullPage) return null;
-
-    const handleSort = (field) => {
-        setSort(prev => ({
-            field,
-            dir: (prev.field === field && prev.dir === 'asc') ? 'desc' : 'asc'
-        }));
-    };
-
-    const handleDownloadCSV = () => {
-        const csv = StudentLogic.generateCSV(processedData);
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `edunorm_ledger_${Date.now()}.csv`;
-        a.click();
-    };
-
     const stats = useMemo(() => {
         const total = students.length;
         if (total === 0) return null;
@@ -97,6 +78,25 @@ export function StudentLedgerView({
             castes: Object.entries(castes).sort((a, b) => b[1] - a[1]).slice(0, 3)
         };
     }, [students]);
+
+    if (!isOpen && !isFullPage) return null;
+
+    const handleSort = (field) => {
+        setSort(prev => ({
+            field,
+            dir: (prev.field === field && prev.dir === 'asc') ? 'desc' : 'asc'
+        }));
+    };
+
+    const handleDownloadCSV = () => {
+        const csv = StudentLogic.generateCSV(processedData);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `edunorm_ledger_${Date.now()}.csv`;
+        a.click();
+    };
 
     const handleValueUpdate = async (id, key, newValue) => {
         await onUpdateStudent?.(id, { [key]: newValue });

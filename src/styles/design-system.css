@@ -1,103 +1,111 @@
 /* ===========================================
-   STUDENT DATA ENTRY SYSTEM - DESIGN SYSTEM
-   Beautiful Pastel Theme with Fluffy Design
-   Beautiful Pastel Theme with Fluffy Design
+   EDUNORM DESIGN SYSTEM — GLASSMORPHISM
+   Frosted Glass UI with animated gradient blobs
    =========================================== */
 
-/* Import Stylish Fonts for Neon Theme */
-/* Import Stylish Fonts for Themes */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@400;600;700&family=Cabin+Sketch:wght@400;700&family=Comfortaa:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+/* Import premium fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* ===== PASTEL COLOR PALETTE ===== */
-  --pastel-pink: #FFB5C5;
-  --pastel-pink-light: #FFD4E0;
-  --pastel-pink-dark: #E8A0B0;
+  /* ===== GLASSMORPHISM CORE ===== */
+  --glass-blur: 20px;
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-bg-strong: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-shadow: 0 8px 32px rgba(92, 61, 46, 0.15);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
 
-  --pastel-mint: #B5F5D8;
-  --pastel-mint-light: #D4FFE8;
-  --pastel-mint-dark: #98E8C0;
+  /* Accent Colors — Warm Pastel Palette */
+  --pastel-pink: #f4a0b5;
+  --pastel-pink-light: #fde0d9;
+  --pastel-pink-dark: #e07b67;
 
-  --pastel-lavender: #D4B5FF;
-  --pastel-lavender-light: #E8D4FF;
-  --pastel-lavender-dark: #B898E8;
+  --pastel-mint: #34d399;
+  --pastel-mint-light: #a7f3d0;
+  --pastel-mint-dark: #10b981;
 
-  --pastel-peach: #FFD4B5;
-  --pastel-peach-light: #FFE8D4;
-  --pastel-peach-dark: #E8C098;
+  --pastel-lavender: #d4a0c0;
+  --pastel-lavender-light: #f0d6e8;
+  --pastel-lavender-dark: #c47da0;
 
-  --pastel-sky: #B5D4FF;
-  --pastel-sky-light: #D4E8FF;
-  --pastel-sky-dark: #98C0E8;
+  --pastel-peach: #f4a27a;
+  --pastel-peach-light: #fde0cc;
+  --pastel-peach-dark: #e8855a;
 
-  --pastel-lemon: #FFF5B5;
-  --pastel-lemon-light: #FFFBD4;
-  --pastel-lemon-dark: #E8E098;
+  --pastel-sky: #7eb8d4;
+  --pastel-sky-light: #c4dfe8;
+  --pastel-sky-dark: #5a9ab5;
 
-  --pastel-coral: #FFB5B5;
-  --pastel-coral-light: #FFD4D4;
-  --pastel-coral-dark: #E89898;
+  --pastel-lemon: #f5d76e;
+  --pastel-lemon-light: #fef3c7;
+  --pastel-lemon-dark: #d4a843;
+
+  --pastel-coral: #e8917a;
+  --pastel-coral-light: #fdd5cc;
+  --pastel-coral-dark: #c9604b;
 
   /* ===== NEUTRAL COLORS ===== */
   --white: #FFFFFF;
-  --cream: #FFF8F0;
-  --gray-50: #F9FAFB;
-  --gray-100: #F3F4F6;
-  --gray-200: #E5E7EB;
-  --gray-300: #D1D5DB;
-  --gray-400: #9CA3AF;
-  --gray-500: #6B7280;
-  --gray-600: #4B5563;
-  --gray-700: #374151;
-  --gray-800: #1F2937;
-  --gray-900: #111827;
+  --cream: #FFF5EE;
+  --gray-50: #FDF8F5;
+  --gray-100: #F5EFEA;
+  --gray-200: #E8DDD6;
+  --gray-300: #D4C5B9;
+  --gray-400: #A69585;
+  --gray-500: #7A695C;
+  --gray-600: #5C4A3E;
+  --gray-700: #45342A;
+  --gray-800: #2E211A;
+  --gray-900: #1A110C;
 
   /* ===== THEME COLORS ===== */
-  --primary: var(--pastel-lavender);
-  --primary-light: var(--pastel-lavender-light);
-  --primary-dark: var(--pastel-lavender-dark);
+  --primary: #e07b67;
+  --primary-light: #fde0d9;
+  --primary-dark: #c9604b;
 
-  --secondary: var(--pastel-pink);
-  --secondary-light: var(--pastel-pink-light);
-  --secondary-dark: var(--pastel-pink-dark);
+  --secondary: #f4a27a;
+  --secondary-light: #fde0cc;
+  --secondary-dark: #e8855a;
 
-  --accent: var(--pastel-mint);
-  --accent-light: var(--pastel-mint-light);
-  --accent-dark: var(--pastel-mint-dark);
+  --accent: #e8917a;
+  --accent-light: #fdd5cc;
+  --accent-dark: #c9604b;
 
-  --success: var(--pastel-mint);
-  --warning: var(--pastel-lemon);
-  --error: var(--pastel-coral);
-  --info: var(--pastel-sky);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --danger: #ef4444;
+  --info: #5a9ab5;
 
   /* ===== TEXT COLORS ===== */
-  --text-primary: #111827;
-  /* Darker gray (almost black) for sharp primary text */
-  --text-secondary: #374151;
-  /* Dark gray for secondary (was too light) */
-  --text-muted: #6b7280;
-  /* Medium gray for muted */
-  --border-color: #E5E7EB;
+  --text-primary: #5c3d2e;
+  --text-secondary: #7a5c4a;
+  --text-muted: #a68b78;
+  --text-soft: #c4a898;
+  --border-color: rgba(255, 255, 255, 0.35);
 
   /* ===== BACKGROUND ===== */
-  --bg-main: linear-gradient(135deg, #FFF8F0 0%, #F0F8FF 50%, #FFF0F8 100%);
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-sidebar: linear-gradient(180deg, var(--pastel-lavender-light) 0%, var(--pastel-pink-light) 100%);
-  --bg-input: rgba(255, 255, 255, 0.9);
-  --bg-surface: rgba(255, 255, 255, 0.95);
+  --bg-main: #fff0eb;
+  --bg-card: rgba(255, 255, 255, 0.4);
+  --bg-sidebar: rgba(255, 255, 255, 0.15);
+  --bg-input: rgba(255, 255, 255, 0.65);
+  --bg-surface: rgba(255, 255, 255, 0.5);
+  --bg-dark: #1a1510;
+  --bg-secondary: #fdf5f0;
 
   /* ===== SHADOWS ===== */
-  --shadow-soft: 0 4px 20px rgba(180, 140, 200, 0.15);
-  --shadow-medium: 0 8px 30px rgba(180, 140, 200, 0.2);
-  --shadow-large: 0 12px 40px rgba(180, 140, 200, 0.25);
-  --shadow-glow: 0 0 30px rgba(212, 181, 255, 0.4);
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-soft: 0 4px 16px rgba(92, 61, 46, 0.06);
+  --shadow-medium: 0 8px 32px rgba(92, 61, 46, 0.1);
+  --shadow-large: 0 16px 48px rgba(92, 61, 46, 0.14);
+  --shadow-glow: 0 0 30px rgba(224, 123, 103, 0.2);
+  --shadow-inset: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  --shadow-sm: 0 1px 3px rgba(92, 61, 46, 0.06);
+  --shadow-lg: 0 12px 40px rgba(92, 61, 46, 0.12);
 
   /* ===== TYPOGRAPHY ===== */
-  /* ===== TYPOGRAPHY (FLUID) ===== */
-  --font-display: 'Baloo 2', cursive;
-  --font-heading: 'Quicksand', sans-serif;
-  --font-body: 'Nunito', sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
 
   --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
@@ -129,11 +137,11 @@
   --radius-2xl: 32px;
   --radius-full: 9999px;
 
-  /* ===== TRANSITIONS (minimal for speed) ===== */
-  --transition-fast: 0ms;
-  --transition-base: 50ms ease;
-  --transition-slow: 80ms ease;
-  --transition-bounce: 50ms ease;
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+  --transition-bounce: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ===== Z-INDEX ===== */
   --z-base: 1;
@@ -144,370 +152,70 @@
   --z-toast: 500;
 }
 
-/* ===== EDUTECH PRO THEME (SaaS / Professional) ===== */
-[data-theme="edutech"] {
-  --bg-main: #f3f4f6;
-  /* Cool Gray 50 */
-  --bg-card: #ffffff;
-  --bg-sidebar: #f9fafb;
-  /* Very Light Gray (distinct from Classic's Pastel) */
-  --bg-input: #ffffff;
-  --bg-surface: #ffffff;
-
-  --primary: #2563EB;
-  /* Royal Blue (Interish) */
-  --primary-light: #dbeafe;
-  /* Blue 100 */
-  --primary-dark: #1d4ed8;
-  /* Blue 700 */
-
-  --secondary: #475569;
-  /* Slate 600 */
-
-  --text-primary: #0f172a;
-  /* Slate 900 (Sharp) */
-  --text-secondary: #334155;
-  /* Slate 700 */
-  --text-muted: #64748b;
-  /* Slate 500 */
-  --border-color: #e2e8f0;
-  /* Slate 200 */
-
-  --shadow-soft: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-  /* Focus ring style glow */
-}
-
-/* ===== VIBRANT BURST THEME (Colorful / Unique) ===== */
-[data-theme="colorful"] {
-  /* 1. Very Very Colorful Background (Mesh Gradient style) */
-  --bg-main: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 25%, #E0C3FC 50%, #A6C0FE 75%, #F68084 100%);
-
-  /* 2. Glassy Cards to let background show through */
-  --bg-card: rgba(255, 255, 255, 0.85);
-
-  /* 3. Sidebar matches the vibrant energy */
-  --bg-sidebar: linear-gradient(180deg, #E0C3FC 0%, #8EC5FC 100%);
-
-  --bg-input: rgba(255, 255, 255, 0.9);
-  --bg-surface: rgba(255, 255, 255, 0.9);
-
-  /* 4. Contrast Matching Colorful Fonts */
-  --primary: #6366f1;
-  /* Indigo-500 */
-  --primary-light: #e0e7ff;
-  --primary-dark: #4338ca;
-
-  --secondary: #ec4899;
-  /* Pink-500 */
-  --accent: #8b5cf6;
-  /* Violet-500 */
-
-  /* Text is NOT black. It is Deep Indigo/Purple for "Colorful Contrast" */
-  --text-primary: #1e1b4b;
-  /* Deep Indigo (almost black but colored) */
-  --text-secondary: #4c1d95;
-  /* Deep Violet */
-  --text-muted: #6d28d9;
-  /* Violet-700 */
-
-  /* Unique Borders */
-  --border-color: rgba(255, 255, 255, 0.6);
-
-  --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  --shadow-medium: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
-  --shadow-large: 0 8px 32px 0 rgba(31, 38, 135, 0.35);
-  --shadow-glow: 0 0 15px rgba(255, 255, 255, 0.8);
-}
-
-/* === MINIMAL DARK THEME (Black, Grey, Cream) === */
-[data-theme="neon"] {
-  --bg-main: #000000;
-  --bg-card: #0a0a0a;
-  --bg-sidebar: #000000;
-  --bg-input: #111827;
-  --bg-surface: #0a0a0a;
-
-  /* Fonts: Use clean sans-serif instead of Orbitron */
-  --font-heading: 'Quicksand', sans-serif;
-  --font-body: 'Nunito', sans-serif;
-  --font-display: 'Comfortaa', cursive;
-
-  --text-primary: #FFF8F0;
-  /* Cream */
-  --text-secondary: #d1d5db;
-  /* Light Grey */
-  --text-muted: #6b7280;
-  /* Grey */
-
-  --border-color: #374151;
-  /* Grey */
-
-  --primary: #FFF8F0;
-  /* Cream */
-  --primary-light: #ffffff;
-  --primary-dark: #d1d5db;
-
-  --secondary: #d1d5db;
-  --accent: #FFF8F0;
-  --warning: #FFF8F0;
-  --error: #FFF8F0;
-
-  /* Disable Shadows */
-  --shadow-soft: none;
-  --shadow-medium: none;
-  --shadow-large: none;
-  --shadow-glow: none;
-
-  /* Disable Transitions/Animations for this theme */
-  --transition-fast: 0s !important;
-  --transition-base: 0s !important;
-  --transition-slow: 0s !important;
-  --transition-bounce: 0s !important;
-
-  /* Slightly Bigger Text for this theme */
-  --text-base: clamp(1.1rem, 1.05rem + 0.3vw, 1.25rem);
-  --text-sm: clamp(1rem, 0.9rem + 0.4vw, 1.125rem);
-  --text-xs: clamp(0.85rem, 0.8rem + 0.3vw, 1rem);
-}
-
-/* Force instant transitions in Neon */
-[data-theme="neon"] *,
-[data-theme="neon"] *::before,
-[data-theme="neon"] *::after {
-  transition: none !important;
-  animation: none !important;
-}
-
-
-
-/* =========================================
-   THEME-SPECIFIC TYPOGRAPHY & COLORS
-   ========================================= */
-
-/* --- 1. RAINBOW / VIBRANT THEME --- */
-/* "First image colorful fonts" - Sketchy & Colorful */
-[data-theme="vibrant"] {
-  --font-heading: 'Cabin Sketch', cursive;
-  --font-display: 'Cabin Sketch', cursive;
-  --primary: #FF6B6B;
-  /* Vibrant Red/Pink */
-}
-
-/* Apply colorful sketch effect to headings */
-[data-theme="vibrant"] h1,
-[data-theme="vibrant"] h2,
-[data-theme="vibrant"] h3,
-[data-theme="vibrant"] h4,
-[data-theme="vibrant"] .display-font {
-  background: linear-gradient(90deg, #FF0000, #FF7F00, #CCCC00, #00FF00, #0000FF, #4B0082, #9400D3);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-/* --- 2. LIGHT THEME --- */
-/* "Circle fonts" - Geometric, Rounded */
-[data-theme="light"],
-[data-theme="classic"] {
-  /* Assuming 'classic' might be the default light */
-  --font-body: 'Comfortaa', cursive;
-  --font-heading: 'Comfortaa', cursive;
-  --font-display: 'Comfortaa', cursive;
-}
-
-[data-theme="light"] body,
-[data-theme="classic"] body {
-  font-family: 'Comfortaa', cursive;
-}
-
-/* === NEON OLED THEME BUTTONS — Cream & High Contrast === */
-[data-theme="neon"] .btn,
-[data-theme="neon"] .action-btn,
-[data-theme="neon"] .save-btn,
-[data-theme="neon"] .attach-btn,
-[data-theme="neon"] .create-btn,
-[data-theme="neon"] .new-page-btn,
-[data-theme="neon"] .upload-more-btn,
-[data-theme="neon"] .total-count-btn,
-[data-theme="neon"] button:not(.sidebar-menu-item, .sidebar-menu-header, .sidebar-pin-btn, .logout-btn, .menu-maximize-btn, .form-maximize-btn, .theme-icon-btn, .close-btn, .maximize-btn, .minimize-btn) {
-  background: #FFFDD0 !important;
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-  border: none !important;
-  box-shadow: 0 0 10px rgba(255, 253, 208, 0.4) !important;
-  height: 42px !important;
-  border-radius: 12px !important;
-  padding: 0 20px !important;
-  font-weight: 700 !important;
-  font-family: var(--font-heading) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 10px !important;
-}
-
-[data-theme="neon"] .btn:hover,
-[data-theme="neon"] button:not(.sidebar-menu-item, .sidebar-menu-header, .sidebar-pin-btn, .logout-btn, .menu-maximize-btn, .form-maximize-btn, .theme-icon-btn, .close-btn, .maximize-btn, .minimize-btn):hover {
-  background: #FFF8E7 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(255, 253, 208, 0.6) !important;
-  color: #000000 !important;
-}
-
-/* Cleanup ghost/outlined buttons for Neon to ensure they are also Cream */
-[data-theme="neon"] .btn-outline,
-[data-theme="neon"] .btn-ghost:not(.sidebar-pin-btn, .logout-btn, .menu-maximize-btn, .form-maximize-btn, .theme-icon-btn, .close-btn, .maximize-btn, .minimize-btn) {
-  background: #FFFDD0 !important;
-  border: none !important;
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-/* Icon Lining Style for Neon Buttons */
-[data-theme="neon"] button svg,
-[data-theme="neon"] .btn svg,
-[data-theme="neon"] .action-btn svg {
-  stroke-width: 2.5px !important;
-}
-
-/* Ensure icons on Cream backgrounds are Black */
-[data-theme="neon"] .btn svg,
-[data-theme="neon"] .action-btn svg,
-[data-theme="neon"] .save-btn svg,
-[data-theme="neon"] .attach-btn svg,
-[data-theme="neon"] .create-btn svg,
-[data-theme="neon"] .new-page-btn svg {
-  stroke: #000000 !important;
-}
-
-/* Specific Icon Colors for Neon Actions */
-[data-theme="neon"] .save-btn svg,
-[data-theme="neon"] .btn-save svg {
-  stroke: #10B981 !important;
-}
-
-/* Green */
-[data-theme="neon"] .attach-btn svg {
-  stroke: #3B82F6 !important;
-}
-
-/* Blue */
-[data-theme="neon"] .printer-btn svg,
-[data-theme="neon"] .action-btn svg[data-icon="printer"] {
-  stroke: #4F46E5 !important;
-}
-
-/* Indigo */
-[data-theme="neon"] .delete-btn svg,
-[data-theme="neon"] .trash-btn svg {
-  stroke: #EF4444 !important;
-}
-
-/* Red */
-[data-theme="neon"] .total-count-btn svg,
-[data-theme="neon"] .btn-secondary svg,
-[data-theme="neon"] [data-icon="users"] svg,
-[data-theme="neon"] .std-item svg {
-  stroke: #9B7ED9 !important;
-}
-
-/* Purple/Lavender */
-[data-theme="neon"] .admin-panel-btn svg,
-[data-theme="neon"] .shield-icon svg {
-  stroke: #3B82F6 !important;
-}
-
-/* Blue */
-[data-theme="neon"] button svg[stroke="currentColor"] {
-  stroke: #4A5568 !important;
-}
-
-/* ===== DARK THEME ===== */
-/* ===== DARK THEME ===== */
-/* ===== DARK THEME ===== */
+/* ===== DARK GLASS THEME ===== */
 [data-theme="dark"] {
-  --bg-main: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  /* Deeper blue-gray */
-  --bg-card: #1e293b;
-  --bg-sidebar: #0f172a;
-  --bg-input: #334155;
-  --bg-surface: #1e293b;
+  --glass-bg: rgba(15, 20, 18, 0.45);
+  --glass-bg-strong: rgba(15, 20, 18, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
 
-  --primary: #818cf8;
-  /* Indigo-400 */
-  --primary-light: #a5b4fc;
-  --primary-dark: #6366f1;
+  --bg-main: #0f1512;
+  --bg-card: rgba(18, 24, 20, 0.55);
+  --bg-sidebar: rgba(15, 20, 18, 0.4);
+  --bg-input: rgba(20, 28, 24, 0.6);
+  --bg-surface: rgba(18, 24, 20, 0.5);
 
-  /* Dark theme inverts grays for text visibility */
-  --gray-50: #0f172a;
-  --gray-100: #1e293b;
-  --gray-200: #334155;
-  --gray-300: #475569;
-  --gray-400: #94a3b8;
-  --gray-500: #cbd5e1;
-  --gray-600: #e2e8f0;
-  --gray-700: #f1f5f9;
-  --gray-800: #f8fafc;
+  --primary: #f4a08a;
+  --primary-light: #fdd5cc;
+  --primary-dark: #e07b67;
+
+  --gray-50: #0f1512;
+  --gray-100: #1a2220;
+  --gray-200: #2a3532;
+  --gray-300: #455550;
+  --gray-400: #7a9080;
+  --gray-500: #a0b8a8;
+  --gray-600: #c8dcc8;
+  --gray-700: #dceadc;
+  --gray-800: #eef5ee;
   --gray-900: #ffffff;
 
-  /* Explicit text colors for dark theme - HIGH CONTRAST */
-  --text-primary: #ffffff;
-  /* Pure White */
-  --text-secondary: #e2e8f0;
-  /* Gray-200 */
-  --text-muted: #cbd5e1;
-  /* Gray-300 */
-  --border-color: #334155;
+  --text-primary: #eef5ee;
+  --text-secondary: #c8dcc8;
+  --text-muted: #7a9080;
+  --text-soft: #556a5c;
+  --border-color: rgba(255, 255, 255, 0.08);
 
-  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-  --shadow-glow: none;
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-large: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px rgba(224, 123, 103, 0.2);
+  --shadow-inset: inset 0 1px 2px rgba(255, 255, 255, 0.04);
 }
 
-/* ===== MODERN THEME (Hybrid: Dark Sidebar, Light Content) ===== */
-[data-theme="modern"] {
-  /* Clean, professional light background */
-  --bg-main: #f3f4f6;
-  --bg-card: #ffffff;
-
-  /* Dark Sidebar for contrast */
-  --bg-sidebar: #111827;
-  /* Gray-900 */
-
-  --bg-input: #ffffff;
-  --bg-surface: #ffffff;
-
-  /* Professional Color Palette (Indigo/Teal) */
-  --primary: #4f46e5;
-  /* Indigo-600 */
-  --primary-light: #e0e7ff;
-  --primary-dark: #3730a3;
-
-  --secondary: #10b981;
-  /* Emerald-500 */
-  --accent: #f59e0b;
-  /* Amber-500 */
-
-  --text-primary: #111827;
-  /* Dark text for light main content */
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
-  --border-color: #e5e7eb;
-
-  --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-glow: none;
+/* ===== DARK THEME BUTTON OVERRIDES ===== */
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #e07b67, #c9604b);
 }
 
+[data-theme="dark"] .btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  border-color: rgba(255, 255, 255, 0.15);
+}
 
+[data-theme="dark"] .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .btn-ghost {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
 
 /* ===== BASE STYLES ===== */
 *,
@@ -622,47 +330,14 @@ h6 {
 }
 
 /* ===== SCROLLBAR ===== */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
 
-::-webkit-scrollbar-track {
-  background: var(--gray-100);
-  border-radius: var(--radius-full);
-}
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--pastel-lavender) 0%, var(--pastel-pink) 100%);
-  border-radius: var(--radius-full);
-  border: 2px solid var(--gray-100);
-}
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--pastel-lavender-dark) 0%, var(--pastel-pink-dark) 100%);
-}
 
 /* ===== SELECTION ===== */
-::selection {
-  background: var(--pastel-lavender);
-  color: var(--gray-800);
-}
 
 /* ===== FLUFFY CARD ===== */
-.fluffy-card {
-  background: var(--bg-card);
-  /* blur removed */
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-medium);
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  padding: var(--space-6);
-  transition: transform var(--transition-bounce), box-shadow var(--transition-base);
-}
 
-.fluffy-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-large);
-}
 
 /* ===== BUTTONS ===== */
 .btn {
@@ -781,7 +456,7 @@ h6 {
 
 /* Dark mode buttons */
 [data-theme="dark"] .btn-primary {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  background: linear-gradient(135deg, #e07b67, #c9604b);
 }
 
 [data-theme="dark"] .btn-secondary {
@@ -878,24 +553,9 @@ select.input-field {
   display: none;
 }
 
-/* Glassmorphism — no blur for speed */
-.glass {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
 
-[data-theme="dark"] .glass {
-  background: rgba(40, 35, 55, 0.95);
-  border-color: rgba(255, 255, 255, 0.1);
-}
 
-.glass-strong {
-  background: rgba(255, 255, 255, 0.96);
-}
 
-[data-theme="dark"] .glass-strong {
-  background: rgba(40, 35, 55, 0.98);
-}
 
 /* All animation utilities disabled */
 .animate-fade-in,
@@ -1097,63 +757,8 @@ select.input-field {
   user-select: none;
 }
 
-/* ===== GRADIENT TEXT ===== */
-.gradient-text {
-  background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #0891b2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
-  padding: 4px 0;
-  line-height: 1.4;
-}
-
-/* OLED 4-Color Rule Override */
-[data-theme="neon"] .gradient-text {
-  background: none;
-  -webkit-text-fill-color: #FFFDD0;
-  /* Cream Accent */
-  color: #FFFDD0;
-  filter: none;
-  text-shadow: none;
-}
 
 /* ===== DECORATIVE ELEMENTS ===== */
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.5;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.blob-1 {
-  width: 300px;
-  height: 300px;
-  background: var(--pastel-lavender);
-  top: -100px;
-  left: -100px;
-  /* Animation removed for performance */
-}
-
-.blob-2 {
-  width: 250px;
-  height: 250px;
-  background: var(--pastel-pink);
-  bottom: -80px;
-  right: -80px;
-  /* Animation removed for performance */
-}
-
-.blob-3 {
-  width: 200px;
-  height: 200px;
-  background: var(--pastel-mint);
-  top: 50%;
-  right: 10%;
-  /* Animation removed for performance */
-}
 
 /* ===== PROGRESS BAR ===== */
 .progress-bar {
@@ -1272,10 +877,6 @@ select.input-field {
     --text-2xl: 1.25rem;
   }
 
-  .fluffy-card {
-    padding: var(--space-4);
-    border-radius: var(--radius-lg);
-  }
 
   /* ===== GLOBAL MOBILE PERFORMANCE OPTIMIZATIONS ===== */
 
@@ -1336,10 +937,6 @@ select.input-field {
   }
 
   /* Cards should be full width */
-  .fluffy-card {
-    width: 100%;
-    margin: 0;
-  }
 
   /* Fix input fields */
   .input-field {
@@ -1349,9 +946,6 @@ select.input-field {
   }
 
   /* Scrollbar hidden on mobile */
-  ::-webkit-scrollbar {
-    display: none;
-  }
 
   /* Ensure proper stacking */
   .modal-overlay {
@@ -1363,403 +957,540 @@ select.input-field {
   }
 }
 
-/* === NEON THEME COMPONENT OVERRIDES === */
-[data-theme="neon"] .fluffy-card,
-[data-theme="neon"] .stat-card,
-[data-theme="neon"] .profile-section,
-[data-theme="neon"] .id-card-template,
-[data-theme="neon"] .data-step-card {
-  background: rgba(10, 10, 10, 0.6) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+/* ===== GLASSMORPHISM COMPONENT OVERRIDES ===== */
+
+/* --- Glass Panels --- */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
-[data-theme="neon"] .btn-primary {
-  background: #FFFDD0 !important;
-  border: none !important;
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-  box-shadow: 0 0 10px rgba(255, 253, 208, 0.4) !important;
+[data-theme="dark"] .glass {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
 }
 
-[data-theme="neon"] .btn-primary:hover {
-  background: #FFF8E7 !important;
-  color: #000000 !important;
-  box-shadow: 0 0 20px rgba(255, 253, 208, 0.6) !important;
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(calc(var(--glass-blur) * 1.5));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5));
+  border: 1px solid var(--glass-border);
 }
 
-[data-theme="neon"] .form-group label {
-  color: var(--primary);
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
+[data-theme="dark"] .glass-strong {
+  background: var(--glass-bg-strong);
 }
 
-[data-theme="neon"] .input-field,
-[data-theme="neon"] .search-input {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
+/* --- Glass Cards --- */
+.fluffy-card {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  transition: transform var(--transition-bounce), box-shadow var(--transition-base);
 }
 
-[data-theme="neon"] .search-icon,
-[data-theme="neon"] .search-input-wrapper svg,
-[data-theme="neon"] .input-wrapper svg {
-  stroke: #FFFDD0 !important;
-  stroke-width: 2.5px !important;
+.fluffy-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-large);
+  border-color: rgba(224, 123, 103, 0.25);
 }
 
-[data-theme="neon"] .input-field:focus {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 10px rgba(0, 243, 255, 0.2) !important;
+[data-theme="dark"] .fluffy-card {
+  background: var(--glass-bg-strong);
+  border-color: var(--glass-border);
 }
 
-/* === PHASE 8: GLOBAL CONTRAST FIXES === */
-
-/* 1. Universal Button Contrast (Secondary / Cancel / Outline) */
-/* Force ALL buttons to be distinct. No more dark-on-dark. */
-[data-theme="neon"] .btn-secondary,
-[data-theme="neon"] .btn-outline,
-[data-theme="neon"] .cancel-btn,
-[data-theme="neon"] .btn-ghost,
-[data-theme="neon"] button[type="button"]:not(.btn-primary):not(.icon-btn) {
-  background: #FFFDD0 !important;
-  /* Cream */
-  color: #000000 !important;
-  /* Black Text */
-  border: 1px solid #FFFDD0 !important;
-  -webkit-text-fill-color: #000000 !important;
-  opacity: 1 !important;
+.sovereign-card {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
 }
 
-[data-theme="neon"] .btn-secondary:hover,
-[data-theme="neon"] .btn-outline:hover,
-[data-theme="neon"] .cancel-btn:hover {
-  background: #FFF8E7 !important;
-  box-shadow: 0 0 8px rgba(255, 253, 208, 0.4) !important;
+/* --- Glass Buttons --- */
+.btn {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 2px 8px rgba(92, 61, 46, 0.08);
+  transition: all var(--transition-base);
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(224, 123, 103, 0.3);
+  box-shadow: 0 4px 16px rgba(92, 61, 46, 0.15);
   transform: translateY(-1px);
 }
 
-/* 2. Universal Icon Visibility */
-/* If button is Cream, Icon MUST be Black */
-[data-theme="neon"] .btn-secondary svg,
-[data-theme="neon"] .btn-outline svg,
-[data-theme="neon"] .cancel-btn svg,
-[data-theme="neon"] .btn-ghost svg,
-[data-theme="neon"] .btn:not(.btn-primary) svg {
-  stroke: #000000 !important;
-  stroke-width: 2px !important;
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(92, 61, 46, 0.1);
 }
 
-/* 3. Input Border Visibility */
-/* Inputs need distinct borders on black bg */
-[data-theme="neon"] input,
-[data-theme="neon"] select,
-[data-theme="neon"] textarea {
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+.btn-primary {
+  background: linear-gradient(135deg, #e07b67, #c9604b);
+  color: white;
+  border: 1px solid rgba(224, 123, 103, 0.3);
+  -webkit-text-fill-color: white;
 }
 
-[data-theme="neon"] input:focus,
-[data-theme="neon"] select:focus,
-[data-theme="neon"] textarea:focus {
-  border-color: #FFFDD0 !important;
-  box-shadow: 0 0 0 2px rgba(255, 253, 208, 0.2) !important;
+.btn-primary:hover {
+  background: linear-gradient(135deg, #f4a08a, #e07b67);
+  box-shadow: 0 4px 20px rgba(224, 123, 103, 0.4);
 }
 
-[data-theme="neon"] .close-btn,
-[data-theme="neon"] .maximize-btn,
-[data-theme="neon"] .minimize-btn,
-[data-theme="neon"] .menu-maximize-btn,
-[data-theme="neon"] .form-maximize-btn,
-[data-theme="neon"] .fullscreen-btn,
-[data-theme="neon"] .admin-header .btn-icon,
-[data-theme="neon"] .ledger-header-actions button {
-  background: #FFFDD0 !important;
-  /* Ensure visible button background */
-  border: 1px solid #FFFDD0 !important;
-  opacity: 1 !important;
-  min-width: 32px;
-  min-height: 32px;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: 0 0 5px rgba(255, 253, 208, 0.2) !important;
-  border-radius: 8px !important;
-  margin-left: 8px !important;
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
 }
 
-[data-theme="neon"] .close-btn svg,
-[data-theme="neon"] .maximize-btn svg,
-[data-theme="neon"] .minimize-btn svg,
-[data-theme="neon"] .menu-maximize-btn svg,
-[data-theme="neon"] .form-maximize-btn svg,
-[data-theme="neon"] .fullscreen-btn svg,
-[data-theme="neon"] .admin-header .btn-icon svg,
-[data-theme="neon"] .ledger-header-actions button svg {
-  stroke: #000000 !important;
-  /* Force BLACK icon on Cream BG */
-  fill: none !important;
-  stroke-width: 2.5px !important;
-  color: #000000 !important;
-  width: 20px !important;
-  height: 20px !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
-[data-theme="neon"] .close-btn:hover,
-[data-theme="neon"] .maximize-btn:hover,
-[data-theme="neon"] .minimize-btn:hover {
-  background: rgba(255, 253, 208, 0.15) !important;
-  /* Subtle glow instead of solid box */
-  transform: scale(1.1);
+.btn-accent {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* ==========================================================================
-   PHASE 9: NEON THEME RECONSTRUCTION (THE NUCLEAR OPTION)
-   Forcefully reset all buttons and icons to guarantee visibility.
-   ========================================================================== */
-
-/* 1. Global Button Standard (Neon)
-   Restoring specific class targeting for buttons that NEED the cream box.
-   Action-oriented buttons should keep the box for usability.
-*/
-[data-theme="neon"] .btn-secondary,
-[data-theme="neon"] .btn-outline,
-[data-theme="neon"] .action-btn {
-  background-color: #FFFDD0 !important;
-  color: #000000 !important;
-  border: 1px solid #FFFDD0 !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
-  opacity: 1 !important;
+.btn-accent:hover {
+  background: linear-gradient(135deg, #34D399, #10B981);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
 }
 
-[data-theme="neon"] .btn-secondary:hover,
-[data-theme="neon"] .btn-outline:hover,
-[data-theme="neon"] .action-btn:hover {
-  background-color: #FFF8E7 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(255, 253, 208, 0.4) !important;
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* 1.5 Global Header Contrast Fix */
-[data-theme="neon"] h1,
-[data-theme="neon"] h2,
-[data-theme="neon"] h3,
-[data-theme="neon"] h4,
-[data-theme="neon"] h5,
-[data-theme="neon"] h6 {
-  color: #FFFDD0 !important;
+.btn-outline:hover {
+  background: rgba(224, 123, 103, 0.1);
 }
 
-/* 2. Universal Icon Visibility (Standard Buttons) */
-[data-theme="neon"] .btn-secondary svg,
-[data-theme="neon"] .btn-secondary svg *,
-[data-theme="neon"] .btn-outline svg,
-[data-theme="neon"] .btn-outline svg *,
-[data-theme="neon"] .action-btn svg,
-[data-theme="neon"] .action-btn svg * {
-  stroke: #000000 !important;
-  fill: none;
-  color: #000000 !important;
+.btn-ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-secondary);
+  border: none;
 }
 
-/* Handle filled icons if necessary (usually fill should be none for stroke icons) */
-[data-theme="neon"] .fill-current {
-  fill: #000000 !important;
+.btn-ghost:hover {
+  background: rgba(224, 123, 103, 0.08);
 }
 
-/* 3. Exceptions: Primary & Danger Buttons (Keep White Text/Icons) */
-[data-theme="neon"] .btn-primary svg,
-[data-theme="neon"] .btn-primary svg *,
-[data-theme="neon"] .btn-danger svg,
-[data-theme="neon"] .btn-danger svg * {
-  stroke: #FFFFFF !important;
-  color: #FFFFFF !important;
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* 4. Input Field Standardization */
-/* Ensure inputs are visible against black background */
-[data-theme="neon"] input[type="text"],
-[data-theme="neon"] input[type="password"],
-[data-theme="neon"] input[type="email"],
-[data-theme="neon"] input[type="number"],
-[data-theme="neon"] input[type="date"],
-[data-theme="neon"] input[type="search"],
-[data-theme="neon"] select,
-[data-theme="neon"] textarea,
-[data-theme="neon"] .input-field {
-  background-color: #111111 !important;
-  border: 1px solid #444444 !important;
-  color: #FFFDD0 !important;
+.btn-danger:hover {
+  background: linear-gradient(135deg, #F87171, #EF4444);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35);
 }
 
-[data-theme="neon"] input::placeholder,
-[data-theme="neon"] textarea::placeholder {
-  color: #888888 !important;
+.btn-sovereign {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
-[data-theme="neon"] option {
-  background-color: #111111 !important;
-  color: #FFFDD0 !important;
+.btn-sovereign:hover {
+  background: rgba(224, 123, 103, 0.15);
+  border-color: rgba(224, 123, 103, 0.3);
+  transform: translateY(-1px);
 }
 
-[data-theme="neon"] input:focus,
-[data-theme="neon"] select:focus,
-[data-theme="neon"] textarea:focus {
-  border-color: #FFFDD0 !important;
-  box-shadow: 0 0 0 2px rgba(255, 253, 208, 0.2) !important;
+/* Dark theme buttons */
+[data-theme="dark"] .btn {
+  background: rgba(30, 30, 60, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* 5. Specific Fixes for "Add Data Box", "Upload Logo" inputs */
-[data-theme="neon"] input[type="file"]::file-selector-button {
-  background-color: #FFFDD0 !important;
-  color: #000000 !important;
-  border: none !important;
-  padding: 8px 12px;
-  border-radius: 4px;
-  margin-right: 10px;
-  font-weight: bold;
+[data-theme="dark"] .btn:hover {
+  background: rgba(50, 50, 80, 0.6);
+  border-color: rgba(224, 123, 103, 0.3);
 }
 
-/* 6. UNIVERSAL WINDOW CONTROL FIX (NEON ONLY)
-   User Request: NO SQUARE BOX, ONLY CREAM ICONS.
-   Targets all common window control classes across the app.
-*/
-[data-theme="neon"] .close-btn,
-[data-theme="neon"] .maximize-btn,
-[data-theme="neon"] .minimize-btn,
-[data-theme="neon"] .btn-icon,
-[data-theme="neon"] .remove-btn,
-[data-theme="neon"] .delete-btn,
-[data-theme="neon"] .btn-ghost.btn-sm,
-[data-theme="neon"] .header-actions button:not(.btn-primary),
-[data-theme="neon"] .window-header button:not(.btn-primary),
-[data-theme="neon"] .ledger-header-actions button,
-[data-theme="neon"] .form-maximize-btn,
-[data-theme="neon"] .menu-maximize-btn {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 6px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  outline: none !important;
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #e07b67, #c9604b);
 }
 
-[data-theme="neon"] .close-btn svg,
-[data-theme="neon"] .close-btn svg *,
-[data-theme="neon"] .maximize-btn svg,
-[data-theme="neon"] .maximize-btn svg *,
-[data-theme="neon"] .minimize-btn svg,
-[data-theme="neon"] .minimize-btn svg *,
-[data-theme="neon"] .btn-icon svg,
-[data-theme="neon"] .btn-icon svg *,
-[data-theme="neon"] .remove-btn svg,
-[data-theme="neon"] .remove-btn svg *,
-[data-theme="neon"] .delete-btn svg,
-[data-theme="neon"] .delete-btn svg *,
-[data-theme="neon"] .btn-ghost.btn-sm svg,
-[data-theme="neon"] .btn-ghost.btn-sm svg *,
-[data-theme="neon"] .header-actions button:not(.btn-primary) svg,
-[data-theme="neon"] .header-actions button:not(.btn-primary) svg *,
-[data-theme="neon"] .window-header button:not(.btn-primary) svg,
-[data-theme="neon"] .window-header button:not(.btn-primary) svg *,
-[data-theme="neon"] .ledger-header-actions button svg,
-[data-theme="neon"] .ledger-header-actions button svg *,
-[data-theme="neon"] .form-maximize-btn svg,
-[data-theme="neon"] .form-maximize-btn svg *,
-[data-theme="neon"] .menu-maximize-btn svg,
-[data-theme="neon"] .menu-maximize-btn svg * {
-  stroke: #FFFDD0 !important;
-  /* CREAM Color for Icons */
-  color: #FFFDD0 !important;
-  fill: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+[data-theme="dark"] .btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
-/* Specific hover effect for floating icons */
-/* SUPER SPECIFIC NEON FLOATING ICON FIX */
-html[data-theme="neon"] .close-btn:hover,
-html[data-theme="neon"] .maximize-btn:hover,
-html[data-theme="neon"] .minimize-btn:hover,
-html[data-theme="neon"] .btn-icon:hover,
-html[data-theme="neon"] .remove-btn:hover,
-html[data-theme="neon"] .delete-btn:hover,
-html[data-theme="neon"] .header-actions button:not(.btn-primary):hover,
-html[data-theme="neon"] .ledger-header-actions button:hover,
-[data-theme="neon"] [class*="delete-btn"]:hover,
-[data-theme="neon"] [class*="remove-btn"]:hover {
-  background: rgba(255, 253, 208, 0.15) !important;
-  background-color: rgba(255, 253, 208, 0.15) !important;
-  transform: scale(1.15) !important;
-  box-shadow: none !important;
+[data-theme="dark"] .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-/* 3. Global Search Box "Box in Box" Fix (Neon) */
-[data-theme="neon"] .search-box input,
-[data-theme="neon"] .search-box .input-field {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+[data-theme="dark"] .btn-ghost {
+  color: #9ca3af;
 }
 
-[data-theme="neon"] .search-box {
-  background: #000000 !important;
-  border: 1px solid rgba(255, 253, 208, 0.3) !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 6px 12px !important;
+[data-theme="dark"] .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
-/* 4. FORCE BLACK TEXT AND ICONS on all cream buttons for Neon theme */
-[data-theme="neon"] .btn-primary,
-[data-theme="neon"] .btn-secondary,
-[data-theme="neon"] .btn-outline,
-[data-theme="neon"] .action-btn,
-[data-theme="neon"] .std-item {
-  color: #000000 !important;
-  font-weight: 600 !important;
+[data-theme="dark"] .btn-sovereign {
+  background: rgba(30, 30, 60, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
 }
 
-[data-theme="neon"] .btn-primary svg,
-[data-theme="neon"] .btn-primary svg *,
-[data-theme="neon"] .btn-secondary svg,
-[data-theme="neon"] .btn-secondary svg *,
-[data-theme="neon"] .btn-outline svg,
-[data-theme="neon"] .btn-outline svg *,
-[data-theme="neon"] .action-btn svg,
-[data-theme="neon"] .action-btn svg *,
-[data-theme="neon"] .std-item svg,
-[data-theme="neon"] .std-item svg * {
-  stroke: #000000 !important;
-  color: #000000 !important;
-  fill: none !important;
+[data-theme="dark"] .btn-sovereign:hover {
+  background: rgba(224, 123, 103, 0.2);
+  border-color: rgba(224, 123, 103, 0.3);
 }
 
-/* Floating icons (Close, Maximize) should still be CREAM */
-html[data-theme="neon"] .close-btn svg,
-html[data-theme="neon"] .maximize-btn svg,
-html[data-theme="neon"] .minimize-btn svg,
-html[data-theme="neon"] .btn-icon svg,
-html[data-theme="neon"] .remove-btn svg,
-html[data-theme="neon"] .delete-btn svg,
-html[data-theme="neon"] .header-actions button:not(.btn-primary) svg,
-html[data-theme="neon"] .ledger-header-actions button svg {
-  stroke: #FFFDD0 !important;
-  color: #FFFDD0 !important;
-  fill: none !important;
-  width: 18px !important;
-  height: 18px !important;
-  stroke-width: 2px !important;
-  display: block !important;
+/* --- Glass Input Fields --- */
+.input-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.input-field {
+  background: var(--bg-input);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+}
+
+.input-field:hover {
+  border-color: rgba(224, 123, 103, 0.3);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.15), inset 0 0 0 1px rgba(224, 123, 103, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .input-field {
+  background: rgba(30, 30, 60, 0.5);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .input-field:focus {
+  background: rgba(30, 30, 60, 0.7);
+  border-color: var(--primary);
+}
+
+/* --- Glass Modals --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  z-index: 2001;
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+}
+
+.modal-closing .modal-content {
+  display: none;
+}
+
+/* --- Glass Badges --- */
+.badge {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+}
+
+.badge-primary {
+  background: rgba(224, 123, 103, 0.15);
+  color: var(--primary-dark);
+  border-color: rgba(224, 123, 103, 0.2);
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.badge-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #991b1b;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1e3a5f;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .badge-primary {
+  color: var(--primary-light);
+}
+
+[data-theme="dark"] .badge-success {
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .badge-warning {
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .badge-error {
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .badge-info {
+  color: #93c5fd;
+}
+
+/* --- Glass Tooltips --- */
+.tooltip::after {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  box-shadow: var(--glass-shadow);
+}
+
+/* --- Glass Progress Bar --- */
+.progress-bar {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #e07b67 0%, #f4a27a 50%, #e8917a 100%);
+}
+
+/* --- Animated Gradient Blobs --- */
+@keyframes blob-float-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+
+  75% {
+    transform: translate(50px, 30px) scale(1.05);
+  }
+}
+
+@keyframes blob-float-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-40px, 30px) scale(1.08);
+  }
+
+  66% {
+    transform: translate(20px, -40px) scale(0.92);
+  }
+}
+
+@keyframes blob-float-3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  20% {
+    transform: translate(60px, 20px) scale(1.12);
+  }
+
+  40% {
+    transform: translate(-30px, -60px) scale(0.88);
+  }
+
+  60% {
+    transform: translate(40px, 40px) scale(1.05);
+  }
+
+  80% {
+    transform: translate(-50px, 10px) scale(0.95);
+  }
+}
+
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--pastel-lavender);
+  top: -100px;
+  left: -100px;
+  animation: blob-float-1 20s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 350px;
+  height: 350px;
+  background: var(--pastel-pink);
+  bottom: -80px;
+  right: -80px;
+  animation: blob-float-2 25s ease-in-out infinite;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: var(--pastel-sky);
+  top: 40%;
+  right: 15%;
+  animation: blob-float-3 22s ease-in-out infinite;
+}
+
+[data-theme="dark"] .blob {
+  opacity: 0.2;
+}
+
+[data-theme="dark"] .blob-1 {
+  background: #4a2520;
+}
+
+[data-theme="dark"] .blob-2 {
+  background: #1a3530;
+}
+
+[data-theme="dark"] .blob-3 {
+  background: #2a3025;
+}
+
+/* --- Gradient Text --- */
+.gradient-text {
+  background: linear-gradient(135deg, #e07b67 0%, #f4a27a 50%, #e8917a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+/* --- Glass Scrollbar --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(224, 123, 103, 0.25);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(224, 123, 103, 0.45);
+}
+
+/* --- Selection --- */
+::selection {
+  background: rgba(224, 123, 103, 0.3);
+  color: var(--text-primary);
+}
+
+/* --- Glass Status Badge --- */
+.status-badge {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+}
+
+/* --- Glass Sync Toast --- */
+.sync-toast {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+/* --- Glass Step Items --- */
+.step-item {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+}
+
+.step-item:hover {
+  background: rgba(224, 123, 103, 0.12);
+  border-color: rgba(224, 123, 103, 0.25);
+}
+
+[data-theme="dark"] .step-item {
+  background: rgba(30, 30, 60, 0.4);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
 }

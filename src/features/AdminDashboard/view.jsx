@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Shield, X, Key, Copy, Trash2, Check, Star, Users, FileText, Crown, BarChart3, ChevronRight, Gift } from 'lucide-react';
 import { AdminLogic } from './logic.js';
@@ -21,17 +20,20 @@ export function AdminDashboardView({ onClose, totalStudents = 0, totalStandards 
     const [copied, setCopied] = useState(false);
     const [loadingCodes, setLoadingCodes] = useState(false);
 
-    // 1. Load Data
-    useEffect(() => {
-        if (isAdmin) loadCodes();
-    }, [isAdmin]);
-
     const loadCodes = async () => {
         setLoadingCodes(true);
         const codes = await AdminLogic.getCodes();
         setCodeList(codes);
         setLoadingCodes(false);
     };
+
+    // 1. Load Data
+    useEffect(() => {
+        if (isAdmin) {
+            const timer = setTimeout(() => loadCodes(), 0);
+            return () => clearTimeout(timer);
+        }
+    }, [isAdmin]);
 
     // 2. Computed Stats
     const stats = useMemo(() => AdminLogic.getStats(totalStudents, totalStandards, 0), [totalStudents, totalStandards]);
@@ -107,7 +109,7 @@ export function AdminDashboardView({ onClose, totalStudents = 0, totalStandards 
                                     {codeList.map(c => (
                                         <tr key={c.id}>
                                             <td><code>{c.code}</code></td>
-                                            <td><span className={`status ${c.isUsed ? 'used' : 'free'}`}>{c.isUsed ? 'USED' : 'ACTIVE'}</span></td>
+                                            <td><span className={`status ${c.isUsed ? 'used' : 'free'} `}>{c.isUsed ? 'USED' : 'ACTIVE'}</span></td>
                                             <td>{c.usedBy || '-'}</td>
                                             <td>
                                                 <button onClick={() => handleCopy(c.code)}><Copy size={14} /></button>

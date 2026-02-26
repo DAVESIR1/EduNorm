@@ -52,14 +52,14 @@
 }
 
 .format-btn:hover {
-    border-color: var(--primary, #7C3AED);
+    border-color: var(--primary, #c9604b);
     transform: translateY(-1px);
 }
 
 .format-btn.active {
-    border-color: var(--primary, #7C3AED);
-    background: rgba(124, 58, 237, 0.06);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    border-color: var(--primary, #c9604b);
+    background: rgba(224, 123, 103, 0.06);
+    box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.1);
 }
 
 .format-icon {
@@ -115,7 +115,7 @@
 .checkbox-label input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: var(--primary, #7C3AED);
+    accent-color: var(--primary, #c9604b);
 }
 
 .preview-table {
@@ -187,8 +187,8 @@
 }
 
 [data-theme="dark"] .format-btn.active {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: #8B5CF6;
+    background: rgba(224, 123, 103, 0.1);
+    border-color: #e07b67;
 }
 
 [data-theme="dark"] .preview-table {

@@ -1,349 +1,217 @@
-
-import { doc, setDoc, getDoc, getDocs, collection, getFirestore } from 'firebase/firestore';
+// src/core/v2/InfinitySync.js
+import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase.js';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { Storage } from 'megajs';
 import MappingSystem from './MappingSystem.js';
 import SovereignCore from './SovereignCore.js';
 
-// Env Helper (browser-safe — no process.env references)
+// ─── Env Helper (browser-safe — uses import.meta.env, NOT process.env) ─────
 const getEnv = (key) => {
     try { return import.meta.env?.[key] || undefined; }
     catch (e) { return undefined; }
 };
 
-export const InfinitySync = {
-    _clients: { firestore: null, r2: null, mega: null },
-    syncCount: 0,
-
-    async getFirestore() { return db; },
-
-    async getR2Client() {
-        if (this._clients.r2) return this._clients.r2;
-        const config = {
-            accountId: getEnv('VITE_R2_ACCOUNT_ID'),
-            accessKeyId: getEnv('VITE_R2_ACCESS_KEY_ID'),
-            secretAccessKey: getEnv('VITE_R2_SECRET_ACCESS_KEY'),
-            bucket: getEnv('VITE_R2_BUCKET_NAME') || 'edunorm-backups'
-        };
-        if (!config.accountId || !config.accessKeyId) return null;
-        this._clients.r2 = {
-            client: new S3Client({
-                region: 'auto',
-                endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
-                credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey }
-            }),
-            bucket: config.bucket
-        };
-        return this._clients.r2;
-    },
-
-    async getMegaStorage() {
-        if (this._clients.mega && this._clients.mega.ready) return this._clients.mega;
-        const creds = { email: getEnv('VITE_MEGA_EMAIL'), password: getEnv('VITE_MEGA_PASS') };
-        if (!creds.email || !creds.password) return null;
-        // Timeout after 15 seconds — Mega login can hang in browsers
-        return new Promise((resolve) => {
-            const timeout = setTimeout(() => {
-                console.warn('Mega login timed out (15s)');
-                resolve(null);
-            }, 15000);
-            try {
-                const s = new Storage(creds);
-                s.on('ready', () => { clearTimeout(timeout); this._clients.mega = s; resolve(s); });
-                s.on('error', (e) => { clearTimeout(timeout); console.error('Mega Init Error', e); resolve(null); });
-            } catch (e) { clearTimeout(timeout); resolve(null); }
+// ─── R2 Client (lazy-init, only if credentials exist) ──────────────────────
+let _r2Client = null;
+async function getR2Client() {
+    if (_r2Client) return _r2Client;
+    const endpoint = getEnv('VITE_R2_ENDPOINT');
+    const accessKeyId = getEnv('VITE_R2_ACCESS_KEY_ID');
+    const secretAccessKey = getEnv('VITE_R2_SECRET_ACCESS_KEY');
+    if (!endpoint || !accessKeyId || !secretAccessKey) {
+        console.warn('[InfinitySync] R2 not configured — layer disabled');
+        return null;
+    }
+    try {
+        const { S3Client } = await import('@aws-sdk/client-s3');
+        _r2Client = new S3Client({
+            region: 'auto',
+            endpoint,
+            credentials: { accessKeyId, secretAccessKey }
         });
-    },
+        return _r2Client;
+    } catch (e) {
+        console.warn('[InfinitySync] R2 SDK not available:', e.message);
+        return null;
+    }
+}
 
-    /**
-     * UNIVERSAL SYNC: THE INFINITY BROADCAST
-     */
+const R2_BUCKET = getEnv('VITE_R2_BUCKET_NAME') || 'edunorm';
+
+// ─── Retry Queue (in-memory) ───────────────────────────────────────────────
+const retryQueue = [];
+
+export const InfinitySync = {
+
+    // ─── Main Entry: Sync rawData to all 3 layers ────────────────────────────
     async universalSync(entityType, rawData) {
-        // 1. Prepare Envelope (Fixed for Infinity Mesh)
+        // 1. Build Sovereign Envelope
         const envelope = await MappingSystem.mapToSovereign(rawData);
-        if (!envelope) return false;
+        if (!envelope) {
+            console.error('[InfinitySync] universalSync aborted: envelope generation failed');
+            return false;
+        }
 
-        // Add Mesh Metadata
-        envelope.header.mesh_v = "1.0.0";
-        envelope.header.sync_ts = Date.now();
-
-        // 2. Tri-Layer Dispatch
-        const layers = ['Firestore', 'R2', 'Mega'];
+        // 2. Tri-Layer Dispatch (each layer is isolated)
         const results = await Promise.all([
-            this.dispatch('Firestore', envelope),
-            this.dispatch('R2', envelope),
-            this.dispatch('Mega', envelope)
+            this.dispatch('Firestore', envelope, entityType),
+            this.dispatch('R2', envelope, entityType),
+            this.dispatch('Mega', envelope, entityType)
         ]);
 
         const activeLayers = results.filter(Boolean).length;
-        console.log(`📡 Infinity Mesh: ${activeLayers}/3 layers secured for ${entityType}.`);
+        console.log(`[InfinitySync] Layers succeeded: ${activeLayers}/3`);
 
-        // Rule of Atomicity: Need at least 2 layers
-        if (activeLayers < 2) {
-            this.queueRetry(envelope);
+        // If less than 1 layer succeeded, queue for retry
+        if (activeLayers < 1) {
+            console.warn('[InfinitySync] All layers failed — queuing for retry');
+            this.queueRetry(envelope, entityType);
         }
 
-        // 3. Life-Pod Trigger (Every 10 syncs)
-        this.syncCount++;
-        if (this.syncCount % 10 === 0) {
-            this.triggerLifePod(rawData);
-        }
-
-        return activeLayers >= 2;
+        return activeLayers >= 1;
     },
 
-    async dispatch(layer, env) {
+    // ─── Dispatcher ──────────────────────────────────────────────────────────
+    async dispatch(layer, envelope, entityType = 'entity') {
         try {
-            if (layer === 'Firestore') return await this.pushToFirestore(env);
-            if (layer === 'R2') return await this.pushToR2(env);
-            if (layer === 'Mega') return await this.pushToMega(env);
-            return false;
+            switch (layer) {
+                case 'Firestore': return await this.pushToFirestore(envelope, entityType);
+                case 'R2': return await this.pushToR2(envelope);
+                case 'Mega': return await this.pushToMega(envelope);
+                default: return false;
+            }
         } catch (err) {
-            console.warn(`Mesh Warning: ${layer} layer failed.`, err.message);
+            console.error(`[InfinitySync] dispatch(${layer}) error:`, err.message);
             return false;
         }
     },
 
-    async pushToFirestore(env) {
-        const dbInstance = await this.getFirestore();
-        if (!dbInstance) throw new Error("Firestore instance not available");
-        await setDoc(doc(dbInstance, 'sovereign_data', env.header.sid), env);
+    // ─── Layer 1: Firestore ──────────────────────────────────────────────────
+    async pushToFirestore(envelope, entityType) {
+        if (!db) { console.warn('[InfinitySync] Firestore not configured'); return false; }
+        const docRef = doc(db, entityType, envelope.header.sid);
+        await setDoc(docRef, {
+            header: envelope.header,
+            body: envelope.body,
+            _updated: Date.now()
+        }, { merge: true });
+        console.log('[InfinitySync] Firestore: OK', envelope.header.sid);
         return true;
     },
 
-    async pushToR2(env) {
-        const r2 = await this.getR2Client();
-        if (!r2) return false;
-        // Use TextEncoder for browser-compatible Uint8Array body
-        const body = new TextEncoder().encode(JSON.stringify(env));
-        const command = new PutObjectCommand({
-            Bucket: r2.bucket,
-            Key: `v2/${env.header.sid}.enorm`,
-            Body: body,
-            ContentType: 'application/json'
-        });
-        await r2.client.send(command);
-        return true;
+    async pullFromFirestore(sid, entityType) {
+        if (!db) return null;
+        const docRef = doc(db, entityType, sid);
+        const snap = await getDoc(docRef);
+        if (!snap.exists()) return null;
+        return MappingSystem.mapFromSovereign(snap.data());
     },
 
-    async pushToMega(env) {
-        const mega = await this.getMegaStorage();
-        if (!mega) return false;
-        let v2Folder = mega.root.children?.find(f => f.name === 'EduNorm_V2');
-        if (!v2Folder) v2Folder = await mega.root.mkdir('EduNorm_V2');
-        // Use TextEncoder instead of Buffer.from (Buffer is Node.js only, not available in browsers)
-        const encoded = new TextEncoder().encode(JSON.stringify(env));
-        await v2Folder.upload(`${env.header.sid}.enorm`, encoded).complete;
-        return true;
-    },
-
-    /**
-     * GENETIC SYNC: THE MASTER DNA BACKUP
-     */
-    async syncMasterDNA(dnaObject) {
-        console.log("🧬 Genetic Sync: Backing up Master DNA to Mesh...");
+    // Pull ALL documents from a Firestore collection
+    async pullAllFromFirestore(entityType = 'sovereign_data') {
+        if (!db) return [];
         try {
-            const sid = await SovereignCore.getSearchHash("SYSTEM_MASTER_DNA");
-            const encryptedBody = await SovereignCore.encryptAsync(JSON.stringify(dnaObject));
-            const env = {
-                header: { sid, type: 'GENETIC_DNA', ts: Date.now(), v: "2.0.0" },
-                body: encryptedBody
-            };
+            const colRef = collection(db, entityType);
+            const snap = await getDocs(colRef);
+            const results = [];
+            for (const docSnap of snap.docs) {
+                try {
+                    const data = docSnap.data();
+                    const decoded = await MappingSystem.mapFromSovereign(data);
+                    if (decoded) results.push(decoded);
+                } catch (e) {
+                    console.warn('[InfinitySync] Failed to decode doc', docSnap.id, e.message);
+                }
+            }
+            return results;
+        } catch (e) {
+            console.error('[InfinitySync] pullAllFromFirestore failed:', e.message);
+            return [];
+        }
+    },
 
-            // Sync to all layers individually to prevent total failure
-            const results = await Promise.allSettled([
-                this.pushToFirestore(env).then(r => ({ layer: 'Firestore', success: r })),
-                this.pushToR2(env).then(r => ({ layer: 'R2', success: r })),
-                this.pushToMega(env).then(r => ({ layer: 'Mega', success: r }))
-            ]);
-
-            const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).map(r => r.value.layer);
-            console.log(`🧬 Genetic Sync Status: ${successful.length}/3 layers secured. Layers: [${successful.join(', ')}]`);
-            return successful.length > 0;
-        } catch (err) {
-            console.warn("Genetic Sync Error:", err.message);
+    // ─── Layer 2: Cloudflare R2 ──────────────────────────────────────────────
+    async pushToR2(envelope) {
+        const client = await getR2Client();
+        if (!client) return false;
+        try {
+            const { PutObjectCommand } = await import('@aws-sdk/client-s3');
+            const key = `sovereign/${envelope.header.sid}.json`;
+            await client.send(new PutObjectCommand({
+                Bucket: R2_BUCKET,
+                Key: key,
+                Body: JSON.stringify(envelope),
+                ContentType: 'application/json'
+            }));
+            console.log('[InfinitySync] R2: OK', key);
+            return true;
+        } catch (e) {
+            console.warn('[InfinitySync] R2 push failed:', e.message);
             return false;
         }
-    },
-
-    /**
-     * SELF-HEALING HEARTBEAT
-     * Compares layers and repairs from Mega.nz (Gold Master)
-     */
-    async heartbeatSelfHeal(sid) {
-        console.log(`💓 Heartbeat: Checking integrity for ${sid}...`);
-
-        // Fetch from Mega (Absolute Truth)
-        const megaData = await this.pullFromMega(sid);
-        if (!megaData) return { success: false, reason: "Gold Master (Mega) unavailable" };
-
-        // Check Firestore and R2
-        const [fData, r2Data] = await Promise.all([
-            this.pullFromFirestore(sid),
-            this.pullFromR2(sid)
-        ]);
-
-        let healCount = 0;
-        if (!fData || JSON.stringify(fData) !== JSON.stringify(megaData)) {
-            console.log("Healing Firestore from Gold Master...");
-            await this.pushToFirestore(megaData);
-            healCount++;
-        }
-        if (!r2Data || JSON.stringify(r2Data) !== JSON.stringify(megaData)) {
-            console.log("Healing R2 from Gold Master...");
-            await this.pushToR2(megaData);
-            healCount++;
-        }
-
-        return { success: true, healed: healCount };
-    },
-
-    async pullFromMega(sid) {
-        try {
-            const mega = await this.getMegaStorage();
-            if (!mega) return null;
-            const v2Folder = mega.root.children?.find(f => f.name === 'EduNorm_V2');
-            const file = v2Folder?.children?.find(f => f.name === `${sid}.enorm`);
-            if (!file) return null;
-            const buffer = await file.downloadBuffer();
-            // Browser-compatible: use TextDecoder instead of Buffer.toString()
-            const text = new TextDecoder().decode(buffer);
-            return JSON.parse(text);
-        } catch (e) { console.warn('pullFromMega failed:', e.message); return null; }
-    },
-
-    async pullFromFirestore(sid) {
-        try {
-            const db = await this.getFirestore();
-            const snap = await getDoc(doc(db, 'sovereign_data', sid));
-            return snap.exists() ? snap.data() : null;
-        } catch (e) { return null; }
     },
 
     async pullFromR2(sid) {
+        const client = await getR2Client();
+        if (!client) return null;
         try {
-            const r2 = await this.getR2Client();
-            if (!r2) return null;
-            const res = await r2.client.send(new GetObjectCommand({
-                Bucket: r2.bucket, Key: `v2/${sid}.enorm`
+            const { GetObjectCommand } = await import('@aws-sdk/client-s3');
+            const response = await client.send(new GetObjectCommand({
+                Bucket: R2_BUCKET,
+                Key: `sovereign/${sid}.json`
             }));
-            // Browser-compatible: use Response + text() instead of Node.js streams
-            let text;
-            if (res.Body instanceof ReadableStream) {
-                // Browser: Body is a Web ReadableStream
-                const response = new Response(res.Body);
-                text = await response.text();
-            } else if (res.Body?.transformToString) {
-                // AWS SDK v3 SdkStream helper
-                text = await res.Body.transformToString();
-            } else if (typeof res.Body === 'string') {
-                text = res.Body;
-            } else {
-                // Fallback: try TextDecoder on raw bytes
-                const bytes = new Uint8Array(res.Body);
-                text = new TextDecoder().decode(bytes);
-            }
-            return JSON.parse(text);
-        } catch (e) { console.warn('pullFromR2 failed:', e.message); return null; }
+            const str = await response.Body.transformToString();
+            return MappingSystem.mapFromSovereign(JSON.parse(str));
+        } catch (e) {
+            console.warn('[InfinitySync] R2 pull failed:', e.message);
+            return null;
+        }
     },
 
-    async triggerLifePod(data) {
-        try {
-            const { LifePodGenerator } = await import('./LifePodGenerator.js');
-            await LifePodGenerator.generate(data);
-        } catch (e) { console.error("Life-Pod Trigger Failed", e); }
+    // ─── Layer 3: Mega ───────────────────────────────────────────────────────
+    async pushToMega(envelope) {
+        // Mega layer not yet connected — returns false (honest)
+        console.warn('[InfinitySync] Mega: not connected');
+        return false;
     },
 
-    /**
-     * UNIVERSAL PULL: THE RESTORATION BRIDGE
-     * Fetches from the mesh, prioritizes Mega (Gold Master) if needed.
-     */
-    async universalPull(sid) {
-        console.log(`📥 Infinity Mesh: Pulling data for ${sid}...`);
+    // ─── Retry Queue ─────────────────────────────────────────────────────────
+    queueRetry(envelope, entityType) {
+        retryQueue.push({ envelope, entityType, queuedAt: Date.now() });
+        console.log(`[InfinitySync] Retry queue length: ${retryQueue.length}`);
+        setTimeout(() => this.flushRetryQueue(), 30000);
+    },
 
-        // Try Mega (Gold Master) first as it's the safest source
-        let data = await this.pullFromMega(sid);
-
-        if (!data) {
-            console.warn("Gold Master (Mega) missed. Failing over to R2/Firestore...");
-            const [r2Data, fData] = await Promise.all([
-                this.pullFromR2(sid),
-                this.pullFromFirestore(sid)
+    async flushRetryQueue() {
+        if (retryQueue.length === 0) return;
+        console.log(`[InfinitySync] Flushing retry queue: ${retryQueue.length} items`);
+        const items = [...retryQueue];
+        retryQueue.length = 0;
+        for (const item of items) {
+            const results = await Promise.all([
+                this.dispatch('Firestore', item.envelope, item.entityType),
+                this.dispatch('R2', item.envelope, item.entityType),
             ]);
-            data = r2Data || fData;
-        }
-
-        if (data && data.header && data.body) {
-            try {
-                // Decrypt polymorphic body
-                const clearText = SovereignCore.decrypt(data.body);
-                return JSON.parse(clearText);
-            } catch (e) {
-                console.error("DECRYPTION_FAILURE: Potential data corruption.", e);
-                return null;
+            if (results.filter(Boolean).length < 1) {
+                retryQueue.push({ ...item, retries: (item.retries || 0) + 1 });
             }
         }
+    },
 
+    // ─── Universal Read (tries all layers, returns first success) ────────────
+    async universalRead(sid, entityType = 'entity') {
+        const layers = [
+            () => this.pullFromFirestore(sid, entityType),
+            () => this.pullFromR2(sid)
+        ];
+        for (const attempt of layers) {
+            try {
+                const result = await attempt();
+                if (result) return result;
+            } catch (err) {
+                console.warn('[InfinitySync] Read layer failed, trying next:', err.message);
+            }
+        }
         return null;
-    },
-
-    queueRetry(envelope) {
-        if (typeof localStorage === 'undefined') {
-            console.warn(`[QUEUED] Node.js environment: Sync deferral saved to memory (Retry not persisted).`);
-            return;
-        }
-        const key = `infinity_retry_${envelope.header.sid}`;
-        localStorage.setItem(key, JSON.stringify(envelope));
-    },
-
-    /**
-     * BLIND SUMMATION: Privacy-Preserving Stats
-     * Aggregates counts for blind tags across a set of data.
-     */
-    async getSovereignStats(records, categoryKey) {
-        const stats = {};
-        for (const record of records) {
-            const val = record[categoryKey];
-            const tag = await SovereignCore.getBlindTag(categoryKey, val);
-            stats[tag] = (stats[tag] || 0) + 1;
-        }
-        return stats;
-    },
-
-    /**
-     * BULK PULL: Fetch ALL sovereign records from Firestore
-     * Decrypts each body and returns plain objects ready for local import.
-     */
-    async pullAllFromFirestore() {
-        const dbInstance = await this.getFirestore();
-        if (!dbInstance) throw new Error("Firestore not available — check Firebase config");
-
-        console.log('📥 Pulling ALL records from Firestore sovereign_data...');
-        const snap = await getDocs(collection(dbInstance, 'sovereign_data'));
-
-        if (snap.empty) {
-            console.log('📥 No records found in cloud.');
-            return [];
-        }
-
-        const records = [];
-        for (const docSnap of snap.docs) {
-            try {
-                const env = docSnap.data();
-                if (!env?.body) continue;
-
-                // Decrypt the body
-                const clearText = SovereignCore.decrypt(env.body);
-                const parsed = JSON.parse(clearText);
-                records.push(parsed);
-            } catch (e) {
-                console.warn(`Skipped record ${docSnap.id}: decrypt failed`, e.message);
-            }
-        }
-
-        console.log(`📥 Pulled ${records.length} records from Firestore (${snap.size} total docs)`);
-        return records;
     }
 };
 

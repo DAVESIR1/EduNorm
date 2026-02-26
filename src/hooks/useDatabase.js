@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as db from '../services/database';
+import AppBus, { APP_EVENTS } from '../core/AppBus.js';
 
 // Hook for settings
 export function useSettings() {
@@ -23,6 +24,13 @@ export function useSettings() {
 
     useEffect(() => {
         loadSettings();
+    }, [loadSettings]);
+
+    // Auto-refresh when cloud restore imports settings
+    useEffect(() => {
+        const handler = () => loadSettings();
+        AppBus.on(APP_EVENTS.SETTINGS_CHANGED, handler);
+        return () => AppBus.off(APP_EVENTS.SETTINGS_CHANGED, handler);
     }, [loadSettings]);
 
     const updateSetting = useCallback(async (key, value) => {
@@ -54,6 +62,16 @@ export function useStudents(standard = null) {
 
     useEffect(() => {
         loadStudents();
+    }, [loadStudents]);
+
+    // Auto-refresh when cloud restore imports students
+    useEffect(() => {
+        const handler = () => {
+            console.log('[useStudents] Cloud import detected — refreshing student list');
+            loadStudents();
+        };
+        AppBus.on(APP_EVENTS.STUDENT_IMPORTED, handler);
+        return () => AppBus.off(APP_EVENTS.STUDENT_IMPORTED, handler);
     }, [loadStudents]);
 
     const addStudent = useCallback(async (studentData) => {

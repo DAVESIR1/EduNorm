@@ -23,7 +23,7 @@ import { DATA_FIELDS } from './features/StudentManagement/types';
 
 // Lazy-loaded components for code splitting
 const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
-const ProfileViewer = lazy(() => import('./components/Profile/ProfileViewer'));
+const ProfileViewer = lazy(() => import('./features/StudentManagement/Profile/ProfileViewer'));
 const GeneralRegister = lazy(() => import('./features/StudentManagement/view'));
 const BackupRestore = lazy(() => import('./features/SyncBackup/view'));
 const CloudBackup = BackupRestore; // Same component, used in two places
@@ -68,6 +68,7 @@ import * as db from './services/database';
 import { selfRepairCheck, isIPBlocked } from './services/SecurityManager';
 import { Menu, Users, FileSpreadsheet, Sparkles, Download, Share2, Maximize2, Minimize2, Cloud, CloudOff, Check, Loader } from 'lucide-react';
 import './App.css';
+import './styles/glassmorphism-force.css'; // Must be LAST — overrides all other CSS with glassmorphism theme
 
 // Main App Content (wrapped in auth and tier providers)
 function AppContent() {
@@ -705,18 +706,7 @@ function AppContent() {
 
                     {/* Centered Branding */}
                     <div className="nav-brand" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-                        <span style={{
-                            background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
-                            fontWeight: 900,
-                            fontSize: '1.25rem',
-                            letterSpacing: '0.08em',
-                            fontFamily: "'Inter', system-ui, sans-serif",
-                            userSelect: 'none',
-                            filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.25))'
-                        }}>edunorm</span>
+                        <EduNormLogo size="medium" />
                     </div>
 
                     <div className="nav-right">
@@ -811,52 +801,34 @@ function AppContent() {
                 </footer>
             </main>
 
-            {/* Sovereign Control Module (right) */}
+            {/* Quick Sync Panel (right) */}
             <section className="glass-panel right-panel">
                 <div className="sovereign-card">
                     <SyncPulse />
-                    <h3 style={{ marginTop: '8px' }}>Data Sovereignty</h3>
+                    <h3 style={{ marginTop: '8px' }}>Auto Sync</h3>
                     <button
                         className="nav-btn"
                         style={{ background: 'white', color: 'var(--accent)', width: '100%', justifyContent: 'center', fontWeight: 'bold' }}
                         onClick={async () => {
                             try {
                                 setSyncStatus('syncing');
-                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_START);
-                                const result = await SovereignBridge.forceSync();
-                                const layers = result?.synced > 0 ? 3 : 1;
+                                const { syncToCloud } = await import('./services/DirectBackupService.js');
+                                const result = await syncToCloud(user?.uid);
                                 setSyncStatus('success');
-                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_SUCCESS, { layers });
-                                toast.success(`Sync complete — ${result?.synced || 0} records secured`);
+                                toast.success(`Synced ${result?.students || 0} students (AES-256-GCM)`);
                                 setTimeout(() => setSyncStatus(null), 3000);
                             } catch (error) {
                                 setSyncStatus('error');
-                                SyncEventBus.emit(SyncEventBus.EVENTS.SYNC_FAIL);
                                 toast.error('Sync failed: ' + error.message);
                                 setTimeout(() => setSyncStatus(null), 3000);
                             }
                         }}
                     >
-                        {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? '✅ Synced' : syncStatus === 'error' ? '❌ Sync Failed' : 'Force Cloud Sync'}
+                        {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? '✅ Synced' : syncStatus === 'error' ? '❌ Failed' : 'Force Sync'}
                     </button>
-                </div>
-
-                <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <h4>System Integrity</h4>
-                    <div className="glass-panel" style={{ padding: '1rem', fontSize: '0.85rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <span>IndexDB Storage</span>
-                            <span style={{ color: 'var(--accent)' }}>Stable</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <span>Encryption Key</span>
-                            <span style={{ color: 'var(--accent)' }}>Verified</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Network Bridge</span>
-                            <span style={{ color: 'var(--accent)' }}>Secure</span>
-                        </div>
-                    </div>
+                    <p style={{ fontSize: '0.75rem', opacity: 0.8, textAlign: 'center', marginTop: '-0.5rem' }}>
+                        Encrypted with AES-256-GCM
+                    </p>
                 </div>
 
                 <div style={{ marginTop: 'auto' }}>
@@ -892,7 +864,10 @@ function AppContent() {
             <CloudBackup
                 isOpen={showCloudBackup}
                 onClose={() => setShowCloudBackup(false)}
-                onRestoreComplete={() => {
+                user={user}
+                ledger={ledger}
+                selectedStandard={selectedStandard}
+                onImportComplete={() => {
                     window.location.reload();
                 }}
             />

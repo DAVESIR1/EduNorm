@@ -1,5 +1,5 @@
 import React from 'react';
-import '../Common/PrintStyles.css';
+import '../../../components/Common/PrintStyles.css';
 
 // Reusing the detailed field list logic but optimizing for flat document layout
 const DocumentPrintView = ({ student, schoolName, schoolLogo, schoolContact, schoolEmail }) => {

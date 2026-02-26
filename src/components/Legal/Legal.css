@@ -7,7 +7,7 @@
 .legal-container {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
+    background: var(--card-strong, rgba(255,255,255,0.55));
     border-radius: 16px;
     padding: 2.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -77,7 +77,7 @@
 }
 
 .legal-container a {
-    color: #6366f1;
+    color: #e07b67;
     text-decoration: none;
 }
 

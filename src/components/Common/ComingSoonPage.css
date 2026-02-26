@@ -25,7 +25,7 @@
 .coming-soon-card h2 {
     margin: 0 0 12px;
     font-size: 26px;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .coming-soon-badge {
@@ -65,14 +65,14 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    background: linear-gradient(135deg, #e07b67, #f4a27a);
     flex-shrink: 0;
 }
 
 .btn-back {
     padding: 12px 28px;
     background: var(--hover-bg, #f3f4f6);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
     border: 1px solid var(--border-color, #e5e7eb);
     border-radius: 12px;
     font-size: 14px;
@@ -87,7 +87,7 @@
 
 /* Dark */
 [data-theme="dark"] .coming-soon-card {
-    background: #1f2937;
+    background: var(--card, rgba(15,23,20,0.4));
     border-color: #374151;
 }
 

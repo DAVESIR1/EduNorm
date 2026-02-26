@@ -124,7 +124,7 @@
 }
 
 .parent-card {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(224, 123, 103, 0.1));
     border-color: rgba(99, 102, 241, 0.3);
 }
 
@@ -200,7 +200,7 @@
 }
 
 .student-node {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #e07b67, #e07b67);
     border-radius: 20px;
     padding: 20px 32px;
     text-align: center;

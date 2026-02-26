@@ -120,6 +120,46 @@ export function AuthProvider({ children }) {
                         console.warn('[AuthContext] Auto-backup wiring skipped:', e.message);
                     }
                 })();
+
+                // Auto-sync on login: only restore if local is empty, then push local to cloud
+                (async () => {
+                    try {
+                        const { restoreFromCloud, syncToCloud } = await import('../services/DirectBackupService.js');
+                        const { getAllStudents } = await import('../services/database.js');
+
+                        // Only restore from cloud if local has NO students
+                        const localStudents = await getAllStudents();
+                        if (localStudents.length === 0) {
+                            console.log('🔄 Auto-sync: Local empty, pulling cloud data...');
+                            const result = await restoreFromCloud(enrichedUser.uid);
+                            if (result.found) {
+                                console.log(`🔄 Auto-sync: Restored ${result.students} students from cloud`);
+                            } else {
+                                console.log('🔄 Auto-sync: No cloud data found');
+                            }
+                        } else {
+                            console.log(`🔄 Auto-sync: Local has ${localStudents.length} students, skipping cloud restore`);
+                        }
+
+                        // Push local → cloud after a delay (captures any local-only data)
+                        setTimeout(async () => {
+                            try {
+                                const currentStudents = await getAllStudents();
+                                if (currentStudents.length > 0) {
+                                    console.log('🔄 Auto-sync: Pushing local data to cloud...');
+                                    const syncResult = await syncToCloud(enrichedUser.uid);
+                                    console.log(`🔄 Auto-sync: Pushed ${syncResult.students} students (AES-256-GCM encrypted)`);
+                                } else {
+                                    console.log('🔄 Auto-sync: No local data to push');
+                                }
+                            } catch (e) {
+                                console.warn('🔄 Auto-sync: Push failed (will retry on data change):', e.message);
+                            }
+                        }, 10000);
+                    } catch (e) {
+                        console.warn('[AuthContext] Auto-sync skipped:', e.message);
+                    }
+                })();
             } else {
                 setUser(null);
                 AppBus.emit(APP_EVENTS.USER_LOGGED_OUT, {});

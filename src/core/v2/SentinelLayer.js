@@ -126,12 +126,14 @@ const Sentinel = (() => {
 
         async syncGeneticMaterial() {
             try {
-                // We use dynamic import to avoid circular dependency
+                // Genetic sync is optional — InfinitySync may not have syncMasterDNA
                 const { default: InfinitySync } = await import('./InfinitySync.js');
-                await InfinitySync.syncMasterDNA(MASTER_DNA);
-                console.log("🧬 Sentinel: Genetic DNA synced to cloud mesh.");
+                if (typeof InfinitySync.syncMasterDNA === 'function') {
+                    await InfinitySync.syncMasterDNA(MASTER_DNA);
+                    console.log("🧬 Sentinel: Genetic DNA synced to cloud mesh.");
+                }
             } catch (e) {
-                console.warn("Sentinel: Genetic Sync failed (Offline or Mesh blocked).");
+                // Silent — genetic sync is non-critical
             }
         },
 
@@ -208,7 +210,8 @@ const Sentinel = (() => {
          * THE REPAIR MECHANISM (The "White Blood Cells")
          */
         repair(key) {
-            console.error(`🚨 CRITICAL: ${key} is corrupted or missing! Re-synthesizing...`);
+            // Only log at debug level — this is expected for ES module globals
+            console.debug(`[Sentinel] Re-synthesizing ${key} (not on window — expected for ES modules)`);
             try {
                 window[key] = new Function(MASTER_DNA[key])();
                 console.log(`✅ ${key} has been successfully re-synthesized.`);

@@ -374,16 +374,16 @@
 }
 
 .template-modern-minimal .id-accent-bar {
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(90deg, #e07b67, #e07b67);
 }
 
 .template-modern-minimal .id-logo-wrap {
-    background: #3b82f6;
+    background: #e07b67;
     color: white;
 }
 
 .template-modern-minimal .id-photo-container {
-    border-color: #3b82f6;
+    border-color: #e07b67;
 }
 
 .template-modern-minimal .id-field {
@@ -392,7 +392,7 @@
 }
 
 .template-modern-minimal .id-school-name {
-    color: #3b82f6;
+    color: #e07b67;
 }
 
 /* ================================================================
@@ -473,15 +473,15 @@
 }
 
 .template-professional .id-accent-bar {
-    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    background: linear-gradient(90deg, #e07b67, #c9604b);
 }
 
 .template-professional .id-school-name {
-    color: #1d4ed8;
+    color: #c9604b;
 }
 
 .template-professional .id-photo-container {
-    border-color: #3b82f6;
+    border-color: #e07b67;
 }
 
 .template-professional .id-field {
@@ -574,7 +574,7 @@
 }
 
 .template-dark-premium .id-bg-pattern {
-    background-image: radial-gradient(circle at 2px 2px, rgba(139, 92, 246, 0.15) 1px, transparent 0);
+    background-image: radial-gradient(circle at 2px 2px, rgba(224, 123, 103, 0.15) 1px, transparent 0);
     background-size: 24px 24px;
     opacity: 0.5;
 }
@@ -582,7 +582,7 @@
 .template-dark-premium .shape-1 {
     width: 200px;
     height: 200px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(224, 123, 103, 0.2) 0%, transparent 70%);
     top: -60px;
     right: -40px;
 }
@@ -596,7 +596,7 @@
 }
 
 .template-dark-premium .id-accent-bar {
-    background: linear-gradient(90deg, #8b5cf6, #ec4899, #8b5cf6);
+    background: linear-gradient(90deg, #e07b67, #ec4899, #e07b67);
 }
 
 .template-dark-premium .id-school-name {
@@ -604,13 +604,13 @@
 }
 
 .template-dark-premium .id-photo-container {
-    border-color: #8b5cf6;
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    border-color: #e07b67;
+    box-shadow: 0 0 20px rgba(224, 123, 103, 0.3);
 }
 
 .template-dark-premium .id-field {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.3);
+    background: rgba(224, 123, 103, 0.1);
+    border-color: rgba(224, 123, 103, 0.3);
 }
 
 /* ================================================================

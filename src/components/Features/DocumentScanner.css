@@ -23,7 +23,7 @@
 }
 
 .doc-scanner-header {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #e07b67 0%, #e07b67 100%);
     color: white;
     padding: 20px 24px;
     display: flex;
@@ -227,7 +227,7 @@
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    background: linear-gradient(90deg, #e07b67, #e07b67);
     transition: width 0.3s;
 }
 
@@ -254,7 +254,7 @@
 }
 
 .scan-btn {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #e07b67, #e07b67);
     color: white;
 }
 

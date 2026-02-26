@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "generated": "2026-02-26T00:45:43.115Z",
+    "duration_seconds": 0,
+    "project": "EduNorm",
+    "version": "2.0"
+  },
+  "status": "PASS",
+  "counts": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "errors": [],
+  "warnings": []
+}

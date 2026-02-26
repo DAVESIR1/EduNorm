@@ -113,7 +113,7 @@
 }
 
 .filter-tab.active {
-    background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
+    background: linear-gradient(135deg, #EC4899 0%, #e07b67 100%);
     color: white;
 }
 
@@ -181,7 +181,7 @@
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+    background: linear-gradient(135deg, #e07b67 0%, #e07b67 100%);
     display: flex;
     align-items: center;
     justify-content: center;

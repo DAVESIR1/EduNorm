@@ -34,7 +34,7 @@
 .role-modal-content h2 {
     font-size: 2rem;
     margin-bottom: 8px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #e07b67, #e07b67);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -64,7 +64,7 @@
 }
 
 .back-link:hover {
-    color: var(--primary-color, #6366f1);
+    color: var(--primary-color, #e07b67);
 }
 
 
@@ -102,7 +102,7 @@
     height: 64px;
     border-radius: 50%;
     background: #e0e7ff;
-    color: #6366f1;
+    color: #e07b67;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,7 +157,7 @@
 
 .input-field:focus {
     outline: none;
-    border-color: var(--primary-color, #6366f1);
+    border-color: var(--primary-color, #e07b67);
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     background: var(--bg-card);
 }
@@ -193,7 +193,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #e07b67, #e07b67);
     color: white;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }

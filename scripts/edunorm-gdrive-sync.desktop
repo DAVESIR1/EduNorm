@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=EduNorm GDrive Sync
+Comment=Smart bidirectional sync between local EduNorm and Google Drive
+Exec=bash -c '/home/davesir/Documents/EduNorm/scripts/smart-sync.sh'
+Icon=folder-sync
+Terminal=true
+Type=Application
+Categories=Utility;
+StartupNotify=true

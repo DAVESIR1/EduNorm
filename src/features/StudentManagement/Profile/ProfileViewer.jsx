@@ -4,9 +4,9 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ProfileCard from './ProfileCard';
 import IdCard, { TEMPLATES, ID_CARD_FIELDS, DEFAULT_VISIBLE_FIELDS } from './IdCard';
-import PrintFrame from '../Common/PrintFrame';
+import PrintFrame from '../../../components/Common/PrintFrame';
 import TemplateSelector from './TemplateSelector';
-import PrintPortal from '../Common/PrintPortal';
+import PrintPortal from '../../../components/Common/PrintPortal';
 import DocumentPrintView from './DocumentPrintView';
 import IdCardPrintDocument from './IdCardPrintDocument';
 import './ProfileViewer.css';
@@ -68,8 +68,11 @@ export default function ProfileViewer({
     // Auto-select if only one student (Student View)
     useEffect(() => {
         if (students.length === 1) {
-            setSelectedStandard(students[0].standard);
-            setSelectedStudent(students[0]);
+            const t = setTimeout(() => {
+                setSelectedStandard(students[0].standard);
+                setSelectedStudent(students[0]);
+            }, 0);
+            return () => clearTimeout(t);
         }
     }, [students]);
 

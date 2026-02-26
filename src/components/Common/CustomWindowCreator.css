@@ -14,7 +14,7 @@
 .creator-header h2 {
     margin: 0 0 8px;
     font-size: 24px;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .creator-header p {
@@ -31,7 +31,7 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
     margin-bottom: 8px;
 }
 
@@ -43,11 +43,11 @@
     font-size: 15px;
     outline: none;
     background: var(--input-bg, white);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .input-field:focus {
-    border-color: #3B82F6;
+    border-color: #e07b67;
 }
 
 /* Fields Section */
@@ -58,7 +58,7 @@
 .fields-section h3 {
     margin: 0 0 16px;
     font-size: 16px;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .fields-list {
@@ -83,7 +83,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    background: linear-gradient(135deg, #e07b67, #c9604b);
     color: white;
     border-radius: 50%;
     font-size: 12px;
@@ -139,8 +139,8 @@
 }
 
 .add-field-btn:hover {
-    border-color: #3B82F6;
-    color: #3B82F6;
+    border-color: #e07b67;
+    color: #e07b67;
 }
 
 /* Actions */
@@ -157,7 +157,7 @@
     align-items: center;
     gap: 8px;
     padding: 14px 24px;
-    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    background: linear-gradient(135deg, #e07b67, #c9604b);
     color: white;
     border: none;
     border-radius: 10px;
@@ -179,7 +179,7 @@
 .btn-secondary {
     padding: 14px 24px;
     background: var(--hover-bg, #f3f4f6);
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
     border: none;
     border-radius: 10px;
     font-size: 14px;
@@ -237,7 +237,7 @@
 .field-display {
     font-size: 16px;
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary, var(--card, rgba(15,23,20,0.4)));
 }
 
 .field-display .empty {
@@ -318,7 +318,7 @@
 }
 
 [data-theme="neon"] .btn-secondary:hover {
-    background: #1f2937 !important;
+    background: var(--card, rgba(15,23,20,0.4)) !important;
 }
 
 [data-theme="neon"] .field-item {

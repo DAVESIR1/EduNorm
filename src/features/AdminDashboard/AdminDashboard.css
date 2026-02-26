@@ -88,12 +88,12 @@
     font-weight: 800;
     font-size: 0.85rem;
     letter-spacing: 0.12em;
-    color: #a78bfa;
+    color: #f4a08a;
     text-transform: uppercase;
 }
 
 .admin-header .header-badge svg {
-    color: #6366f1;
+    color: #e07b67;
 }
 
 .admin-header .close-btn {
@@ -152,7 +152,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--color, #6366f1);
+    background: var(--color, #e07b67);
     box-shadow: 0 0 12px var(--color, rgba(99, 102, 241, 0.4));
     flex-shrink: 0;
 }
@@ -199,7 +199,7 @@
 }
 
 .admin-card h3 svg {
-    color: #a78bfa;
+    color: #f4a08a;
 }
 
 /* ── Code Generator tool ── */
@@ -234,7 +234,7 @@
 
 .admin-card .btn-primary {
     padding: 10px 20px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #e07b67, #e07b67);
     border: none;
     border-radius: 12px;
     color: #fff;
@@ -271,7 +271,7 @@
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #a78bfa;
+    color: #f4a08a;
     letter-spacing: 0.04em;
     word-break: break-all;
 }
@@ -295,7 +295,7 @@
 .code-result .btn-icon:hover,
 .table-mini button:hover {
     background: rgba(99, 102, 241, 0.2);
-    color: #a78bfa;
+    color: #f4a08a;
 }
 
 /* ── Registry / Table ── */
@@ -356,7 +356,7 @@
 .table-mini code {
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.75rem;
-    color: #a78bfa;
+    color: #f4a08a;
     background: rgba(99, 102, 241, 0.1);
     padding: 3px 7px;
     border-radius: 6px;
@@ -462,7 +462,7 @@
 }
 
 [data-theme="light"] .admin-header .header-badge {
-    color: #6366f1;
+    color: #e07b67;
 }
 
 [data-theme="light"] .admin-header .close-btn {

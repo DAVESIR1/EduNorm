@@ -74,7 +74,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    background: linear-gradient(135deg, #e07b67, #c9604b);
     color: white;
     border-radius: 14px;
     font-size: 24px;
@@ -188,7 +188,7 @@
 }
 
 .input-field:focus {
-    border-color: #8B5CF6;
+    border-color: #e07b67;
 }
 
 .input-field.textarea {
@@ -253,8 +253,8 @@
 }
 
 .add-field-btn:hover {
-    border-color: #8B5CF6;
-    color: #8B5CF6;
+    border-color: #e07b67;
+    color: #e07b67;
 }
 
 /* Form Actions */
@@ -272,7 +272,7 @@
     align-items: center;
     gap: 8px;
     padding: 14px 24px;
-    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    background: linear-gradient(135deg, #e07b67, #c9604b);
     color: white;
     border: none;
     border-radius: 10px;
@@ -283,7 +283,7 @@
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(224, 123, 103, 0.3);
 }
 
 .btn-primary:disabled {

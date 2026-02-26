@@ -1,4 +1,4 @@
-
+/* global Image */
 import { DEFAULT_FACILITIES } from './types.js';
 
 /**

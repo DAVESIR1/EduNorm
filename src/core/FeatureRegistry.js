@@ -136,16 +136,3 @@ if (typeof window !== 'undefined') {
 }
 
 export default FeatureRegistry;
-
-
-// ─── Register All Features ───────────────────────────────────────────────────
-// Import each feature's manifest. Order doesn't matter — sidebar order
-// is controlled by each manifest's `order` field.
-//
-// To add a new feature: just add one import line here.
-
-import '../features/StudentManagement/manifest.js';
-import '../features/SchoolProfile/manifest.js';
-import '../features/SyncBackup/manifest.js';
-import '../features/Identity/manifest.js';
-import '../features/AdminDashboard/manifest.js';
