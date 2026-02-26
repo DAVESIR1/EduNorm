@@ -1163,14 +1163,17 @@ textarea {
     border-radius: 8px;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
     border-color: var(--accent, #e07b67);
     box-shadow: 0 0 0 3px rgba(224, 123, 103, 0.15);
     outline: none;
 }
 
 /* ── Primary buttons: peach gradient ── */
-.btn-primary, .btn-sovereign {
+.btn-primary,
+.btn-sovereign {
     background: linear-gradient(135deg, #e07b67, #c9604b) !important;
     color: white !important;
     border: none !important;
@@ -1184,7 +1187,7 @@ table th {
 
 table td {
     color: var(--text, #5c3d2e);
-    border-bottom: 1px solid var(--border, rgba(255,255,255,0.5));
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.5));
 }
 
 table tr:hover {
@@ -1260,4 +1263,82 @@ table tr:hover {
         box-shadow: none !important;
         text-shadow: none !important;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHOENIX SYNC — Override Protection
+   Prevent glassmorphism from breaking Phoenix button colors
+   ═══════════════════════════════════════════════════════════════ */
+.glass-panel .phoenix-container button.btn-phoenix,
+.glass-panel .phoenix-fullpage-wrapper button.btn-phoenix,
+.phoenix-overlay button.btn-phoenix,
+.phoenix-modal button.btn-phoenix {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+
+.glass-panel .btn-phoenix.connect,
+.phoenix-modal .btn-phoenix.setup,
+.phoenix-overlay .btn-phoenix.setup {
+    background: linear-gradient(135deg, #f97316, #ea580c) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.glass-panel .btn-phoenix.backup {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.glass-panel .btn-phoenix.restore {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.glass-panel .btn-phoenix.local {
+    background: rgba(255, 255, 255, 0.3) !important;
+    color: #3d2518 !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.glass-panel .btn-phoenix.skip,
+.phoenix-modal .btn-phoenix.skip,
+.phoenix-overlay .btn-phoenix.skip {
+    background: transparent !important;
+    color: var(--text-secondary, #6b7280) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Phoenix step-items — prevent glassmorphism step-item override */
+.phoenix-modal .step-item,
+.phoenix-overlay .step-item {
+    background: transparent !important;
+    border: none !important;
+    color: inherit !important;
+}
+
+.phoenix-modal .step-num {
+    background: linear-gradient(135deg, #f97316, #ea580c) !important;
+    color: #fff !important;
+}
+
+/* Phoenix tab buttons */
+.glass-panel .tab-btn {
+    background: none !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.glass-panel .tab-btn.active {
+    color: #f97316 !important;
+    border-bottom-color: #f97316 !important;
+}
+
+/* Phoenix overlay — ensure it renders above everything */
+.phoenix-overlay {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
 }

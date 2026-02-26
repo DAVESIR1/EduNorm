@@ -42,10 +42,11 @@ export default function StaffInfo() {
 
     const loadStaffList = async () => {
         try {
-            const saved = await db.getSetting('staff_info_list') || [];
-            setStaffList(saved);
+            const saved = await db.getSetting('staff_info_list');
+            setStaffList(Array.isArray(saved) ? saved : []);
         } catch (error) {
             console.error('Failed to load staff list:', error);
+            setStaffList([]);
         }
     };
 
@@ -64,8 +65,9 @@ export default function StaffInfo() {
     };
 
     const handleDeleteStaff = async (staffId) => {
-        const staff = staffList.find(s => s.id === staffId);
-        const newList = staffList.filter(s => s.id !== staffId);
+        const list = Array.isArray(staffList) ? staffList : [];
+        const staff = list.find(s => s.id === staffId);
+        const newList = list.filter(s => s.id !== staffId);
         setStaffList(newList);
         await db.setSetting('staff_info_list', newList);
 
@@ -73,14 +75,16 @@ export default function StaffInfo() {
             type: 'DELETE_STAFF',
             description: `Deleted staff: ${staff?.data?.name}`,
             undo: async () => {
-                const list = await db.getSetting('staff_info_list') || [];
-                list.push(staff);
-                await db.setSetting('staff_info_list', list);
-                setStaffList(list);
+                const list = await db.getSetting('staff_info_list');
+                const arr = Array.isArray(list) ? list : [];
+                arr.push(staff);
+                await db.setSetting('staff_info_list', arr);
+                setStaffList(arr);
             },
             redo: async () => {
-                const list = await db.getSetting('staff_info_list') || [];
-                const filtered = list.filter(s => s.id !== staffId);
+                const list = await db.getSetting('staff_info_list');
+                const arr = Array.isArray(list) ? list : [];
+                const filtered = arr.filter(s => s.id !== staffId);
                 await db.setSetting('staff_info_list', filtered);
                 setStaffList(filtered);
             }
@@ -123,11 +127,12 @@ export default function StaffInfo() {
                 updatedAt: Date.now()
             };
 
+            const list = Array.isArray(staffList) ? staffList : [];
             let newList;
             if (selectedStaff) {
-                newList = staffList.map(s => s.id === selectedStaff.id ? staffData : s);
+                newList = list.map(s => s.id === selectedStaff.id ? staffData : s);
             } else {
-                newList = [...staffList, staffData];
+                newList = [...list, staffData];
             }
 
             await db.setSetting('staff_info_list', newList);
@@ -139,8 +144,8 @@ export default function StaffInfo() {
                 type: selectedStaff ? 'UPDATE_STAFF' : 'ADD_STAFF',
                 description: `${selectedStaff ? 'Updated' : 'Added'} staff: ${formData.name}`,
                 undo: async () => {
-                    await db.setSetting('staff_info_list', staffList);
-                    setStaffList(staffList);
+                    await db.setSetting('staff_info_list', list);
+                    setStaffList(list);
                 },
                 redo: async () => {
                     await db.setSetting('staff_info_list', newList);
@@ -155,7 +160,7 @@ export default function StaffInfo() {
         }
     };
 
-    const filteredStaff = staffList.filter(s =>
+    const filteredStaff = (Array.isArray(staffList) ? staffList : []).filter(s =>
         s.data?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.data?.designation?.toLowerCase().includes(searchQuery.toLowerCase())
     );

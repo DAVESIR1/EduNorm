@@ -28,16 +28,7 @@ if (import.meta.env.DEV) {
     }
 })();
 
-// Register Immortal Backup Sandbox (Service Worker — survives crashes)
-// Runs in its own isolated thread. Queues and retries automatically.
-window.addEventListener('load', async () => {
-    try {
-        const { initBackupSandbox } = await import('./services/BackupSandbox.js');
-        await initBackupSandbox();
-    } catch (e) {
-        console.warn('[Main] BackupSandbox init failed (non-critical):', e.message);
-    }
-});
+
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {

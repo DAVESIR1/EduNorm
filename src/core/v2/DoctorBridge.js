@@ -1,8 +1,9 @@
 /**
  * DoctorBridge - Browser-side error capture for the EduNorm Doctor tool.
  * 
- * Intercepts console errors, unhandled exceptions, and promise rejections
- * and sends them to the local Doctor server.
+ * ONLY activates if the Doctor server has been explicitly enabled.
+ * Set localStorage.setItem('doctor_enabled', 'true') to enable.
+ * This prevents ERR_CONNECTION_REFUSED noise when the server isn't running.
  */
 
 const DOCTOR_SERVER = 'http://localhost:3001/log';
@@ -12,7 +13,11 @@ export const initDoctorBridge = () => {
     if (window.__DOCTOR_BRIDGE_INITIALIZED__) return;
     window.__DOCTOR_BRIDGE_INITIALIZED__ = true;
 
-    console.log('[DoctorBridge] Initializing live error capture...');
+    // Only activate if explicitly enabled — no guessing, no probing
+    const enabled = localStorage.getItem('doctor_enabled') === 'true';
+    if (!enabled) return;
+
+    console.log('[DoctorBridge] Doctor mode enabled, capturing errors...');
 
     const relayLog = async (type, data) => {
         try {
@@ -28,12 +33,12 @@ export const initDoctorBridge = () => {
                 }),
                 mode: 'cors'
             });
-        } catch (e) {
-            // Silently fail if doctor server is not running
+        } catch {
+            // Server went away — disable
+            localStorage.removeItem('doctor_enabled');
         }
     };
 
-    // 1. Capture Uncaught Exceptions
     window.addEventListener('error', (event) => {
         relayLog('browser-error', {
             message: event.message,
@@ -44,7 +49,6 @@ export const initDoctorBridge = () => {
         });
     });
 
-    // 2. Capture Unhandled Promise Rejections
     window.addEventListener('unhandledrejection', (event) => {
         relayLog('browser-promise', {
             message: event.reason?.message || String(event.reason),
@@ -52,7 +56,6 @@ export const initDoctorBridge = () => {
         });
     });
 
-    // 3. Intercept console.error
     const originalConsoleError = console.error;
     console.error = (...args) => {
         originalConsoleError.apply(console, args);
@@ -65,6 +68,5 @@ export const initDoctorBridge = () => {
         });
     };
 
-    // Initial heart-beat
     relayLog('browser-init', { message: 'Bridge connected' });
 };

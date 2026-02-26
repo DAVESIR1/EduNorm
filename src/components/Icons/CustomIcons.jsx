@@ -494,6 +494,26 @@ export const LanguageIcon = ({ size = 24, className = '' }) => (
     </svg>
 );
 
+// Phoenix Sync Icon (phoenix bird + sync arrows)
+export const PhoenixIcon = ({ size = 24, className = '' }) => (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className}>
+        {/* Phoenix body rising */}
+        <path d="M24 6C22 10 18 14 18 20C18 26 20 30 24 34C28 30 30 26 30 20C30 14 26 10 24 6Z" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Left wing */}
+        <path d="M18 20C14 16 8 14 6 16C8 18 12 20 16 22" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Right wing */}
+        <path d="M30 20C34 16 40 14 42 16C40 18 36 20 32 22" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Sync arrow left */}
+        <path d="M10 36C14 38 18 38 22 36" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+        <path d="M10 36L12 33" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+        {/* Sync arrow right */}
+        <path d="M38 36C34 38 30 38 26 36" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+        <path d="M38 36L36 33" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+        {/* Flame tip */}
+        <circle cx="24" cy="8" r="2" fill="#F97316" />
+    </svg>
+);
+
 // Export all icons as a map for easy lookup
 export const IconMap = {
     studentProfile: StudentProfileIcon,
@@ -554,6 +574,8 @@ export const IconMap = {
     palette: PaletteIcon,
     language: LanguageIcon,
     infrastructure: InfrastructureIcon,
+    phoenix: PhoenixIcon,
+    'phoenix-sync': PhoenixIcon,
     default: HomeIcon,
 };
 

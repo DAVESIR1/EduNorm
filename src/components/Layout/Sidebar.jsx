@@ -542,28 +542,7 @@ export default function Sidebar({
                                         {t('sidebar.goToSheet', 'Go to Sheet')}
                                     </button>
 
-                                    <button
-                                        className="sidebar-action-btn gradient-btn"
-                                        onClick={async () => {
-                                            if (window.confirm("🧬 START SOVEREIGN AUTOMATIC RESTORATION?\n\nThis will merge all data from your 'backup_restore.json' using Zero-Loss Integrity. Proceed?")) {
-                                                try {
-                                                    const RestorationService = (await import('../../services/RestorationService')).default;
-                                                    const results = await RestorationService.performFullRestoration();
-                                                    if (results.summary) {
-                                                        alert(`✅ RESTORATION SUCCESS!\n\nRestored ${results.summary.totalStudents} Student Records.\nUDISE: ${results.summary.udise || 'Verified'}`);
-                                                    } else {
-                                                        alert("✅ Restoration complete, but no summary returned.");
-                                                    }
-                                                    window.location.reload();
-                                                } catch (e) {
-                                                    alert("❌ Restoration Failed: " + e.message);
-                                                }
-                                            }
-                                        }}
-                                    >
-                                        <CloudDownloadIcon size={16} />
-                                        {t('sidebar.jsonRestore', 'Auto-Restore (JSON)')}
-                                    </button>
+
 
                                     <button className="sidebar-action-btn accent" onClick={onImportExcel}>
                                         <ImportIcon size={16} />
@@ -729,7 +708,7 @@ export default function Sidebar({
                         </button>
                     </div>
                 )}
-            </aside>
+            </aside >
         </>
     );
 }

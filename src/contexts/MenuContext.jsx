@@ -89,8 +89,8 @@ export const MENU_STRUCTURE = {
         icon: 'database',
         color: '#EC4899',
         items: [
-            { id: 'backup-restore', name: 'Data Import / Export', nameKey: 'sidebar.backupRestore', icon: 'download', status: 'active' },
-            { id: 'cloud-backup', name: 'Cloud Backup', nameKey: 'sidebar.cloudBackup', icon: 'cloud', status: 'active' },
+            { id: 'phoenix-sync', name: 'Phoenix Sync', nameKey: 'sidebar.phoenixSync', icon: 'phoenix', status: 'active' },
+            { id: 'data-export', name: 'Data Import / Export', nameKey: 'sidebar.backupRestore', icon: 'download', status: 'active' },
         ]
     }
 };

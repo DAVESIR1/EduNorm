@@ -125,16 +125,7 @@ const Sentinel = (() => {
         },
 
         async syncGeneticMaterial() {
-            try {
-                // Genetic sync is optional — InfinitySync may not have syncMasterDNA
-                const { default: InfinitySync } = await import('./InfinitySync.js');
-                if (typeof InfinitySync.syncMasterDNA === 'function') {
-                    await InfinitySync.syncMasterDNA(MASTER_DNA);
-                    console.log("🧬 Sentinel: Genetic DNA synced to cloud mesh.");
-                }
-            } catch (e) {
-                // Silent — genetic sync is non-critical
-            }
+            // No-op: sync now handled by HybridSyncService
         },
 
         getMutationPacket() {

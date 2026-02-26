@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import ToastContainer, { toast } from './components/Common/Toast';
-import SyncPulse from './components/Common/SyncPulse';
-import OfflineQueue from './components/Common/OfflineQueue';
-import SyncEventBus from './services/SyncEventBus';
+
 import NewSidebar from './components/Layout/NewSidebar';
 import LoginPage from './components/Auth/LoginPage';
 import { AdPlacement } from './components/Ads/AdBanner';
@@ -17,7 +15,7 @@ import BrandLoader from './components/Common/BrandLoader';
 import ParticleBackground from './components/Effects/ParticleBackground';
 import { IconMap } from './components/Icons/CustomIcons';
 import { UIEngine } from './core/v2/UIEngine';
-import { SovereignBridge } from './core/v2/Bridge';
+
 
 import { DATA_FIELDS } from './features/StudentManagement/types';
 
@@ -25,8 +23,8 @@ import { DATA_FIELDS } from './features/StudentManagement/types';
 const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
 const ProfileViewer = lazy(() => import('./features/StudentManagement/Profile/ProfileViewer'));
 const GeneralRegister = lazy(() => import('./features/StudentManagement/view'));
-const BackupRestore = lazy(() => import('./features/SyncBackup/view'));
-const CloudBackup = BackupRestore; // Same component, used in two places
+const BackupRestore = lazy(() => import('./components/Backup/BackupRestore'));
+const PhoenixSync = lazy(() => import('./components/Backup/PhoenixSync'));
 const AdminPanel = lazy(() => import('./features/AdminDashboard/view'));
 const CertificateGenerator = lazy(() => import('./components/Features/CertificateGenerator'));
 const AnalyticsDashboard = lazy(() => import('./components/Features/AnalyticsDashboard'));
@@ -171,24 +169,7 @@ function AppContent() {
         }
     }, [isAuthenticated, user?.uid]);
 
-    // Initialize sovereign backup check
-    useEffect(() => {
-        const initBackupSystem = async () => {
-            try {
-                // Initial check for data integrity
-                const allData = await db.exportAllData();
-                if (allData && (allData.students?.length > 0 || allData.settings)) {
-                    console.log('Sovereign Backup system active');
-                }
-            } catch (error) {
-                console.error('Backup system init failed:', error);
-            }
-        };
 
-        if (isReady) {
-            initBackupSystem();
-        }
-    }, [isReady]);
 
     // Save settings
     const handleSaveSettings = useCallback(async () => {
@@ -212,13 +193,6 @@ function AppContent() {
         };
         await updateSetting('school_profile', unifiedProfile);
 
-        // Sovereign Universal Save (Replaces RealTimeBackup & MandatorySync)
-        await SovereignBridge.save('settings', {
-            id: 'SYSTEM_SETTINGS',
-            type: 'settings',
-            schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard,
-            school_profile: unifiedProfile
-        });
 
         toast.success('Settings saved!');
     }, [schoolName, schoolLogo, schoolContact, schoolEmail, teacherName, selectedStandard, updateSetting]);
@@ -241,8 +215,7 @@ function AppContent() {
         await refreshStudents();
         await refreshLedger();
 
-        // Sovereign Universal Save (Replaces RealTimeBackup)
-        SovereignBridge.save('student', studentRecord);
+
     }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger]);
 
     // Class upgrade
@@ -302,7 +275,7 @@ function AppContent() {
         console.log('Menu navigate:', menuId, itemId);
 
         // Content area items (render inside Bento feed)
-        if (itemId === 'general-register' || itemId === 'student-profile' || itemId === 'id-card' || itemId === 'certificate' || itemId === 'backup-restore' || itemId === 'cloud-backup') {
+        if (itemId === 'general-register' || itemId === 'student-profile' || itemId === 'id-card' || itemId === 'certificate' || itemId === 'phoenix-sync' || itemId === 'data-export') {
             setMenuContentType(itemId);
             setShowMenuContent(true);
             // Close overlays
@@ -388,9 +361,13 @@ function AppContent() {
                     schoolName={schoolName}
                     schoolLogo={schoolLogo}
                 /></ComponentErrorBoundary>;
-            case 'backup-restore':
-            case 'cloud-backup':
-                return <ComponentErrorBoundary componentName="Backup & Restore"><BackupRestore
+            case 'phoenix-sync':
+                return <ComponentErrorBoundary componentName="Phoenix Sync"><PhoenixSync
+                    isFullPage={true}
+                    onClose={() => setShowMenuContent(false)}
+                /></ComponentErrorBoundary>;
+            case 'data-export':
+                return <ComponentErrorBoundary componentName="Data Import/Export"><BackupRestore
                     isOpen={true}
                     isFullPage={true}
                     user={user}
@@ -732,8 +709,8 @@ function AppContent() {
                 </header>
 
                 <div className="glass-panel" style={{ flex: 1, overflowY: 'auto' }}>
-                    <h2>Welcome back, {user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Sovereign'}!</h2>
-                    <p style={{ opacity: 0.7, marginBottom: '1.5rem' }}>Everything is synced and sovereign.</p>
+                    <h2>Welcome back, {user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}!</h2>
+                    <p style={{ opacity: 0.7, marginBottom: '1.5rem' }}>Your data is protected by Phoenix Sync. 🔥</p>
 
                     {/* Menu Content or Main Dashboard */}
                     {showMenuContent && menuContentType ? (
@@ -801,36 +778,8 @@ function AppContent() {
                 </footer>
             </main>
 
-            {/* Quick Sync Panel (right) */}
+            {/* Right Panel */}
             <section className="glass-panel right-panel">
-                <div className="sovereign-card">
-                    <SyncPulse />
-                    <h3 style={{ marginTop: '8px' }}>Auto Sync</h3>
-                    <button
-                        className="nav-btn"
-                        style={{ background: 'white', color: 'var(--accent)', width: '100%', justifyContent: 'center', fontWeight: 'bold' }}
-                        onClick={async () => {
-                            try {
-                                setSyncStatus('syncing');
-                                const { syncToCloud } = await import('./services/DirectBackupService.js');
-                                const result = await syncToCloud(user?.uid);
-                                setSyncStatus('success');
-                                toast.success(`Synced ${result?.students || 0} students (AES-256-GCM)`);
-                                setTimeout(() => setSyncStatus(null), 3000);
-                            } catch (error) {
-                                setSyncStatus('error');
-                                toast.error('Sync failed: ' + error.message);
-                                setTimeout(() => setSyncStatus(null), 3000);
-                            }
-                        }}
-                    >
-                        {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'success' ? '✅ Synced' : syncStatus === 'error' ? '❌ Failed' : 'Force Sync'}
-                    </button>
-                    <p style={{ fontSize: '0.75rem', opacity: 0.8, textAlign: 'center', marginTop: '-0.5rem' }}>
-                        Encrypted with AES-256-GCM
-                    </p>
-                </div>
-
                 <div style={{ marginTop: 'auto' }}>
                     <AdPlacement type="rectangle" />
                 </div>
@@ -861,16 +810,7 @@ function AppContent() {
                 }}
             />
 
-            <CloudBackup
-                isOpen={showCloudBackup}
-                onClose={() => setShowCloudBackup(false)}
-                user={user}
-                ledger={ledger}
-                selectedStandard={selectedStandard}
-                onImportComplete={() => {
-                    window.location.reload();
-                }}
-            />
+
 
             <DocumentScanner
                 isOpen={showDocScanner}
@@ -932,7 +872,7 @@ function AppContent() {
             {/* Unified Layout Control Elements */}
             <UndoRedoBar />
             <ToastContainer />
-            <OfflineQueue />
+
         </div >
     );
 }

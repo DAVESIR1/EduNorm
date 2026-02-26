@@ -79,25 +79,6 @@ export function AuthProvider({ children }) {
                             userProfile = { ...userProfile, ...cloudData };
                             // Update local cache
                             localStorage.setItem(`user_profile_${firebaseUser.uid}`, JSON.stringify(userProfile));
-
-                            // TRIGGER BACKGROUND MIGRATION TO SOVEREIGN V2 (only once per user)
-                            const migrationKey = `sovereign_migrated_v2_${firebaseUser.uid}`;
-                            if (!localStorage.getItem(migrationKey)) {
-                                (async () => {
-                                    try {
-                                        const { SovereignBridge } = await import('../core/v2/Bridge.js');
-                                        console.log('Sovereign: Starting one-time background migration...');
-                                        // Use forceSync which properly iterates students + settings individually
-                                        const result = await SovereignBridge.forceSync();
-                                        console.log('Sovereign: Migration complete:', result);
-                                        if (result && result.synced > 0) {
-                                            localStorage.setItem(migrationKey, Date.now().toString());
-                                        }
-                                    } catch (e) {
-                                        console.warn('Sovereign: Background migration failed', e);
-                                    }
-                                })();
-                            }
                         }
                     } catch (error) {
                         console.error('Auth: Failed to fetch user profile from cloud:', error);
@@ -110,64 +91,28 @@ export function AuthProvider({ children }) {
                 // Broadcast login to all features via AppBus
                 AppBus.emit(APP_EVENTS.USER_LOGGED_IN, { user: enrichedUser });
 
-                // Wire auto-backup: any data save event triggers a queued backup
-                (async () => {
+                // 🔥 Start Phoenix Sync (self-healing immortal backup)
+                setTimeout(async () => {
                     try {
-                        const RegistryMod = await import('../core/FeatureRegistry.js');
-                        const { queueBackup } = await import('../services/BackupSandbox.js');
-                        RegistryMod.default.setAutoBackupHandler(() => queueBackup(enrichedUser).catch(console.warn));
+                        const { phoenixInit } = await import('../services/HybridSyncService.js');
+                        await phoenixInit(enrichedUser);
                     } catch (e) {
-                        console.warn('[AuthContext] Auto-backup wiring skipped:', e.message);
+                        console.warn('[AuthContext] Phoenix init skipped:', e.message);
                     }
-                })();
-
-                // Auto-sync on login: only restore if local is empty, then push local to cloud
-                (async () => {
-                    try {
-                        const { restoreFromCloud, syncToCloud } = await import('../services/DirectBackupService.js');
-                        const { getAllStudents } = await import('../services/database.js');
-
-                        // Only restore from cloud if local has NO students
-                        const localStudents = await getAllStudents();
-                        if (localStudents.length === 0) {
-                            console.log('🔄 Auto-sync: Local empty, pulling cloud data...');
-                            const result = await restoreFromCloud(enrichedUser.uid);
-                            if (result.found) {
-                                console.log(`🔄 Auto-sync: Restored ${result.students} students from cloud`);
-                            } else {
-                                console.log('🔄 Auto-sync: No cloud data found');
-                            }
-                        } else {
-                            console.log(`🔄 Auto-sync: Local has ${localStudents.length} students, skipping cloud restore`);
-                        }
-
-                        // Push local → cloud after a delay (captures any local-only data)
-                        setTimeout(async () => {
-                            try {
-                                const currentStudents = await getAllStudents();
-                                if (currentStudents.length > 0) {
-                                    console.log('🔄 Auto-sync: Pushing local data to cloud...');
-                                    const syncResult = await syncToCloud(enrichedUser.uid);
-                                    console.log(`🔄 Auto-sync: Pushed ${syncResult.students} students (AES-256-GCM encrypted)`);
-                                } else {
-                                    console.log('🔄 Auto-sync: No local data to push');
-                                }
-                            } catch (e) {
-                                console.warn('🔄 Auto-sync: Push failed (will retry on data change):', e.message);
-                            }
-                        }, 10000);
-                    } catch (e) {
-                        console.warn('[AuthContext] Auto-sync skipped:', e.message);
-                    }
-                })();
+                }, 3000);
             } else {
                 setUser(null);
                 AppBus.emit(APP_EVENTS.USER_LOGGED_OUT, {});
+                // 🔥 Stop Phoenix
+                try {
+                    import('../services/HybridSyncService.js').then(m => m.phoenixStop()).catch(() => { });
+                } catch (_) { }
             }
             setLoading(false);
         });
         return () => unsubscribe();
     }, []);
+
 
     // Clear error after 5 seconds
     useEffect(() => {
@@ -210,22 +155,6 @@ export function AuthProvider({ children }) {
                 }
             }
 
-            // TRIGGER AUTOMATIC MEGA BACKUP (Admin Safety Plan)
-            // This runs in background to create an initial "School Registered" snapshot
-            try {
-                const { uploadToMega } = await import('../services/MegaBackupService');
-                const initialBackupData = {
-                    metadata: { type: 'registration_snapshot', timestamp: Date.now() },
-                    schoolCode: additionalData.schoolCode || 'unknown',
-                    users: [userProfile] // Initial user
-                };
-                console.log('Admin Backup: Initiating automatic Mega safety backup...');
-                uploadToMega(initialBackupData, `Registered_${additionalData.schoolCode || 'School'}`, user.uid)
-                    .then(res => console.log('Admin Backup: Success', res.path))
-                    .catch(err => console.error('Admin Backup: Failed', err));
-            } catch (backupErr) {
-                console.warn('Admin Backup: Module load failed', backupErr);
-            }
 
             // Save to LocalStorage for offline/quick access
             localStorage.setItem(`user_profile_${user.uid}`, JSON.stringify(userProfile));

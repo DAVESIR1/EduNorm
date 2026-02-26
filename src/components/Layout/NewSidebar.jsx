@@ -184,19 +184,8 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
 
     const handleAutoRestore = async () => {
         setHoveredMenu(null);
-        if (!window.confirm("🧬 START SOVEREIGN JSON RESTORATION?\n\nThis will merge data from known backups with zero-loss integrity. Proceed?")) return;
-        setIsRestoring(true);
-        try {
-            const RestorationService = (await import('../../services/RestorationService')).default;
-            const results = await RestorationService.performFullRestoration();
-            if (results) {
-                import('../Common/Toast').then(m => m.toast.success(`Restored ${results.summary.totalStudents} students`));
-                setTimeout(() => window.location.reload(), 1500);
-            }
-        } catch (err) {
-            console.error("Restoration Error:", err);
-            import('../Common/Toast').then(m => m.toast.error('Restoration failed'));
-        } finally { setIsRestoring(false); }
+        // Navigate to backup-restore page instead
+        if (onNavigate) onNavigate('other', 'backup-restore');
     };
 
     const handleExcelImport = async (e) => {
@@ -207,9 +196,9 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
         if (!importStandard) return;
         setIsImporting(true);
         try {
-            const SyncBackupLogic = (await import('../../features/SyncBackup/logic')).default;
+            const { parseExcelFile } = await import('../../services/ExcelService');
             const db = await import('../../services/database');
-            const students = await SyncBackupLogic.processExcelImport(file);
+            const students = await parseExcelFile(file);
             if (students?.length > 0) {
                 const studentsToImport = students.map(s => ({ ...s, standard: s.standard || importStandard }));
                 await db.importAllData({ students: studentsToImport });
