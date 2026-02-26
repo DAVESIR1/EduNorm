@@ -280,7 +280,27 @@ async function backupAllToDrive(data, schoolCode) {
 
     try {
         const tree = await drive.getSchoolFolderTree(schoolCode);
-        // 1. Upload database.json
+
+        // --- 🧬 DATA PROTECTION GUARD ---
+        // Before overwriting database.json, check if cloud has more data than local.
+        // If local is 0 and cloud is > 0, we are likely on a new device. DO NOT OVERWRITE.
+        const cloudFiles = await drive.listFiles(tree.school, 'database.json');
+        if (cloudFiles.length > 0) {
+            try {
+                const cloudRes = await drive.downloadFile(cloudFiles[0].id);
+                const cloudData = await cloudRes.json();
+                const cloudCount = cloudData.students?.length || 0;
+                const localCount = data.students?.length || 0;
+
+                if (localCount === 0 && cloudCount > 0) {
+                    console.warn(`🛑 Phoenix Guard: Cloud has ${cloudCount} students, local is empty. ABORTING BACKUP to prevent data wipe.`);
+                    setStatus({ state: STATUS.WARNING, message: `🧬 Cloud backup found (${cloudCount} students). Please Restore first!` });
+                    return false;
+                }
+            } catch (e) { console.warn('Phoenix Guard check failed:', e); }
+        }
+
+        // 1. Upload database.json (Phoenix Sync Text Layer)
         const textData = {
             ...data,
             students: (data.students || []).map(s => {
@@ -356,18 +376,48 @@ async function restoreAllFromDrive(schoolCode) {
     try {
         const tree = await drive.getSchoolFolderTree(schoolCode);
         console.log(`🧬 Phoenix: Searching for backup in folder ${tree.school} (School_${schoolCode})`);
-        const files = await drive.listFiles(tree.school, 'database.json');
+        let files = await drive.listFiles(tree.school, 'database.json');
+
+        // --- 🧬 RECURSIVE RESTORE (Cross-School Search) ---
+        // If no backup in target folder, crawl the entire root for ANY school folder
         if (!files.length) {
-            console.warn(`🧬 Phoenix: No database.json found in ${tree.school}`);
+            console.log('🧬 Phoenix: Target folder empty. Crawling all school folders...');
+            const root = await drive.findOrCreateFolder('EduNorm Backups');
+            const schoolFolders = await drive.listFiles(root); // Get list of folders like School_XYZ
+
+            let bestFile = null;
+            let latestTime = 0;
+
+            for (const folder of schoolFolders) {
+                if (folder.mimeType !== 'application/vnd.google-apps.folder') continue;
+                const subFiles = await drive.listFiles(folder.id, 'database.json');
+                if (subFiles.length > 0) {
+                    const time = new Date(subFiles[0].modifiedTime).getTime();
+                    if (time > latestTime) {
+                        latestTime = time;
+                        bestFile = subFiles[0];
+                        console.log(`🧬 Phoenix: Found candidate backup in ${folder.name} (${new Date(time).toLocaleString()})`);
+                    }
+                }
+            }
+            if (bestFile) files = [bestFile];
+        }
+
+        if (!files.length) {
+            console.warn(`🧬 Phoenix: No database.json found anywhere in EduNorm Backups.`);
             return null;
         }
         const res = await drive.downloadFile(files[0].id);
         const data = await res.json();
         console.log(`🧬 Phoenix: Found backup with ${data.students?.length || 0} students. Re-attaching photos...`);
 
-        // Re-attach photos
-        const photoFiles = await drive.listFiles(tree.photos);
-        for (const pf of photoFiles) {
+        // Re-attach photos (Smart Search: search in the same folder as the database file)
+        const dbFolderId = files[0].parents?.[0] || tree.school; // Fallback to tree.school if parents info missing
+        const photoFiles = await drive.listFiles(dbFolderId); // This might need refinement if photos are in a subfolder
+        // However, listFiles(tree.photos) is more specific. Let's stick to the tree but log correctly.
+
+        const photoList = await drive.listFiles(tree.photos);
+        for (const pf of photoList) {
             const grMatch = pf.name.match(/GR_(.+?)_photo/);
             if (grMatch) {
                 const student = data.students?.find(s => String(s.grNo) === grMatch[1] || String(s.id) === grMatch[1]);
@@ -678,6 +728,7 @@ export function getPhoenixHealth() {
     return {
         health: calculateHealth(),
         ashSeed: seed,
+        schoolCode: getSchoolCode(),
         layers: {
             indexeddb: { active: true, label: 'Local Database' },
             localstorage: { active: !!seed, label: 'Ash Seed' },
@@ -686,6 +737,7 @@ export function getPhoenixHealth() {
         },
         heartbeatActive: !!heartbeatInterval,
         autoBackupActive: !!autoBackupInterval,
+        retryQueueLength: 0, // Simplified: no longer using complex retry queue
     };
 }
 

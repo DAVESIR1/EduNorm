@@ -162,7 +162,23 @@ export default function PhoenixSync({ isFullPage = false, onClose }) {
             setShowOnboarding(false);
             await loadBackups();
             if (user) {
-                try { await backupAll(user); } catch (_) { }
+                try {
+                    const { getAllStudents } = await import('../../services/database');
+                    const students = await getAllStudents();
+
+                    if (students.length === 0) {
+                        console.log('🧬 Phoenix: Local empty on connect. Attempting Smart Restore...');
+                        setLoading('restore');
+                        const result = await restoreAll(user);
+                        if (result?.count > 0) {
+                            showToast(`🔥 Reborn! Restored ${result.count} students from ${result.source}`);
+                            setTimeout(() => window.location.reload(), 1500);
+                            return;
+                        }
+                    } else {
+                        await backupAll(user);
+                    }
+                } catch (e) { console.warn('Smart sync failed:', e); }
             }
             showToast('🔥 Phoenix Sync activated! Your data is immortal.');
         } catch (e) {
