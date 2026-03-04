@@ -44,7 +44,7 @@ if (isFirebaseConfigured) {
         googleProvider.setCustomParameters({
             prompt: 'select_account'
         });
-        console.log('Firebase initialized successfully');
+        // console.log('Firebase initialized successfully');
     } catch (error) {
         console.error('Firebase initialization failed:', error);
     }

@@ -13,46 +13,13 @@ import ComponentErrorBoundary from './components/Common/ErrorBoundary';
 import EduNormLogo from './components/Common/EduNormLogo';
 import BrandLoader from './components/Common/BrandLoader';
 import ParticleBackground from './components/Effects/ParticleBackground';
-import { IconMap } from './components/Icons/CustomIcons';
 import { UIEngine } from './core/v2/UIEngine';
+import StudentLogic from './features/StudentManagement/logic';
+import AppBus, { APP_EVENTS } from './core/AppBus.js';
+import './core/registerFeatures.js'; // registers all feature manifests
 
-
-import { DATA_FIELDS } from './features/StudentManagement/types';
-
-// Lazy-loaded components for code splitting
-const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
-const ProfileViewer = lazy(() => import('./features/StudentManagement/Profile/ProfileViewer'));
-const GeneralRegister = lazy(() => import('./features/StudentManagement/view'));
-const BackupRestore = lazy(() => import('./components/Backup/BackupRestore'));
-const PhoenixSync = lazy(() => import('./components/Backup/PhoenixSync'));
-const AdminPanel = lazy(() => import('./features/AdminDashboard/view'));
-const CertificateGenerator = lazy(() => import('./components/Features/CertificateGenerator'));
-const AnalyticsDashboard = lazy(() => import('./components/Features/AnalyticsDashboard'));
-const QRAttendance = lazy(() => import('./components/Features/QRAttendance'));
-const SmartSearch = lazy(() => import('./components/Features/SmartSearch'));
-const DocumentScanner = lazy(() => import('./components/Features/DocumentScanner'));
-const VoiceInput = lazy(() => import('./components/Features/VoiceInput'));
-const FamilyTree = lazy(() => import('./components/Features/FamilyTree'));
-const ProgressTimeline = lazy(() => import('./components/Features/ProgressTimeline'));
-const WhatsAppMessenger = lazy(() => import('./components/Features/WhatsAppMessenger'));
-const PhotoEnhancement = lazy(() => import('./components/Features/PhotoEnhancement'));
-const UpgradeModal = lazy(() => import('./components/Premium/UpgradeModal'));
-const SchoolProfile = lazy(() => import('./features/SchoolProfile/view'));
-const StaffInfo = lazy(() => import('./components/HOI/StaffInfo'));
-const HOIDiary = lazy(() => import('./components/HOI/HOIDiary'));
-const CustomWindowCreator = lazy(() => import('./components/Common/CustomWindowCreator'));
-const ComingSoonPage = lazy(() => import('./components/Common/ComingSoonPage'));
-const SalaryBook = lazy(() => import('./components/Teacher/SalaryBook'));
-const TeacherProfile = lazy(() => import('./components/Teacher/TeacherProfile'));
-const StudentLogin = lazy(() => import('./components/Student/StudentLogin'));
-const CorrectionRequest = lazy(() => import('./components/Student/CorrectionRequest'));
-const QAChat = lazy(() => import('./components/Student/QAChat'));
-const StudentCertificates = lazy(() => import('./components/Student/StudentCertificates'));
-const ClassManagement = lazy(() => import('./components/HOI/ClassManagement'));
-
-const UsageInstructions = lazy(() => import('./components/Features/UsageInstructions'));
-const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard'));
-const IdentityWizard = lazy(() => import('./features/Identity/view'));
+// AppRouter: single place that maps menu items to components (sandbox-safe)
+import { AppRouter } from './components/Layout/AppRouter';
 import AdSense from './components/Common/AdSense';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import {
@@ -62,57 +29,57 @@ import {
     useCustomFields,
     useLedger
 } from './hooks/useDatabase';
-import * as db from './services/database';
+import ServiceLayer from './services/ServiceLayer.js';
 import { selfRepairCheck, isIPBlocked } from './services/SecurityManager';
-import { Menu, Users, FileSpreadsheet, Sparkles, Download, Share2, Maximize2, Minimize2, Cloud, CloudOff, Check, Loader } from 'lucide-react';
 import './App.css';
-import './styles/glassmorphism-force.css'; // Must be LAST — overrides all other CSS with glassmorphism theme
+import './styles/glassmorphism-force.css';
+
+// Only shell-level lazy imports (the UpgradeModal and Identity wizard are
+// truly at App shell level — all others live inside AppRouter)
+const UpgradeModal = lazy(() => import('./components/Premium/UpgradeModal'));
+const IdentityWizard = lazy(() => import('./features/Identity/view'));
+const AdminPanel = lazy(() => import('./features/AdminDashboard/view'));
+const StudentDashboard = lazy(() => import('./components/Student/StudentDashboard'));
+const StepWizard = lazy(() => import('./components/DataEntry/StepWizard'));
 
 // Main App Content (wrapped in auth and tier providers)
 function AppContent() {
     const { isAuthenticated, loading: authLoading, user, logout } = useAuth();
     const { tier, isAdmin, isFree, setShowUpgradeModal } = useUserTier();
-    // State
+    // State — Shell-level only (layout/navigation)
+    // Business modals are opened via AppBus.emit(NAVIGATE_TO), not with show* booleans.
     const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
-    const [showProfile, setShowProfile] = useState(false);
-    const [showLedger, setShowLedger] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editingStudent, setEditingStudent] = useState(null);
     const [isReady, setIsReady] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [showBackup, setShowBackup] = useState(false);
+    const [showRoleSelection, setShowRoleSelection] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
-    const [showCertificate, setShowCertificate] = useState(false);
-    const [showAnalytics, setShowAnalytics] = useState(false);
-    const [showQRAttendance, setShowQRAttendance] = useState(false);
-    const [showSmartSearch, setShowSmartSearch] = useState(false);
-    const [showCloudBackup, setShowCloudBackup] = useState(false);
-    const [showDocScanner, setShowDocScanner] = useState(false);
-    const [showVoiceInput, setShowVoiceInput] = useState(false);
-    const [showFamilyTree, setShowFamilyTree] = useState(false);
-    const [showTimeline, setShowTimeline] = useState(false);
-    const [showWhatsApp, setShowWhatsApp] = useState(false);
-    const [showPhotoEnhance, setShowPhotoEnhance] = useState(false);
-    const [backupAction, setBackupAction] = useState('export');
-    const [syncStatus, setSyncStatus] = useState(null);
 
     // Menu state for 5-menu navigation
     const { activeMenu, activeSubItem, selectSubItem } = useMenu();
     const [showMenuContent, setShowMenuContent] = useState(false);
     const [menuContentType, setMenuContentType] = useState(null);
 
-    // Role Selection Modal State
-    const [showRoleSelection, setShowRoleSelection] = useState(false);
-
     useEffect(() => {
-        // Show modal if user is logged in but hasn't selected a role OR hasn't completed verification
+        // Show identity wizard if user is logged in but hasn't selected a role
         if (isAuthenticated && user && (!user.role || !user.isVerified)) {
             setShowRoleSelection(true);
         } else {
             setShowRoleSelection(false);
         }
     }, [isAuthenticated, user]);
+
+    // AppBus NAVIGATE_TO — features request navigation through the bus.
+    // App.jsx just sets menuContentType; AppRouter handles the rendering.
+    useEffect(() => {
+        const unsub = AppBus.on(APP_EVENTS.NAVIGATE_TO, ({ featureId, params }) => {
+            if (featureId === 'admin') { setShowAdmin(true); return; }
+            setMenuContentType(featureId);
+            setShowMenuContent(true);
+        });
+        return unsub;
+    }, []);
 
     // Hooks
     const { settings, updateSetting, loading: settingsLoading } = useSettings();
@@ -181,8 +148,8 @@ function AppContent() {
         await updateSetting('teacherName', teacherName);
         await updateSetting('selectedStandard', selectedStandard);
 
-        // Unified school_profile object - MERGE to prevent data loss
-        const existingProfile = await db.getSetting('school_profile') || {};
+        // Unified school_profile object - MERGE to prevent data loss (via ServiceLayer)
+        const existingProfile = await ServiceLayer.getSetting('school_profile') || {};
         const unifiedProfile = {
             ...existingProfile,
             schoolName,
@@ -218,30 +185,14 @@ function AppContent() {
 
     }, [addStudent, updateStudent, editingStudent, selectedStandard, refreshStudents, refreshLedger]);
 
-    // Class upgrade
-    const handleUpgradeClass = useCallback(async () => {
-        if (!selectedStandard) {
-            toast.warning('Please select a standard first');
-            return;
-        }
 
-        const newStandard = prompt('Enter new standard name (e.g., "Standard 4-A"):');
-        if (newStandard) {
-            const count = await db.upgradeClass(selectedStandard, newStandard);
-            toast.success(`Upgraded ${count} students to ${newStandard}`);
-            await addStandard({ id: newStandard, name: newStandard });
-            setSelectedStandard(newStandard);
-            await refreshStudents();
-        }
-    }, [selectedStandard, addStandard, refreshStudents]);
-
-    // Class downgrade
+    // Class downgrade (via ServiceLayer)
     const handleDowngradeClass = useCallback(async () => {
         const previousStandard = students[0]?.previousStandard;
         if (previousStandard) {
             const confirm = window.confirm(`Downgrade to ${previousStandard}?`);
             if (confirm) {
-                await db.upgradeClass(selectedStandard, previousStandard);
+                await ServiceLayer.upgradeClass(selectedStandard, previousStandard);
                 setSelectedStandard(previousStandard);
                 await refreshStudents();
             }
@@ -250,17 +201,14 @@ function AppContent() {
         }
     }, [selectedStandard, students, refreshStudents]);
 
-    // Delete class/standard
+    // Delete class/standard (via ServiceLayer)
     const handleDeleteStandard = useCallback(async (standardId) => {
         try {
-            // Delete all students in this class first
-            const studentsInClass = await db.getStudentsByStandard(standardId);
+            const studentsInClass = await ServiceLayer.getStudentsByStandard(standardId);
             for (const student of studentsInClass) {
-                await db.deleteStudent(student.id);
+                await ServiceLayer.deleteStudent(student.id);
             }
-            // Delete the standard
             await deleteStandard(standardId);
-            // Reset selection
             setSelectedStandard('');
             await refreshStudents();
             toast.success(`Class "${standardId}" deleted with ${studentsInClass.length} students`);
@@ -270,283 +218,23 @@ function AppContent() {
         }
     }, [deleteStandard, refreshStudents]);
 
-    // Handle menu navigation from MainMenu component
+
+    // Navigation handler — App.jsx only manages layout state (no feature-specific logic)
     const handleMenuNavigate = useCallback((menuId, itemId) => {
-        console.log('Menu navigate:', menuId, itemId);
-
-        // Content area items (render inside Bento feed)
-        if (itemId === 'general-register' || itemId === 'student-profile' || itemId === 'id-card' || itemId === 'certificate' || itemId === 'phoenix-sync' || itemId === 'data-export') {
-            setMenuContentType(itemId);
-            setShowMenuContent(true);
-            // Close overlays
-            setShowProfile(false);
-            setShowLedger(false);
-            setShowCertificate(false);
-            setShowBackup(false);
-            return;
-        }
-
-        if (itemId === 'upload-logo') {
-            setMenuContentType('school-profile');
-            setShowMenuContent(true);
-            return;
-        }
-
         setMenuContentType(itemId);
         setShowMenuContent(true);
-        // Close other modals when menu is opened
-        setShowProfile(false);
-        setShowLedger(false);
-        setShowCertificate(false);
-        setShowAnalytics(false);
-        setShowCloudBackup(false);
     }, []);
 
-    // Render menu content based on activeSubItem
-    const renderMenuContent = () => {
-        if (!showMenuContent || !menuContentType) return null;
-
-        switch (menuContentType) {
-            // School menu items
-            case 'school-profile':
-                return <ComponentErrorBoundary componentName="School Profile"><SchoolProfile
-                    schoolName={schoolName}
-                    schoolContact={schoolContact}
-                    schoolEmail={schoolEmail}
-                    schoolLogo={schoolLogo}
-                    onSchoolNameChange={setSchoolName}
-                    onSchoolContactChange={setSchoolContact}
-                    onSchoolEmailChange={setSchoolEmail}
-                    onSchoolLogoChange={setSchoolLogo}
-                    onSaveSettings={handleSaveSettings}
-                /></ComponentErrorBoundary>;
-            case 'general-register':
-                return <ComponentErrorBoundary componentName="Student Ledger"><GeneralRegister
-                    isOpen={true}
-                    isFullPage={true}
-                    students={ledger}
-                    onSearch={setSearchQuery}
-                    searchQuery={searchQuery}
-                    onUpdateStudent={updateStudent}
-                    onRenameField={handleRenameDataBox}
-                    fieldRenames={settings.fieldRenames || {}}
-                    onEditStudent={(student) => {
-                        setEditingStudent(student);
-                        setEditMode(true);
-                        setSelectedStandard(student.standard);
-                        setShowMenuContent(false);
-                    }}
-                    onClose={() => setShowMenuContent(false)}
-                /></ComponentErrorBoundary>;
-            case 'student-profile':
-            case 'id-card':
-                return <ComponentErrorBoundary componentName="Profile"><ProfileViewer
-                    isOpen={true}
-                    isFullPage={true}
-                    onClose={() => setShowMenuContent(false)}
-                    students={user?.role === 'student' ? [user] : ledger}
-                    standards={standards}
-                    schoolName={schoolName}
-                    settings={settings}
-                    schoolLogo={schoolLogo}
-                    schoolContact={schoolContact}
-                    initialTab={menuContentType === 'id-card' ? 'id' : 'profile'}
-                /></ComponentErrorBoundary>;
-            case 'certificate':
-                return <ComponentErrorBoundary componentName="Certificate"><CertificateGenerator
-                    isOpen={true}
-                    isFullPage={true}
-                    onClose={() => setShowMenuContent(false)}
-                    student={editingStudent || (students.length > 0 ? students[0] : null)}
-                    schoolName={schoolName}
-                    schoolLogo={schoolLogo}
-                /></ComponentErrorBoundary>;
-            case 'phoenix-sync':
-                return <ComponentErrorBoundary componentName="Phoenix Sync"><PhoenixSync
-                    isFullPage={true}
-                    onClose={() => setShowMenuContent(false)}
-                /></ComponentErrorBoundary>;
-            case 'data-export':
-                return <ComponentErrorBoundary componentName="Data Import/Export"><BackupRestore
-                    isOpen={true}
-                    isFullPage={true}
-                    user={user}
-                    onClose={() => setShowMenuContent(false)}
-                    ledger={ledger}
-                    standards={standards}
-                    selectedStandard={selectedStandard}
-                    onImportComplete={handleImportComplete}
-                /></ComponentErrorBoundary>;
-            case 'teachers-profile':
-                return <ComponentErrorBoundary componentName="Staff Info"><StaffInfo /></ComponentErrorBoundary>;
-            case 'custom-window':
-            case 'custom-window-hoi':
-            case 'custom-window-teacher':
-                return <CustomWindowCreator
-                    menuId={activeMenu}
-                    onSave={() => setShowMenuContent(false)}
-                    onCancel={() => setShowMenuContent(false)}
-                />;
-
-            // HOI menu items
-            case 'staff-info':
-                return <ComponentErrorBoundary componentName="Staff Info"><StaffInfo /></ComponentErrorBoundary>;
-            case 'hoi-diary':
-                return <ComponentErrorBoundary componentName="HOI Diary"><HOIDiary /></ComponentErrorBoundary>;
-
-            // Teacher menu items
-            case 'self-profile':
-                return <ComponentErrorBoundary componentName="Teacher Profile"><TeacherProfile /></ComponentErrorBoundary>;
-            case 'salary-book':
-                return <ComponentErrorBoundary componentName="Salary Book"><SalaryBook /></ComponentErrorBoundary>;
-            case 'class-upgrade':
-                return (
-                    <ComponentErrorBoundary componentName="Class Upgrade">
-                        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-                            <h2 style={{ marginBottom: '8px', fontSize: '1.3rem' }}>⬆️ Class Upgrade</h2>
-                            <p style={{ color: 'var(--gray-600)', marginBottom: '16px', fontSize: '0.9rem' }}>
-                                One-tap upgrade your class to the next level. All students will be moved automatically.
-                            </p>
-                            {standards.length === 0 ? (
-                                <p style={{ color: 'var(--gray-500)', textAlign: 'center', padding: '40px 0' }}>
-                                    No classes found. Please create a class first in Class Management.
-                                </p>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {standards.map(std => {
-                                        const name = std.name || std.id;
-                                        // Try to extract the number for auto-suggestion
-                                        const numMatch = name.match(/(\d+)/);
-                                        const nextNum = numMatch ? parseInt(numMatch[1]) + 1 : null;
-                                        const suggestedNext = nextNum ? name.replace(/\d+/, nextNum) : '';
-                                        return (
-                                            <div key={std.id} style={{
-                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                padding: '14px 16px', borderRadius: '12px',
-                                                background: 'var(--bg-secondary, #f8fafc)',
-                                                border: '1px solid var(--border-color, #e2e8f0)'
-                                            }}>
-                                                <span style={{ fontWeight: 600 }}>{name}</span>
-                                                <button
-                                                    className="btn btn-primary"
-                                                    style={{ fontSize: '0.85rem', padding: '8px 16px' }}
-                                                    onClick={async () => {
-                                                        const newName = prompt(
-                                                            `Upgrade "${name}" to:`,
-                                                            suggestedNext || ''
-                                                        );
-                                                        if (newName && newName.trim()) {
-                                                            try {
-                                                                const count = await db.upgradeClass(std.id, newName.trim());
-                                                                await addStandard({ id: newName.trim(), name: newName.trim() });
-                                                                toast.success(`Upgraded ${count} students from "${name}" → "${newName.trim()}"`);
-                                                                setSelectedStandard(newName.trim());
-                                                                await refreshStudents();
-                                                            } catch (err) {
-                                                                toast.error('Upgrade failed', err.message);
-                                                            }
-                                                        }
-                                                    }}
-                                                >
-                                                    ⬆️ {suggestedNext ? `→ ${suggestedNext}` : 'Upgrade'}
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    </ComponentErrorBoundary>
-                );
-            case 'class-management':
-            case 'class-management-teacher':
-                return <ComponentErrorBoundary componentName="Class Management"><ClassManagement /></ComponentErrorBoundary>;
-
-            // Student menu items
-            case 'student-login':
-                return <ComponentErrorBoundary componentName="Student Login"><StudentLogin onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
-            case 'student-view-profile':
-                return null;
-            case 'download-id-card':
-                return null;
-            case 'correction-request':
-                return <ComponentErrorBoundary componentName="Correction Request"><CorrectionRequest studentData={user} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
-            case 'certificate-download':
-                // Show issued certificates for download (uploaded by teacher)
-                return <ComponentErrorBoundary componentName="My Certificates"><StudentCertificates user={user} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
-            case 'qa-chat':
-                return <ComponentErrorBoundary componentName="Q&A Chat"><QAChat studentData={user} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} /></ComponentErrorBoundary>;
-
-            // Coming Soon items
-            case 'dead-stock':
-            case 'audit-register':
-            case 'bill-register':
-            case 'news-circulars':
-            case 'programs-events':
-            case 'activity-gallery':
-                return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
-
-            // Data Management items
-            case 'upload-logo':
-            case 'export-data':
-            case 'import-data':
-                return null;
-
-            // HOI Password - handled by sidebar directly, but add fallback
-            case 'hoi-password':
-                return null;
-
-            // Usage Instructions
-            case 'usage-instructions':
-                return <UsageInstructions onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
-
-            // Help & Support
-            case 'help-support':
-                return (
-                    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-                        <h2 style={{ marginBottom: '8px', fontSize: '1.3rem' }}>💬 Help & Suggestions</h2>
-                        <p style={{ color: 'var(--gray-600)', marginBottom: '16px', fontSize: '0.9rem' }}>
-                            Have a question, bug report, or suggestion? Send us a message and we'll get back to you!
-                        </p>
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            const subject = e.target.subject.value;
-                            const message = e.target.message.value;
-                            const email = user?.email || '';
-                            const mailtoLink = `mailto:help@edunorm.in?subject=${encodeURIComponent('[EduNorm Support] ' + subject)}&body=${encodeURIComponent(message + '\n\n---\nFrom: ' + email)}`;
-                            window.open(mailtoLink);
-                        }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <input name="subject" className="input-field" placeholder="Subject (e.g. Bug Report, Feature Request)" required style={{ padding: '10px 14px' }} />
-                            <textarea name="message" className="input-field" placeholder="Type your message here..." required rows={6} style={{ padding: '10px 14px', resize: 'vertical', minHeight: '120px' }} />
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                                    📧 Send to help@edunorm.in
-                                </button>
-                                <button type="button" className="btn" onClick={() => { setShowMenuContent(false); setMenuContentType(null); }}>
-                                    Cancel
-                                </button>
-                            </div>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', textAlign: 'center' }}>
-                                🔒 Your data is safe. We never share student information with anyone.
-                            </p>
-                        </form>
-                    </div>
-                );
-
-
-            default:
-                return <ComingSoonPage featureId={menuContentType} onBack={() => { setShowMenuContent(false); setMenuContentType(null); }} />;
-        }
-    };
-
-    // Search
+    // Search — uses ServiceLayer (not direct db.*)
     const handleSearch = useCallback(async (query) => {
         setSearchQuery(query);
         if (query.trim()) {
-            const results = await db.searchStudents(query);
-            setSearchResults(results.map((s, i) => ({ ...s, ledgerNo: i + 1 })));
-        } else {
-            setSearchResults([]);
+            const results = await ServiceLayer.getAllStudents();
+            const filtered = results
+                .filter(s => JSON.stringify(s).toLowerCase().includes(query.toLowerCase()))
+                .map((s, i) => ({ ...s, ledgerNo: i + 1 }));
+            // Broadcast results via AppBus so any feature can pick them up
+            AppBus.emit(APP_EVENTS.NAVIGATE_TO, { featureId: 'smart-search', params: { query, results: filtered } });
         }
     }, []);
 
@@ -565,59 +253,50 @@ function AppContent() {
         setShowBackup(true);
     }, []);
 
-    // Import complete callback
+    // Import complete — broadcast data change so auto-backup fires
     const handleImportComplete = useCallback(async () => {
         await refreshStudents();
         await refreshLedger();
+        AppBus.emit(APP_EVENTS.STUDENT_IMPORTED, { count: -1 }); // count unknown at shell level
     }, [refreshStudents, refreshLedger]);
+
+    // Class upgrade handler — goes through ServiceLayer (never direct db.*)
+    const handleUpgradeClass = useCallback(async () => {
+        if (!selectedStandard) { toast.warning('Please select a standard first'); return; }
+        const newStandard = prompt('Enter new standard name (e.g., "Standard 4-A"):');
+        if (newStandard) {
+            const count = await ServiceLayer.upgradeClass(selectedStandard, newStandard);
+            toast.success(`Upgraded ${count} students to ${newStandard}`);
+            await refreshStudents();
+        }
+    }, [selectedStandard, refreshStudents]);
 
     const handleAddDataBox = useCallback(async (fieldData) => {
         await addField(fieldData);
     }, [addField]);
 
     const handleRemoveDataBox = useCallback(async (fieldId) => {
-        // For custom fields, delete from database
         const customField = fields.find(f => f.id === parseInt(fieldId) || f.key === fieldId);
-        if (customField) {
-            await deleteField(customField.id);
-        }
-        // Note: Built-in fields can't be removed, just hidden in a future feature
+        if (customField) await deleteField(customField.id);
     }, [deleteField, fields]);
 
     const handleRenameDataBox = useCallback(async (fieldId, newName) => {
-        // For custom fields, update in database
         const customField = fields.find(f => f.id === parseInt(fieldId) || f.key === fieldId);
         if (customField) {
             await updateField(customField.id, { name: newName });
         } else {
-            // For built-in fields, store rename mapping in settings
             const fieldRenames = settings.fieldRenames || {};
             fieldRenames[fieldId] = newName;
-            await updateSetting('fieldRenames', fieldRenames);
+            await ServiceLayer.saveSetting('fieldRenames', fieldRenames);
         }
         toast.success(`Field renamed to "${newName}"`);
-    }, [updateField, fields, settings.fieldRenames, updateSetting]);
+    }, [updateField, fields, settings.fieldRenames]);
 
-    // Combine built-in and custom fields for dropdown (apply renames from settings)
-    const allFields = useMemo(() => {
-        const fieldRenames = settings.fieldRenames || {};
-        const builtInFields = DATA_FIELDS.flatMap(step =>
-            step.fields.map(f => ({
-                key: f.key,
-                label: fieldRenames[f.key] || f.label, // Use renamed label if exists
-                type: f.type,
-                builtIn: true
-            }))
-        );
-        const customFieldsList = fields.map(f => ({ key: f.id.toString(), label: f.name, type: f.type, builtIn: false }));
-        return [...builtInFields, ...customFieldsList];
-    }, [fields, settings.fieldRenames]);
+    // Combine built-in and custom fields — delegates to feature logic
+    const allFields = useMemo(() =>
+        StudentLogic.getAllFields(settings.fieldRenames || {}, fields)
+        , [fields, settings.fieldRenames]);
 
-    // Handle import from Excel (opens backup modal on import tab)
-    const handleImportExcel = useCallback(() => {
-        setShowBackup(true);
-        // The BackupRestore modal will show the Import tab
-    }, []);
 
     // Auth loading state - instantly visible
     if (authLoading) {
@@ -715,9 +394,37 @@ function AppContent() {
                     {/* Menu Content or Main Dashboard */}
                     {showMenuContent && menuContentType ? (
                         <div className="menu-content-full-width">
-                            <Suspense fallback={<BrandLoader message="Loading..." />}>
-                                {renderMenuContent()}
-                            </Suspense>
+                            <AppRouter
+                                menuContentType={menuContentType}
+                                onClose={() => { setShowMenuContent(false); setMenuContentType(null); }}
+                                user={user}
+                                ledger={ledger}
+                                students={students}
+                                standards={standards}
+                                settings={settings}
+                                selectedStandard={selectedStandard}
+                                schoolName={schoolName}
+                                schoolLogo={schoolLogo}
+                                schoolContact={schoolContact}
+                                schoolEmail={schoolEmail}
+                                editingStudent={editingStudent}
+                                searchQuery={searchQuery}
+                                onSearch={setSearchQuery}
+                                onUpdateStudent={updateStudent}
+                                onRenameField={handleRenameDataBox}
+                                onEditStudent={(student) => {
+                                    setEditingStudent(student);
+                                    setEditMode(true);
+                                    setSelectedStandard(student.standard);
+                                }}
+                                onImportComplete={handleImportComplete}
+                                onSchoolNameChange={setSchoolName}
+                                onSchoolContactChange={setSchoolContact}
+                                onSchoolEmailChange={setSchoolEmail}
+                                onSchoolLogoChange={setSchoolLogo}
+                                onSaveSettings={handleSaveSettings}
+                                activeMenu={activeMenu}
+                            />
                         </div>
                     ) : (
                         <div className="dashboard-grid">
@@ -785,76 +492,6 @@ function AppContent() {
                 </div>
             </section>
 
-            <AnalyticsDashboard
-                isOpen={showAnalytics}
-                onClose={() => setShowAnalytics(false)}
-                students={students}
-                standards={standards}
-                ledger={ledger}
-            />
-
-            <QRAttendance
-                isOpen={showQRAttendance}
-                onClose={() => setShowQRAttendance(false)}
-                students={students}
-                schoolName={schoolName}
-            />
-
-            <SmartSearch
-                isOpen={showSmartSearch}
-                onClose={() => setShowSmartSearch(false)}
-                students={students}
-                onSelectStudent={(student) => {
-                    setEditingStudent(student);
-                    setShowSmartSearch(false);
-                }}
-            />
-
-
-
-            <DocumentScanner
-                isOpen={showDocScanner}
-                onClose={() => setShowDocScanner(false)}
-                onDataExtracted={(data) => {
-                    console.log('Extracted data:', data);
-                }}
-            />
-
-            <VoiceInput
-                isOpen={showVoiceInput}
-                onClose={() => setShowVoiceInput(false)}
-                onVoiceData={(data) => {
-                    console.log('Voice data:', data);
-                }}
-            />
-
-            <FamilyTree
-                isOpen={showFamilyTree}
-                onClose={() => setShowFamilyTree(false)}
-                student={editingStudent || (students.length > 0 ? students[0] : null)}
-            />
-
-            <ProgressTimeline
-                isOpen={showTimeline}
-                onClose={() => setShowTimeline(false)}
-                student={editingStudent || (students.length > 0 ? students[0] : null)}
-            />
-
-            <WhatsAppMessenger
-                isOpen={showWhatsApp}
-                onClose={() => setShowWhatsApp(false)}
-                students={students}
-                schoolName={schoolName}
-            />
-
-            <PhotoEnhancement
-                isOpen={showPhotoEnhance}
-                onClose={() => setShowPhotoEnhance(false)}
-                onPhotoEnhanced={(photo) => {
-                    console.log('Enhanced photo:', photo);
-                }}
-            />
-
             {
                 showAdmin && (
                     <Suspense fallback={<BrandLoader message="Loading Admin Panel..." />}>
@@ -869,11 +506,11 @@ function AppContent() {
 
             <UpgradeModal />
 
-            {/* Unified Layout Control Elements */}
+            {/* Shell-level layout elements only */}
             <UndoRedoBar />
             <ToastContainer />
 
-        </div >
+        </div>
     );
 }
 

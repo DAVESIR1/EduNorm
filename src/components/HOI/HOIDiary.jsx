@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useUndo } from '../../contexts/UndoContext';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 import { SaveIcon, PrinterIcon, PlusIcon, TrashIcon, FileTextIcon, ImageIcon } from '../Icons/CustomIcons';
 import './HOIDiary.css';
 
@@ -19,7 +19,7 @@ export default function HOIDiary() {
 
     const loadPages = async () => {
         try {
-            const saved = await db.getSetting('hoi_diary_pages') || [];
+            const saved = await ServiceLayer.getSetting('hoi_diary_pages') || [];
             setPages(saved);
             if (saved.length > 0 && !currentPage) {
                 loadPage(saved[saved.length - 1]);
@@ -68,7 +68,7 @@ export default function HOIDiary() {
                 newPages = [...pages, pageData];
             }
 
-            await db.setSetting('hoi_diary_pages', newPages);
+            await ServiceLayer.saveSetting('hoi_diary_pages', newPages);
             setPages(newPages);
             setCurrentPage(pageData);
 
@@ -76,11 +76,11 @@ export default function HOIDiary() {
                 type: 'SAVE_DIARY_PAGE',
                 description: `Saved diary page: ${pageData.title.substring(0, 30)}...`,
                 undo: async () => {
-                    await db.setSetting('hoi_diary_pages', pages);
+                    await ServiceLayer.saveSetting('hoi_diary_pages', pages);
                     setPages(pages);
                 },
                 redo: async () => {
-                    await db.setSetting('hoi_diary_pages', newPages);
+                    await ServiceLayer.saveSetting('hoi_diary_pages', newPages);
                     setPages(newPages);
                 }
             });
@@ -96,7 +96,7 @@ export default function HOIDiary() {
         const page = pages.find(p => p.id === pageId);
         const newPages = pages.filter(p => p.id !== pageId);
         setPages(newPages);
-        await db.setSetting('hoi_diary_pages', newPages);
+        await ServiceLayer.saveSetting('hoi_diary_pages', newPages);
 
         if (currentPage?.id === pageId) {
             if (newPages.length > 0) {
@@ -112,15 +112,15 @@ export default function HOIDiary() {
             type: 'DELETE_DIARY_PAGE',
             description: `Deleted diary page: ${page?.title?.substring(0, 30)}...`,
             undo: async () => {
-                const list = await db.getSetting('hoi_diary_pages') || [];
+                const list = await ServiceLayer.getSetting('hoi_diary_pages') || [];
                 list.push(page);
-                await db.setSetting('hoi_diary_pages', list);
+                await ServiceLayer.saveSetting('hoi_diary_pages', list);
                 setPages(list);
             },
             redo: async () => {
-                const list = await db.getSetting('hoi_diary_pages') || [];
+                const list = await ServiceLayer.getSetting('hoi_diary_pages') || [];
                 const filtered = list.filter(p => p.id !== pageId);
-                await db.setSetting('hoi_diary_pages', filtered);
+                await ServiceLayer.saveSetting('hoi_diary_pages', filtered);
                 setPages(filtered);
             }
         });

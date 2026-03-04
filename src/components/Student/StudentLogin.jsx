@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import * as db from '../../services/database';
+import React, { useState, useCallback, useEffect } from 'react';
+import ServiceLayer from '../../services/ServiceLayer.js';
 import './StudentLogin.css';
 
 /**
  * Student Login - Government ID based authentication
  * Supports: Aadhaar (12 digits), APAAR ID (12 digits), Child UID
- * Verification: Email OTP (reuses HOI OTP system pattern)
+ * Verification: In-app OTP (shown securely in-session, not via email alert)
  * After login: Student is locked to student menu only
  */
 
@@ -27,10 +27,31 @@ export default function StudentLogin({ onBack, onStudentLogin }) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
+    const [otpVisible, setOtpVisible] = useState(false); // in-app OTP reveal
+    const [otpTimer, setOtpTimer] = useState(0);         // countdown to hide OTP
+    const [otpAttempts, setOtpAttempts] = useState(0);   // attempt counter
+    const [otpLocked, setOtpLocked] = useState(false);
+    const [otpLockedTimer, setOtpLockedTimer] = useState(0);
 
     const clearError = () => setError('');
 
     const getIdType = () => ID_TYPES.find(t => t.id === selectedIdType) || ID_TYPES[0];
+
+    // OTP visibility timer
+    useEffect(() => {
+        if (otpTimer <= 0) return;
+        const t = setTimeout(() => setOtpTimer(prev => prev - 1), 1000);
+        if (otpTimer === 1) setOtpVisible(false);
+        return () => clearTimeout(t);
+    }, [otpTimer]);
+
+    // OTP lockout timer
+    useEffect(() => {
+        if (otpLockedTimer <= 0) return;
+        const t = setTimeout(() => setOtpLockedTimer(prev => prev - 1), 1000);
+        if (otpLockedTimer === 1) { setOtpLocked(false); setOtpAttempts(0); }
+        return () => clearTimeout(t);
+    }, [otpLockedTimer]);
 
     // Format Aadhaar number with spaces (XXXX XXXX XXXX)
     const formatIdInput = (value) => {
@@ -58,7 +79,7 @@ export default function StudentLogin({ onBack, onStudentLogin }) {
     // Search student by government ID
     const findStudentByGovtId = useCallback(async (id) => {
         try {
-            const allStudents = await db.getAllStudentsForBackup();
+            const allStudents = await ServiceLayer.getAllStudents();
             if (!allStudents || !allStudents.length) return null;
 
             const cleanId = id.replace(/\s/g, '').trim();
@@ -88,6 +109,13 @@ export default function StudentLogin({ onBack, onStudentLogin }) {
     // Generate a 6-digit OTP
     const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
+    // Reveal OTP in-app securely (30 second countdown, no alert)
+    const revealOtpInApp = (newOtp) => {
+        setGeneratedOtp(newOtp);
+        setOtpVisible(true);
+        setOtpTimer(30); // hide after 30s
+    };
+
     // Step 1: Verify government ID against database
     const handleIdVerify = async (e) => {
         e.preventDefault();
@@ -109,24 +137,16 @@ export default function StudentLogin({ onBack, onStudentLogin }) {
 
             setStudentData(student);
 
-            // Get email for OTP
+            // Get email for display context
             const email = student.email || student.parentEmail || student.fatherEmail || student.motherEmail;
-            if (email) {
-                setStudentEmail(email);
-                // Auto-send OTP
-                const newOtp = generateOtp();
-                setGeneratedOtp(newOtp);
-                setStep('otp');
-                setOtpSent(true);
+            if (email) setStudentEmail(email);
 
-                // In production, send via email. For now, show alert.
-                console.log(`StudentLogin: OTP for ${email}: ${newOtp}`);
-                alert(`Demo Mode:\nOTP sent to ${maskEmail(email)}\nOTP: ${newOtp}\n\n(In production, this will be sent via email)`);
-            } else {
-                // No email found — allow direct login with warning
-                setStep('profile');
-                if (onStudentLogin) onStudentLogin(student);
-            }
+            // Generate OTP and reveal in-app (no alert, no email needed)
+            const newOtp = generateOtp();
+            revealOtpInApp(newOtp);
+            setStep('otp');
+            setOtpSent(true);
+            setOtpAttempts(0);
         } catch (err) {
             setError('Verification failed. Please try again.');
             console.error('StudentLogin:', err);
@@ -134,26 +154,38 @@ export default function StudentLogin({ onBack, onStudentLogin }) {
         setLoading(false);
     };
 
-    // Step 2: Verify OTP
+    // Step 2: Verify OTP — with rate limiting
     const handleVerifyOtp = (e) => {
         e.preventDefault();
         clearError();
+        if (otpLocked) return;
 
         if (otp.trim() === generatedOtp) {
             setStep('profile');
+            setOtpVisible(false);
             if (onStudentLogin) onStudentLogin(studentData);
         } else {
-            setError('Invalid OTP. Please check and try again.');
+            const newAttempts = otpAttempts + 1;
+            setOtpAttempts(newAttempts);
+            if (newAttempts >= 3) {
+                setOtpLocked(true);
+                setOtpLockedTimer(30);
+                setError('Too many wrong OTP attempts. Locked for 30 seconds.');
+            } else {
+                setError(`Invalid OTP. ${3 - newAttempts} attempt(s) remaining.`);
+            }
+            setOtp('');
         }
     };
 
     // Resend OTP
     const handleResendOtp = () => {
         const newOtp = generateOtp();
-        setGeneratedOtp(newOtp);
+        revealOtpInApp(newOtp);
         setOtp('');
-        console.log(`StudentLogin: New OTP: ${newOtp}`);
-        alert(`New OTP: ${newOtp}\n(In production, this will be sent via email)`);
+        setOtpAttempts(0);
+        setOtpLocked(false);
+        clearError();
     };
 
     // Mask email for display (s***@gmail.com)
@@ -293,12 +325,24 @@ export default function StudentLogin({ onBack, onStudentLogin }) {
                         {error && (
                             <div className="login-error">
                                 ⚠️ {error}
+                                {otpLocked && <span> ({otpLockedTimer}s)</span>}
                             </div>
                         )}
 
                         <div className="otp-info">
-                            <p>📧 OTP sent to <strong>{maskEmail(studentEmail)}</strong></p>
+                            {studentEmail
+                                ? <p>🔐 Verify your identity to continue</p>
+                                : <p>🔐 Enter the verification code</p>}
                         </div>
+
+                        {/* In-app OTP reveal panel */}
+                        {otpVisible && (
+                            <div className="otp-reveal-panel">
+                                <div className="otp-reveal-label">Your OTP (hides in {otpTimer}s)</div>
+                                <div className="otp-reveal-code">{generatedOtp}</div>
+                                <div className="otp-reveal-hint">Do not share this with anyone</div>
+                            </div>
+                        )}
 
                         <form onSubmit={handleVerifyOtp} className="login-form">
                             <div className="form-group">

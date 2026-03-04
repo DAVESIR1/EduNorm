@@ -1,0 +1,872 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   🌸 AURORA THEME — EduNorm v2
+   
+   Sandbox: ALL rules scoped under [data-theme="aurora"]
+   Palette: Warm indigo + coral + mint — light, modern, minimal, elegant
+   Approach: Clean white cards, subtle color accents, crisp typography
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Aurora Keyframes (won't leak — scoped through body selectors below) ─── */
+@keyframes aurora-float-1 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    30% {
+        transform: translate(60px, -40px) scale(1.08);
+    }
+
+    60% {
+        transform: translate(-30px, 60px) scale(0.96);
+    }
+}
+
+@keyframes aurora-float-2 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(-50px, 40px) scale(1.1);
+    }
+
+    55% {
+        transform: translate(40px, -60px) scale(0.93);
+    }
+
+    80% {
+        transform: translate(-20px, 30px) scale(1.04);
+    }
+}
+
+@keyframes aurora-float-3 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    40% {
+        transform: translate(70px, 50px) scale(1.06);
+    }
+
+    70% {
+        transform: translate(-50px, -30px) scale(0.94);
+    }
+}
+
+@keyframes aurora-shimmer {
+    0% {
+        background-position: -200% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes aurora-pulse-dot {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.85);
+    }
+}
+
+@keyframes aurora-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── CSS Tokens ──────────────────────────────────────────────────────────── */
+[data-theme="aurora"] {
+    /* Core palette */
+    --au-indigo: #6366f1;
+    --au-indigo-soft: #eef2ff;
+    --au-coral: #f97316;
+    --au-coral-soft: #fff7ed;
+    --au-mint: #10b981;
+    --au-mint-soft: #ecfdf5;
+    --au-rose: #f43f5e;
+    --au-sky: #0ea5e9;
+    --au-amber: #f59e0b;
+    --au-violet: #8b5cf6;
+
+    /* Surface */
+    --au-bg: #f8faff;
+    --au-white: #ffffff;
+    --au-card: rgba(255, 255, 255, 0.92);
+    --au-card-hover: rgba(255, 255, 255, 0.98);
+
+    /* Text */
+    --au-text-primary: #1e1b4b;
+    --au-text-secondary: #4b5563;
+    --au-text-muted: #9ca3af;
+    --au-text-light: #d1d5db;
+
+    /* Borders */
+    --au-border: rgba(99, 102, 241, 0.12);
+    --au-border-soft: rgba(99, 102, 241, 0.06);
+
+    /* Shadows */
+    --au-shadow-sm: 0 1px 3px rgba(99, 102, 241, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --au-shadow-md: 0 4px 16px rgba(99, 102, 241, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --au-shadow-lg: 0 12px 40px rgba(99, 102, 241, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+    --au-shadow-xl: 0 24px 64px rgba(99, 102, 241, 0.18);
+
+    /* Gradients */
+    --au-grad-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --au-grad-accent: linear-gradient(135deg, #f97316 0%, #f43f5e 100%);
+    --au-grad-mint: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+    --au-grad-bg: linear-gradient(135deg, #f8faff 0%, #f0f4ff 40%, #fdf4ff 100%);
+    --au-grad-card: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+
+    /* Layout */
+    --au-radius-sm: 8px;
+    --au-radius-md: 14px;
+    --au-radius-lg: 20px;
+    --au-radius-xl: 28px;
+    --au-radius-full: 9999px;
+
+    /* Blur */
+    --au-blur: blur(20px);
+    --au-blur-sm: blur(10px);
+
+    /* Transition */
+    --au-transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ─── Bridge: map to design-system.css variable names ─── */
+    --bg: var(--au-grad-bg);
+    --card: var(--au-card);
+    --card-strong: rgba(255, 255, 255, 0.96);
+    --text: var(--au-text-primary);
+    --text-soft: var(--au-text-secondary);
+    --accent: var(--au-indigo);
+    --accent-gradient: var(--au-grad-primary);
+    --border: var(--au-border);
+    --blur: var(--au-blur);
+    --shadow: var(--au-shadow-md);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --text-primary: var(--au-text-primary);
+    --text-secondary: var(--au-text-secondary);
+    --text-muted: var(--au-text-muted);
+    --bg-main: var(--au-bg);
+    --bg-sidebar: rgba(248, 250, 255, 0.7);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-bg-strong: rgba(255, 255, 255, 0.92);
+    --glass-border: var(--au-border);
+    --glass-shadow: var(--au-shadow-md);
+    --border-color: var(--au-border);
+    --primary: var(--au-indigo);
+    --primary-dark: #4f46e5;
+    --primary-light: var(--au-indigo-soft);
+    --radius: var(--au-radius-lg);
+    --gap: clamp(0.75rem, 1.5vw, 1.5rem);
+}
+
+/* ─── Background & Blobs ─────────────────────────────────────────────────── */
+[data-theme="aurora"] body {
+    background: var(--au-grad-bg) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh !important;
+    color: var(--au-text-primary) !important;
+    font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+    overflow-x: hidden !important;
+}
+
+/* Blob 1 — indigo top-right */
+[data-theme="aurora"] body::before {
+    content: '' !important;
+    position: fixed !important;
+    width: 520px !important;
+    height: 520px !important;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%) !important;
+    top: -8% !important;
+    right: -4% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: aurora-float-1 24s ease-in-out infinite !important;
+    filter: blur(60px) !important;
+}
+
+/* Blob 2 — coral bottom-left */
+[data-theme="aurora"] body::after {
+    content: '' !important;
+    position: fixed !important;
+    width: 460px !important;
+    height: 460px !important;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.14) 0%, rgba(244, 63, 94, 0.07) 50%, transparent 70%) !important;
+    bottom: -8% !important;
+    left: -3% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: aurora-float-2 30s ease-in-out infinite !important;
+    filter: blur(60px) !important;
+}
+
+/* Blob 3 — mint center */
+[data-theme="aurora"] #root::before {
+    content: '' !important;
+    position: fixed !important;
+    width: 380px !important;
+    height: 380px !important;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(14, 165, 233, 0.06) 50%, transparent 70%) !important;
+    top: 45% !important;
+    left: 40% !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    filter: blur(70px) !important;
+    animation: aurora-float-3 26s ease-in-out infinite !important;
+}
+
+[data-theme="aurora"] #root::after {
+    display: none !important;
+}
+
+[data-theme="aurora"] #root {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* ─── Container & Layout ─────────────────────────────────────────────────── */
+[data-theme="aurora"] .bento-container,
+[data-theme="aurora"] .main-feed,
+[data-theme="aurora"] .right-panel,
+[data-theme="aurora"] .main-content,
+[data-theme="aurora"] .dashboard-grid,
+[data-theme="aurora"] .menu-content-area,
+[data-theme="aurora"] .menu-content-full-width,
+[data-theme="aurora"] .form-container,
+[data-theme="aurora"] .empty-state,
+[data-theme="aurora"] .footer-glass {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* ─── Sidebar rail ────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .sidebar-rail {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: none !important;
+    border-right: 1px solid rgba(99, 102, 241, 0.08) !important;
+    box-shadow: 2px 0 20px rgba(99, 102, 241, 0.06) !important;
+}
+
+[data-theme="aurora"] .sidebar-rail .rail-icon,
+[data-theme="aurora"] .sidebar-rail .rail-icon svg,
+[data-theme="aurora"] .sidebar-rail .rail-icon-btn,
+[data-theme="aurora"] .sidebar-rail .rail-icon-btn svg {
+    color: var(--au-indigo) !important;
+    stroke: var(--au-indigo) !important;
+    opacity: 0.75 !important;
+    transition: var(--au-transition) !important;
+}
+
+[data-theme="aurora"] .sidebar-rail .rail-icon-btn:hover svg,
+[data-theme="aurora"] .sidebar-rail .rail-icon-btn.active svg {
+    opacity: 1 !important;
+    color: var(--au-indigo) !important;
+}
+
+/* ─── Nav master ──────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .nav-master {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* ─── Logo: preserve original colors exactly ─────────────────────────────── */
+[data-theme="aurora"] .brand-logo-container,
+[data-theme="aurora"] .brand-logo-container *,
+[data-theme="aurora"] .brand-letter,
+[data-theme="aurora"] .letter-e,
+[data-theme="aurora"] .letter-d,
+[data-theme="aurora"] .letter-u,
+[data-theme="aurora"] .letter-n,
+[data-theme="aurora"] .letter-o,
+[data-theme="aurora"] .letter-r,
+[data-theme="aurora"] .letter-m,
+[data-theme="aurora"] .brand-dot {
+    color: unset !important;
+}
+
+[data-theme="aurora"] .letter-e {
+    color: #db2777 !important;
+}
+
+[data-theme="aurora"] .letter-d {
+    color: #0891b2 !important;
+}
+
+[data-theme="aurora"] .letter-u {
+    color: #d97706 !important;
+}
+
+[data-theme="aurora"] .letter-n {
+    color: #c9604b !important;
+}
+
+[data-theme="aurora"] .letter-o {
+    color: #059669 !important;
+}
+
+[data-theme="aurora"] .letter-r {
+    color: #dc2626 !important;
+}
+
+[data-theme="aurora"] .letter-m {
+    color: #c9604b !important;
+}
+
+/* ─── Main Glass Panel ────────────────────────────────────────────────────── */
+[data-theme="aurora"] .main-feed>.glass-panel {
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(20px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.1) !important;
+    border-radius: var(--au-radius-xl) !important;
+    box-shadow: var(--au-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    min-height: calc(100vh - 100px) !important;
+    animation: aurora-slide-up 0.4s ease both !important;
+}
+
+[data-theme="aurora"] .glass-panel {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid var(--au-border) !important;
+    border-radius: var(--au-radius-lg) !important;
+    box-shadow: var(--au-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="aurora"] .glass-panel::before {
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent) !important;
+}
+
+/* ─── Right Panel ─────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .right-panel>.sovereign-card,
+[data-theme="aurora"] .right-panel>div>.sovereign-card,
+[data-theme="aurora"] .right-panel .glass-panel {
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid var(--au-border) !important;
+    border-radius: var(--au-radius-lg) !important;
+    box-shadow: var(--au-shadow-md) !important;
+}
+
+[data-theme="aurora"] .right-panel h4 {
+    background: rgba(99, 102, 241, 0.06) !important;
+    border: 1px solid rgba(99, 102, 241, 0.1) !important;
+    border-radius: var(--au-radius-sm) !important;
+    color: var(--au-indigo) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* ─── Flyout panel ────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .rail-flyout>.flyout-inner {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.12) !important;
+    border-radius: var(--au-radius-xl) !important;
+    box-shadow: var(--au-shadow-xl), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+/* ─── Modals ──────────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .modal-content,
+[data-theme="aurora"] .password-modal-content,
+[data-theme="aurora"] .password-modal {
+    background: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(99, 102, 241, 0.12) !important;
+    border-radius: var(--au-radius-xl) !important;
+    box-shadow: var(--au-shadow-xl) !important;
+}
+
+[data-theme="aurora"] .modal-overlay,
+[data-theme="aurora"] .password-modal-overlay {
+    background: rgba(30, 27, 75, 0.18) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* ─── Feature page containers ─────────────────────────────────────────────── */
+[data-theme="aurora"] .step-wizard,
+[data-theme="aurora"] .admin-dashboard,
+[data-theme="aurora"] .general-register,
+[data-theme="aurora"] .ledger-search,
+[data-theme="aurora"] .hoi-diary,
+[data-theme="aurora"] .staff-info,
+[data-theme="aurora"] .class-management,
+[data-theme="aurora"] .salary-book,
+[data-theme="aurora"] .analytics-dashboard,
+[data-theme="aurora"] .certificate-generator,
+[data-theme="aurora"] .smart-search,
+[data-theme="aurora"] .voice-input,
+[data-theme="aurora"] .qr-attendance,
+[data-theme="aurora"] .whatsapp-messenger,
+[data-theme="aurora"] .family-tree,
+[data-theme="aurora"] .progress-timeline,
+[data-theme="aurora"] .document-scanner,
+[data-theme="aurora"] .photo-enhancement,
+[data-theme="aurora"] .coming-soon-page,
+[data-theme="aurora"] .backup-restore,
+[data-theme="aurora"] .cloud-backup,
+[data-theme="aurora"] .drive-backup,
+[data-theme="aurora"] .profile-card,
+[data-theme="aurora"] .id-card-container {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid var(--au-border) !important;
+    border-radius: var(--au-radius-xl) !important;
+    box-shadow: var(--au-shadow-lg) !important;
+    animation: aurora-slide-up 0.35s ease both !important;
+}
+
+/* ─── Menu flyout items ────────────────────────────────────────────────────── */
+[data-theme="aurora"] .menu-section {
+    background: rgba(99, 102, 241, 0.04) !important;
+    border: 1px solid rgba(99, 102, 241, 0.08) !important;
+    border-radius: var(--au-radius-md) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="aurora"] .menu-header {
+    background: transparent !important;
+    color: var(--au-indigo) !important;
+    border-left-color: var(--au-indigo) !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="aurora"] .menu-header:hover {
+    background: rgba(99, 102, 241, 0.06) !important;
+}
+
+[data-theme="aurora"] .menu-item {
+    color: var(--au-text-secondary) !important;
+    transition: var(--au-transition) !important;
+}
+
+[data-theme="aurora"] .menu-item:hover:not(.disabled) {
+    background: rgba(99, 102, 241, 0.07) !important;
+    color: var(--au-indigo) !important;
+    transform: translateX(4px) !important;
+}
+
+[data-theme="aurora"] .menu-item.active {
+    background: var(--au-grad-primary) !important;
+    color: white !important;
+    border-radius: var(--au-radius-sm) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+}
+
+[data-theme="aurora"] .menu-fullname {
+    color: rgba(75, 85, 99, 0.55) !important;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .btn-sovereign,
+[data-theme="aurora"] button.btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(99, 102, 241, 0.18) !important;
+    border-radius: var(--au-radius-md) !important;
+    color: var(--au-text-primary) !important;
+    font-weight: 500 !important;
+    transition: var(--au-transition) !important;
+    box-shadow: var(--au-shadow-sm) !important;
+}
+
+[data-theme="aurora"] .btn-sovereign:hover,
+[data-theme="aurora"] button.btn:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--au-shadow-md) !important;
+}
+
+[data-theme="aurora"] .btn-primary {
+    background: var(--au-grad-primary) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3) !important;
+}
+
+[data-theme="aurora"] .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) !important;
+    transform: translateY(-1px) !important;
+    opacity: 0.95 !important;
+}
+
+/* Inside glass — buttons get tinted, no further shadow */
+[data-theme="aurora"] .glass-panel button,
+[data-theme="aurora"] .glass-panel .btn-sovereign,
+[data-theme="aurora"] .glass-panel .btn,
+[data-theme="aurora"] .sovereign-card button,
+[data-theme="aurora"] .nav-master button,
+[data-theme="aurora"] .nav-master .btn-sovereign,
+[data-theme="aurora"] .modal-content button,
+[data-theme="aurora"] .step-wizard button {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(99, 102, 241, 0.07) !important;
+    border: 1px solid rgba(99, 102, 241, 0.12) !important;
+    box-shadow: none !important;
+}
+
+[data-theme="aurora"] .glass-panel button:hover,
+[data-theme="aurora"] .sovereign-card button:hover,
+[data-theme="aurora"] .nav-master button:hover,
+[data-theme="aurora"] .modal-content button:hover {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+[data-theme="aurora"] .glass-panel .btn-primary,
+[data-theme="aurora"] .sovereign-card .btn-primary,
+[data-theme="aurora"] .nav-master .btn-primary,
+[data-theme="aurora"] .step-wizard .btn-primary,
+[data-theme="aurora"] .modal-content .btn-primary {
+    background: var(--au-grad-primary) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+    border: none !important;
+    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* ─── Inputs ──────────────────────────────────────────────────────────────── */
+[data-theme="aurora"] input,
+[data-theme="aurora"] select,
+[data-theme="aurora"] textarea,
+[data-theme="aurora"] .input-field {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1.5px solid rgba(99, 102, 241, 0.15) !important;
+    border-radius: var(--au-radius-md) !important;
+    color: var(--au-text-primary) !important;
+    transition: var(--au-transition) !important;
+}
+
+[data-theme="aurora"] input:focus,
+[data-theme="aurora"] select:focus,
+[data-theme="aurora"] textarea:focus {
+    border-color: var(--au-indigo) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+    background: #ffffff !important;
+    outline: none !important;
+}
+
+[data-theme="aurora"] input::placeholder,
+[data-theme="aurora"] textarea::placeholder {
+    color: var(--au-text-muted) !important;
+}
+
+/* ─── Wizard step items ───────────────────────────────────────────────────── */
+[data-theme="aurora"] .step-item {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.12)) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    border-radius: var(--au-radius-md) !important;
+    color: var(--au-indigo) !important;
+}
+
+[data-theme="aurora"] .step-item.active {
+    background: var(--au-grad-primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* ─── Sovereign card (right panel card) ──────────────────────────────────── */
+[data-theme="aurora"] .sovereign-card {
+    background: var(--au-grad-primary) !important;
+    border: none !important;
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.25) !important;
+}
+
+[data-theme="aurora"] .glass-panel .sovereign-card {
+    background: rgba(99, 102, 241, 0.06) !important;
+    border: 1px solid rgba(99, 102, 241, 0.12) !important;
+    box-shadow: none !important;
+}
+
+/* ─── Sync toast ──────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .sync-toast {
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(99, 102, 241, 0.12) !important;
+    border-radius: var(--au-radius-lg) !important;
+    box-shadow: var(--au-shadow-lg) !important;
+}
+
+/* ─── Nav buttons (in flyout sidebar) ────────────────────────────────────── */
+[data-theme="aurora"] .nav-btn {
+    color: var(--au-text-secondary) !important;
+    border-radius: var(--au-radius-md) !important;
+    transition: var(--au-transition) !important;
+}
+
+[data-theme="aurora"] .nav-btn:hover,
+[data-theme="aurora"] .nav-btn.active {
+    background: var(--au-grad-primary) !important;
+    color: white !important;
+    transform: translateX(4px) !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25) !important;
+    border-color: transparent !important;
+}
+
+/* ─── Flyout buttons ──────────────────────────────────────────────────────── */
+[data-theme="aurora"] .flyout-btn {
+    color: var(--au-text-secondary) !important;
+    transition: var(--au-transition) !important;
+}
+
+[data-theme="aurora"] .flyout-btn:hover {
+    color: var(--au-indigo) !important;
+    background: rgba(99, 102, 241, 0.07) !important;
+}
+
+[data-theme="aurora"] .flyout-inner {
+    color: var(--au-text-primary) !important;
+}
+
+[data-theme="aurora"] .flyout-header {
+    color: var(--au-text-muted) !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+/* ─── Wizard header/footer ────────────────────────────────────────────────── */
+[data-theme="aurora"] .wizard-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.07), rgba(139, 92, 246, 0.04)) !important;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.1) !important;
+}
+
+[data-theme="aurora"] .wizard-footer {
+    background: transparent !important;
+    border-top: 1px solid rgba(99, 102, 241, 0.08) !important;
+}
+
+/* ─── Status badge ────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .status-badge {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--au-border) !important;
+    border-radius: var(--au-radius-full) !important;
+    color: var(--au-text-primary) !important;
+    box-shadow: var(--au-shadow-sm) !important;
+}
+
+/* ─── Sync status pill ────────────────────────────────────────────────────── */
+[data-theme="aurora"] .sync-status {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    border-radius: var(--au-radius-full) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* ─── Ad container ────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .ad-container {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--au-border-soft) !important;
+    border-radius: var(--au-radius-lg) !important;
+}
+
+[data-theme="aurora"] .ad-container>*,
+[data-theme="aurora"] .ad-container div {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* ─── Text colors ─────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .main-feed h1,
+[data-theme="aurora"] .main-feed h2,
+[data-theme="aurora"] .main-feed h3,
+[data-theme="aurora"] .main-feed h4,
+[data-theme="aurora"] .main-feed p,
+[data-theme="aurora"] .main-feed label,
+[data-theme="aurora"] .main-feed li,
+[data-theme="aurora"] .main-feed td,
+[data-theme="aurora"] .main-feed th {
+    color: var(--au-text-primary) !important;
+}
+
+[data-theme="aurora"] .main-feed>.glass-panel span:not(.brand-letter):not(.brand-dot):not([class*="letter-"]) {
+    color: var(--au-text-primary) !important;
+}
+
+[data-theme="aurora"] .right-panel h1,
+[data-theme="aurora"] .right-panel h2,
+[data-theme="aurora"] .right-panel h3,
+[data-theme="aurora"] .right-panel h4,
+[data-theme="aurora"] .right-panel p,
+[data-theme="aurora"] .right-panel label {
+    color: var(--au-text-primary) !important;
+}
+
+[data-theme="aurora"] .nav-master button {
+    color: var(--au-text-primary) !important;
+}
+
+/* ─── Scrollbars ──────────────────────────────────────────────────────────── */
+[data-theme="aurora"] *::-webkit-scrollbar {
+    width: 5px !important;
+    height: 5px !important;
+}
+
+[data-theme="aurora"] *::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+[data-theme="aurora"] *::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.18) !important;
+    border-radius: 10px !important;
+}
+
+[data-theme="aurora"] *::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.32) !important;
+}
+
+/* ─── Selection ───────────────────────────────────────────────────────────── */
+[data-theme="aurora"] ::selection {
+    background: rgba(99, 102, 241, 0.18) !important;
+    color: inherit !important;
+}
+
+/* ─── Table rows ──────────────────────────────────────────────────────────── */
+[data-theme="aurora"] tr:hover {
+    background: rgba(99, 102, 241, 0.04) !important;
+}
+
+[data-theme="aurora"] th {
+    background: rgba(99, 102, 241, 0.06) !important;
+    color: var(--au-indigo) !important;
+    font-weight: 600 !important;
+}
+
+/* ─── Badges ──────────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .badge {
+    border-radius: var(--au-radius-full) !important;
+}
+
+[data-theme="aurora"] .glass-panel .badge,
+[data-theme="aurora"] .glass-panel .status-badge,
+[data-theme="aurora"] .sovereign-card .badge,
+[data-theme="aurora"] .ad-container .badge {
+    background: rgba(99, 102, 241, 0.1) !important;
+    color: var(--au-indigo) !important;
+    border: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* ─── Gradient text ───────────────────────────────────────────────────────── */
+[data-theme="aurora"] .gradient-text {
+    background: var(--au-grad-primary) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+/* ─── Dividers / separators ───────────────────────────────────────────────── */
+[data-theme="aurora"] hr {
+    border-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ─── App footer ──────────────────────────────────────────────────────────── */
+[data-theme="aurora"] .app-footer {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-top: 1px solid rgba(99, 102, 241, 0.08) !important;
+}
+
+/* ─── Dashboard stats cards ───────────────────────────────────────────────── */
+[data-theme="aurora"] .stat-card,
+[data-theme="aurora"] .dashboard-stat {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid var(--au-border) !important;
+    border-radius: var(--au-radius-lg) !important;
+    box-shadow: var(--au-shadow-sm) !important;
+    transition: var(--au-transition) !important;
+}
+
+[data-theme="aurora"] .stat-card:hover,
+[data-theme="aurora"] .dashboard-stat:hover {
+    box-shadow: var(--au-shadow-md) !important;
+    transform: translateY(-2px) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+/* ─── Feature accent dots (active state indicator) ────────────────────────── */
+[data-theme="aurora"] .active-dot,
+[data-theme="aurora"] .online-dot {
+    background: var(--au-mint) !important;
+    animation: aurora-pulse-dot 2s ease-in-out infinite !important;
+}
+
+/* ─── Progress bars ───────────────────────────────────────────────────────── */
+[data-theme="aurora"] .progress-bar,
+[data-theme="aurora"] .bar-fill {
+    background: var(--au-grad-primary) !important;
+    border-radius: var(--au-radius-full) !important;
+}
+
+[data-theme="aurora"] .progress-track {
+    background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ─── Toast notifications ─────────────────────────────────────────────────── */
+[data-theme="aurora"] .toast,
+[data-theme="aurora"] .toast-container>div {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid var(--au-border) !important;
+    border-radius: var(--au-radius-lg) !important;
+    box-shadow: var(--au-shadow-xl) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    color: var(--au-text-primary) !important;
+}
+
+/* ─── Responsive: nothing breaks, just inherits Aurora tokens ─────────────── */
+/* All breakpoints from v2-tokens.css still apply — aurora just overrides colors */

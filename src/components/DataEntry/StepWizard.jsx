@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Save, Check, ScanLine } from 'lucide-react';
 import SmartFormScanner from '../Features/SmartFormScanner';
 import DataStep from './DataStep';
-import { DATA_FIELDS } from '../../features/StudentManagement/types';
+import { DATA_FIELDS } from '../../shared/constants/fields.js';
 import './StepWizard.css';
 
 // Define all 43 data fields + Document Vault grouped into 5 steps

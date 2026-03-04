@@ -362,7 +362,7 @@ export async function exportAllData() {
 }
 
 // Import/Restore
-export async function importAllData(data) {
+export async function importAllData(data, force = false) {
     const db = await initDB();
     const yieldToMain = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -421,7 +421,7 @@ export async function importAllData(data) {
                         }
                         const existingTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
                         const incomingTime = item.updatedAt ? new Date(item.updatedAt).getTime() : 0;
-                        if (incomingTime >= existingTime || !existing.value) await tx.store.put(item);
+                        if (force || incomingTime >= existingTime || !existing.value) await tx.store.put(item);
                     } else {
                         await tx.store.put(item);
                     }
@@ -487,9 +487,12 @@ export async function importAllData(data) {
                         const existingInDb = await existingInDbIdx.get(student.grNo);
                         if (existingInDb) {
                             student.id = existingInDb.id;
-                            Object.keys(existingInDb).forEach(key => {
-                                if ((student[key] === undefined || student[key] === '' || student[key] === null) && existingInDb[key]) student[key] = existingInDb[key];
-                            });
+                            // If NOT forcing, merge non-empty fields. If FORCING, Cloud is master.
+                            if (!force) {
+                                Object.keys(existingInDb).forEach(key => {
+                                    if ((student[key] === undefined || student[key] === '' || student[key] === null) && existingInDb[key]) student[key] = existingInDb[key];
+                                });
+                            }
                         }
                         await tx.store.put(student);
                     } catch (e) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMenu } from '../../contexts/MenuContext';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 import { SaveIcon, EditIcon, PrinterIcon, PlusIcon, TrashIcon } from '../Icons/CustomIcons';
 import './CustomWindowCreator.css';
 
@@ -54,10 +54,10 @@ export default function CustomWindowCreator({ menuId, onSave, onCancel }) {
             addCustomWindow(menuId, windowData);
 
             // Save to database
-            const existingWindows = await db.getSetting('custom_windows') || {};
+            const existingWindows = await ServiceLayer.getSetting('custom_windows') || {};
             existingWindows[menuId] = existingWindows[menuId] || [];
             existingWindows[menuId].push(windowData);
-            await db.setSetting('custom_windows', existingWindows);
+            await ServiceLayer.saveSetting('custom_windows', existingWindows);
 
             alert('Custom window created successfully!');
             if (onSave) onSave(windowData);
@@ -162,7 +162,7 @@ export function CustomWindowView({ window, menuId }) {
     }, [window.id]);
 
     const loadData = async () => {
-        const saved = await db.getSetting(`custom_window_${window.id}`);
+        const saved = await ServiceLayer.getSetting(`custom_window_${window.id}`);
         if (saved) setData(saved);
     };
 
@@ -173,7 +173,7 @@ export function CustomWindowView({ window, menuId }) {
     const handleSave = async () => {
         setSaving(true);
         try {
-            await db.setSetting(`custom_window_${window.id}`, {
+            await ServiceLayer.saveSetting(`custom_window_${window.id}`, {
                 ...data,
                 updatedAt: Date.now()
             });

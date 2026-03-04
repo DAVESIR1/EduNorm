@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 
 /**
  * Correction Request Component
@@ -34,7 +34,7 @@ export default function CorrectionRequest({ studentData, onBack }) {
     useEffect(() => {
         const loadRequests = async () => {
             try {
-                const stored = await db.getSetting(`correction_requests_${studentData?.id}`);
+                const stored = await ServiceLayer.getSetting(`correction_requests_${studentData?.id}`);
                 if (stored) {
                     setExistingRequests(Array.isArray(stored) ? stored : []);
                 }
@@ -88,7 +88,7 @@ export default function CorrectionRequest({ studentData, onBack }) {
             await db.updateSetting(`correction_requests_${studentData.id}`, allRequests);
 
             // Also save to a global correction queue
-            const globalQueue = (await db.getSetting('correction_request_queue')) || [];
+            const globalQueue = (await ServiceLayer.getSetting('correction_request_queue')) || [];
             await db.updateSetting('correction_request_queue', [...globalQueue, ...correctionData]);
 
             setSubmitted(true);

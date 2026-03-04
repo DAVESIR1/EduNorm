@@ -4,8 +4,7 @@ import {
     GraduationCap, UserCheck, X, ArrowUp, ArrowDown
 } from 'lucide-react';
 import './AnalyticsDashboard.css';
-import { SovereignBridge } from '../../core/v2/Bridge';
-import { Shield } from 'lucide-react';
+
 
 export default function AnalyticsDashboard({ isOpen, onClose, students = [], standards = [] }) {
     const [blindMode, setBlindMode] = React.useState(false);
@@ -65,14 +64,15 @@ export default function AnalyticsDashboard({ isOpen, onClose, students = [], sta
         };
     }, [students, standards]);
 
-    // Async Blind Summation Effect
+    // Blind Summation — group students by field (replaces deleted SovereignBridge)
     React.useEffect(() => {
         if (blindMode && students.length) {
-            const runBlindAnalysis = async () => {
-                const stats = await SovereignBridge.blindStat(students, 'standard');
-                setBlindStats(stats);
-            };
-            runBlindAnalysis();
+            const grouped = students.reduce((acc, s) => {
+                const key = s['standard'] || 'Unknown';
+                acc[key] = (acc[key] || 0) + 1;
+                return acc;
+            }, {});
+            setBlindStats(grouped);
         }
     }, [blindMode, students]);
 

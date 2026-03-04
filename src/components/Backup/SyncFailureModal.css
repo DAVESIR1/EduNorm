@@ -1,0 +1,319 @@
+/* ─── SyncFailureModal ─────────────────────────────────────────── */
+
+.sfm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 10, 5, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: sfm-fade-in 0.25s ease;
+}
+
+@keyframes sfm-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.sfm-modal {
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 24px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(99, 102, 241, 0.12);
+    max-width: 520px;
+    width: 100%;
+    padding: 2rem;
+    animation: sfm-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sfm-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.sfm-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sfm-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.sfm-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin: 0 0 0.35rem;
+}
+
+.sfm-subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Steps */
+.sfm-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sfm-step {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    border-radius: 14px;
+}
+
+.sfm-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sfm-step-content strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #1e1b4b;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.sfm-step-content p {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.sfm-step-content code {
+    background: rgba(99, 102, 241, 0.08);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.78rem;
+    color: #4f46e5;
+}
+
+/* Upload zone */
+.sfm-upload-zone {
+    text-align: center;
+    padding: 1.25rem;
+    background: rgba(99, 102, 241, 0.03);
+    border: 2px dashed rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    margin-bottom: 1.25rem;
+}
+
+.sfm-upload-hint {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin: 0.6rem 0 0;
+}
+
+/* Buttons */
+.sfm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sfm-btn.primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+.sfm-btn.primary:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.38);
+}
+
+.sfm-btn.primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.sfm-btn.secondary {
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.sfm-btn.secondary:hover {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+.sfm-btn.ghost {
+    background: transparent;
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.sfm-btn.ghost:hover {
+    color: #6b7280;
+    background: rgba(156, 163, 175, 0.08);
+}
+
+.sfm-btn-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* Footer */
+.sfm-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sfm-footer-note {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    text-align: center;
+    margin: 0;
+}
+
+/* Success / Error body */
+.sfm-success-body,
+.sfm-error-body {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.sfm-success-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+}
+
+.sfm-success-body p,
+.sfm-error-body p {
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.sfm-note {
+    font-size: 0.8rem;
+    color: #9ca3af !important;
+}
+
+.sfm-error-msg {
+    color: #ef4444 !important;
+    font-size: 0.88rem;
+    padding: 0.75rem 1rem;
+    background: rgba(239, 68, 68, 0.06);
+    border-radius: 10px;
+    border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* Spinner */
+.sfm-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: sfm-spin 0.7s linear infinite;
+    display: inline-block;
+}
+
+@keyframes sfm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dark theme support */
+[data-theme="dark"] .sfm-modal {
+    background: rgba(15, 20, 18, 0.96) !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+[data-theme="dark"] .sfm-title {
+    color: #e8f0ee !important;
+}
+
+[data-theme="dark"] .sfm-subtitle {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] .sfm-step {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="dark"] .sfm-step-content strong {
+    color: #e8f0ee !important;
+}
+
+[data-theme="dark"] .sfm-step-content p {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] .sfm-upload-zone {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(99, 102, 241, 0.18) !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .sfm-modal {
+        padding: 1.25rem;
+        border-radius: 18px;
+    }
+
+    .sfm-title {
+        font-size: 1rem;
+    }
+
+    .sfm-step {
+        padding: 0.75rem;
+    }
+}

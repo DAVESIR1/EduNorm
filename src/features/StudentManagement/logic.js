@@ -1,5 +1,5 @@
 
-import { SORT_FIELDS } from './types.js';
+import { SORT_FIELDS, DATA_FIELDS } from './types.js';
 
 /**
  * EDUNORM V2: STUDENT MANAGEMENT LOGIC
@@ -97,6 +97,33 @@ export const StudentLogic = {
             ledgerNo: i + 1
         }));
     }
+};
+
+/**
+ * Returns the merged list of all fields (built-in + custom), with optional renames applied.
+ * Used by App.jsx and any component that needs the master field list.
+ * This keeps DATA_FIELDS internal to StudentManagement — nothing outside needs to import it.
+ *
+ * @param {Object} fieldRenames  — map of fieldKey → renamed label (from settings)
+ * @param {Array}  customFields  — custom field records from database
+ * @returns {Array} merged field objects: { key, label, type, builtIn }
+ */
+StudentLogic.getAllFields = function getAllFields(fieldRenames = {}, customFields = []) {
+    const builtIn = DATA_FIELDS.flatMap(step =>
+        step.fields.map(f => ({
+            key: f.key,
+            label: fieldRenames[f.key] || f.label,
+            type: f.type,
+            builtIn: true,
+        }))
+    );
+    const custom = customFields.map(f => ({
+        key: f.id.toString(),
+        label: f.name,
+        type: f.type,
+        builtIn: false,
+    }));
+    return [...builtIn, ...custom];
 };
 
 export default StudentLogic;

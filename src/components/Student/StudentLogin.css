@@ -350,3 +350,43 @@
 [data-theme="neon"] .profile-class {
     color: #FFFDD0;
 }
+/* ─── OTP Reveal Panel ──────────────────────────────────────── */
+.otp-reveal-panel {
+    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.12));
+    border: 1.5px solid rgba(99,102,241,0.4);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    text-align: center;
+    animation: otp-appear 0.3s ease;
+}
+
+@keyframes otp-appear {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.otp-reveal-label {
+    font-size: 0.75rem;
+    color: rgba(99,102,241,0.8);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+}
+
+.otp-reveal-code {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    color: #6366f1;
+    font-variant-numeric: tabular-nums;
+    font-family: 'Courier New', monospace;
+}
+
+.otp-reveal-hint {
+    font-size: 0.7rem;
+    color: rgba(239,68,68,0.7);
+    margin-top: 6px;
+    font-style: italic;
+}

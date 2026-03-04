@@ -1,0 +1,486 @@
+/*
+ * theme-fixes.css — EduNorm Universal Theme Patch
+ *
+ * Fixes:
+ *  1. Text invisible on mobile (color = BG color on narrow screens)
+ *  2. Buttons/menus disappear when resized
+ *  3. Icon inconsistency across menus & submenus
+ *  4. Color uniformity inside each theme
+ *  5. Responsive flyout + sidebar on small screens
+ *
+ * Scoped per theme: light (no attribute / [data-theme="light"]), dark, aurora
+ * Sandboxed — does NOT break existing glassmorphism-force.css
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   1. UNIVERSAL BASE — works for ALL themes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Force text to always be readable — prevent color/bg collision */
+.flyout-btn,
+.flyout-btn span,
+.rail-flyout .flyout-btn {
+    color: var(--text-primary, #1e293b) !important;
+}
+
+.flyout-btn:hover:not(:disabled),
+.flyout-btn.active {
+    color: white !important;
+}
+
+/* Icons inside buttons — uniform sizing across all menus */
+.flyout-btn svg,
+.rail-icon svg,
+.btn svg,
+.btn-primary svg,
+.btn-secondary svg,
+.tab-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Rail icons — uniform size everywhere */
+.rail-icon {
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: background 0.18s ease, transform 0.15s ease !important;
+    position: relative !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+/* Flyout items — uniform height and padding */
+.flyout-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 9px 14px !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    text-align: left !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    background: transparent !important;
+}
+
+/* Flyout header — uniform across all menus */
+.flyout-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 14px 8px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    margin-bottom: 4px !important;
+}
+
+.flyout-header svg {
+    width: 15px !important;
+    height: 15px !important;
+    flex-shrink: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   2. LIGHT THEME — text always visible
+   ═══════════════════════════════════════════════════════════════ */
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-btn,
+[data-theme="light"] .flyout-btn {
+    color: #1e293b !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-btn:hover,
+[data-theme="light"] .flyout-btn:hover:not(:disabled) {
+    background: rgba(var(--menu-color-rgb, 99, 102, 241), 0.08) !important;
+    color: #0f172a !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-btn.active,
+[data-theme="light"] .flyout-btn.active {
+    color: white !important;
+}
+
+/* Light rail icons */
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .rail-icon,
+[data-theme="light"] .rail-icon {
+    color: #475569 !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .rail-icon:hover,
+[data-theme="light"] .rail-icon:hover {
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #1e293b !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .rail-icon.active,
+[data-theme="light"] .rail-icon.active {
+    background: rgba(var(--menu-color-rgb, 99, 102, 241), 0.12) !important;
+    color: #1e293b !important;
+}
+
+/* Light flyout inner */
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-inner,
+[data-theme="light"] .flyout-inner {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    color: #1e293b !important;
+}
+
+/* Light flyout header */
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-header,
+[data-theme="light"] .flyout-header {
+    color: #64748b !important;
+    border-bottom-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   3. DARK THEME — text always visible, no color/bg collision
+   ═══════════════════════════════════════════════════════════════ */
+[data-theme="dark"] .flyout-btn,
+[data-theme="dark"] .flyout-btn span {
+    color: #d4e4d8 !important;
+}
+
+[data-theme="dark"] .flyout-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.07) !important;
+    color: #f0faf4 !important;
+}
+
+[data-theme="dark"] .flyout-btn.active {
+    color: white !important;
+}
+
+[data-theme="dark"] .flyout-header {
+    color: rgba(212, 228, 216, 0.6) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .rail-icon {
+    color: #b8ccc0 !important;
+}
+
+[data-theme="dark"] .rail-icon:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #e8f0ec !important;
+}
+
+[data-theme="dark"] .soon-badge {
+    background: rgba(249, 115, 22, 0.25) !important;
+    color: #fb923c !important;
+}
+
+/* Dark — make all heading/label text always readable */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] label,
+[data-theme="dark"] .label {
+    color: #e8f0ee !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span:not(.dot):not(.layer-dot):not(.soon-badge),
+[data-theme="dark"] li {
+    color: #b8ccc0 !important;
+}
+
+/* Dark — input labels must not vanish */
+[data-theme="dark"] .input-group label,
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .field-label {
+    color: #d4e4d8 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   4. AURORA THEME — text and button fixes
+   ═══════════════════════════════════════════════════════════════ */
+[data-theme="aurora"] .flyout-btn,
+[data-theme="aurora"] .flyout-btn span {
+    color: #1e1b4b !important;
+}
+
+[data-theme="aurora"] .flyout-btn:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.08) !important;
+    color: #3730a3 !important;
+}
+
+[data-theme="aurora"] .flyout-btn.active {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: white !important;
+}
+
+[data-theme="aurora"] .flyout-header {
+    color: #6366f1 !important;
+    border-bottom-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+[data-theme="aurora"] .flyout-inner {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border: 1px solid rgba(99, 102, 241, 0.15) !important;
+}
+
+[data-theme="aurora"] .rail-icon {
+    color: #6366f1 !important;
+}
+
+[data-theme="aurora"] .rail-icon:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+    color: #4338ca !important;
+}
+
+[data-theme="aurora"] .rail-icon.active {
+    background: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   5. RESPONSIVE FIXES — text + buttons visible on all screen sizes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Flyout always visible on small screens — don't let it clip */
+.rail-flyout {
+    min-width: 200px !important;
+    max-width: 280px !important;
+}
+
+/* On very small screens, flyout becomes bottom-anchored full-width */
+@media (max-width: 480px) {
+    .rail-flyout {
+        position: fixed !important;
+        left: 60px !important;
+        right: 8px !important;
+        max-width: calc(100vw - 70px) !important;
+        top: auto !important;
+        bottom: 70px !important;
+        z-index: 9999 !important;
+    }
+
+    .flyout-bottom.rail-flyout {
+        bottom: 8px !important;
+    }
+}
+
+/* Tablet: flyout never overflows right edge */
+@media (max-width: 768px) {
+    .rail-flyout:not(.flyout-bottom) {
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+    }
+}
+
+/* ─ Buttons: never let text disappear at any width ─ */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-sovereign {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0 !important;
+}
+
+/* Tables: text never merges into background */
+table td,
+table th {
+    word-break: break-word !important;
+}
+
+[data-theme="dark"] table td,
+[data-theme="dark"] table th {
+    color: #d4e4d8 !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="aurora"] table td,
+[data-theme="aurora"] table th {
+    color: #1e1b4b !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6. BTN COLORS — uniform per theme, always readable
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Light theme btn-primary (orange gradient) */
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .btn-primary,
+[data-theme="light"] .btn-primary {
+    background: linear-gradient(135deg, #f97316, #ea580c) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* Aurora theme btn-primary (indigo gradient) */
+[data-theme="aurora"] .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* All btn-secondary readable */
+.btn-secondary {
+    color: var(--text-primary, #374151) !important;
+}
+
+[data-theme="dark"] .btn-secondary {
+    color: #d4e4d8 !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   7. INPUT TEXT — visible on all themes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Light — inputs */
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) input,
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) select,
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) textarea,
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    color: #1e293b !important;
+}
+
+/* Aurora — inputs */
+[data-theme="aurora"] input,
+[data-theme="aurora"] select,
+[data-theme="aurora"] textarea {
+    color: #1e1b4b !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+[data-theme="aurora"] input::placeholder,
+[data-theme="aurora"] textarea::placeholder {
+    color: rgba(99, 102, 241, 0.4) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   8. SOON BADGE — uniform across all themes
+   ═══════════════════════════════════════════════════════════════ */
+.soon-badge {
+    font-size: 0.6rem !important;
+    font-weight: 700 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    letter-spacing: 0.05em !important;
+    flex-shrink: 0 !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .soon-badge,
+[data-theme="light"] .soon-badge {
+    background: rgba(249, 115, 22, 0.12) !important;
+    color: #ea580c !important;
+}
+
+[data-theme="aurora"] .soon-badge {
+    background: rgba(99, 102, 241, 0.12) !important;
+    color: #4f46e5 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   9. FLYOUT EMAIL / META TEXT
+   ═══════════════════════════════════════════════════════════════ */
+.flyout-email {
+    font-size: 0.75rem !important;
+    padding: 4px 14px 8px !important;
+    word-break: break-all !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-email,
+[data-theme="light"] .flyout-email {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .flyout-email {
+    color: rgba(180, 200, 190, 0.6) !important;
+}
+
+[data-theme="aurora"] .flyout-email {
+    color: #6366f1 !important;
+    opacity: 0.7 !important;
+}
+
+/* Danger flyout button */
+.flyout-danger {
+    color: #ef4444 !important;
+}
+
+.flyout-danger:hover {
+    background: rgba(239, 68, 68, 0.08) !important;
+}
+
+/* Accent flyout button */
+.flyout-accent {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(234, 88, 12, 0.08)) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   10. MOBILE SIDEBAR — all items always visible
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+    /* Sidebar rail stays on the left and doesn't disappear */
+    .sidebar-rail {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        z-index: 100 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        width: 56px !important;
+    }
+
+    /* Main content doesn't overlap sidebar */
+    .bento-container,
+    .main-feed {
+        margin-left: 56px !important;
+    }
+
+    /* Flyout text never clips off screen */
+    .flyout-btn span {
+        max-width: 180px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Rail icon text labels — hide on very small if too wide */
+    .rail-nav-label {
+        display: none !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   11. ACTIVE ITEM — consistent highlight per theme  
+   ═══════════════════════════════════════════════════════════════ */
+.flyout-btn.active {
+    font-weight: 600 !important;
+}
+
+:root:not([data-theme="dark"]):not([data-theme="aurora"]) .flyout-btn.active,
+[data-theme="light"] .flyout-btn.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.85), rgba(234, 88, 12, 0.85)) !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .flyout-btn.active {
+    background: linear-gradient(135deg, rgba(224, 123, 103, 0.65), rgba(201, 96, 75, 0.65)) !important;
+    color: white !important;
+}
+
+[data-theme="aurora"] .flyout-btn.active {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: white !important;
+}

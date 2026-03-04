@@ -174,61 +174,40 @@ export async function getSchoolFolderTree(schoolCode = 'default') {
  * If file isn't editable (owned by different client), skips PATCH and creates new.
  * This prevents the red 403 console error from even firing.
  */
-export async function uploadFile(name, content, mimeType, folderId) {
+/**
+ * Upload or update a file on Drive.
+ * If knownFileId is given → PATCH (update content in-place, same file, no duplicate).
+ * Otherwise → POST new file.
+ * Returns the file metadata including id.
+ */
+export async function uploadFile(name, content, mimeType, folderId, knownFileId = null) {
     const h = headers();
     const blob = content instanceof Blob ? content : new Blob([content], { type: mimeType });
 
-    // Check if file already exists and if we can edit it
-    let existingFileId = null;
-    let canEdit = false;
-    try {
-        const q = encodeURIComponent(`name='${name}' and '${folderId}' in parents and trashed=false`);
-        const search = await fetch(`${API_BASE}/drive/v3/files?q=${q}&fields=files(id,capabilities/canEdit)`, { headers: h });
-        if (search.ok) {
-            const sd = await search.json();
-            existingFileId = sd.files?.[0]?.id || null;
-            canEdit = sd.files?.[0]?.capabilities?.canEdit || false;
+    // ── Try PATCH if we know the file ID ─────────────────────────────────────
+    if (knownFileId) {
+        try {
+            const patchRes = await fetch(
+                `${API_BASE}/upload/drive/v3/files/${knownFileId}?uploadType=media`,
+                { method: 'PATCH', headers: { ...h, 'Content-Type': mimeType }, body: blob }
+            );
+            if (patchRes.ok) {
+                const r = await patchRes.json();
+                console.log('[Drive] PATCH ✅ Updated existing file:', name, knownFileId);
+                return { ...r, id: knownFileId };   // always keep same ID
+            }
+            console.warn('[Drive] PATCH failed (' + patchRes.status + ') — will create new file');
+        } catch (e) {
+            console.warn('[Drive] PATCH error:', e.message, '— will create new file');
         }
-    } catch { /* search failed — we'll create new */ }
+    }
 
+    // ── POST: create new file ─────────────────────────────────────────────────
     const meta = { name, mimeType, parents: [folderId] };
     const form = new FormData();
     form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
     form.append('file', blob);
 
-    // Only try PATCH if we KNOW we can edit it — this prevents the red 403 console error
-    if (existingFileId && canEdit) {
-        try {
-            const patchRes = await fetch(`${API_BASE}/upload/drive/v3/files/${existingFileId}?uploadType=multipart`, {
-                method: 'PATCH', headers: h, body: form,
-            });
-            if (patchRes.ok) return await patchRes.json();
-
-            // If PATCH still fails with 403, fall through to POST (create new)
-            if (patchRes.status !== 403 && patchRes.status !== 401) {
-                throw new Error(`Upload failed: ${patchRes.status} ${patchRes.statusText}`);
-            }
-        } catch (e) {
-            if (e.message.includes('401')) throw e;
-            // Otherwise fall through to POST
-        }
-
-        // Rebuild form for POST (FormData can only be consumed once)
-        const form2 = new FormData();
-        form2.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
-        form2.append('file', blob);
-        const postRes = await fetch(`${API_BASE}/upload/drive/v3/files?uploadType=multipart`, {
-            method: 'POST', headers: h, body: form2,
-        });
-        if (postRes.ok) return await postRes.json();
-        if (postRes.status === 401 || postRes.status === 403) {
-            localStorage.removeItem('gdriveToken');
-            localStorage.removeItem('gdriveTokenExpiry');
-        }
-        throw new Error(`Upload failed: ${postRes.status} ${postRes.statusText}`);
-    }
-
-    // No existing file or no permission to edit — create new using POST
     const res = await fetch(`${API_BASE}/upload/drive/v3/files?uploadType=multipart`, {
         method: 'POST', headers: h, body: form,
     });
@@ -239,7 +218,9 @@ export async function uploadFile(name, content, mimeType, folderId) {
         }
         throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
     }
-    return await res.json();
+    const r = await res.json();
+    console.log('[Drive] POST ✅ Created new file:', name, r.id);
+    return r;
 }
 
 /**
@@ -305,11 +286,15 @@ export function compressImage(base64, maxWidth = 800, quality = 0.7) {
     });
 }
 
+// ─── Photo Helper ──────────────────────────────────────────────────
+
 /**
  * Convert base64 data URL to Blob
  */
 export function base64ToBlob(base64) {
+    if (!base64) return null;
     const parts = base64.split(',');
+    if (parts.length < 2) return null;
     const mime = parts[0].match(/:(.*?);/)?.[1] || 'application/octet-stream';
     const raw = atob(parts[1]);
     const arr = new Uint8Array(raw.length);
@@ -317,53 +302,4 @@ export function base64ToBlob(base64) {
     return new Blob([arr], { type: mime });
 }
 
-// ─── Legacy compat exports ────────────────────────────────────────
 
-export async function backupToGoogleDrive(data) {
-    const folderId = await findOrCreateFolder('EduNorm Backups');
-    const fileName = `edunorm_backup_${new Date().toISOString().split('T')[0]}.json`;
-    const result = await uploadFile(fileName, JSON.stringify(data, null, 2), 'application/json', folderId);
-    localStorage.setItem('lastGDriveBackup', new Date().toISOString());
-    return result;
-}
-
-export async function listBackupsFromGoogleDrive() {
-    const folderId = await findOrCreateFolder('EduNorm Backups');
-    return listFiles(folderId);
-}
-
-export async function restoreFromGoogleDrive(fileId) {
-    const res = await downloadFile(fileId);
-    return await res.json();
-}
-
-export async function deleteBackupFromGoogleDrive(fileId) {
-    return await deleteFile(fileId);
-}
-
-export function getLastBackupInfo() {
-    return {
-        lastLocalBackup: localStorage.getItem('lastLocalBackup'),
-        lastGDriveBackup: localStorage.getItem('lastGDriveBackup'),
-    };
-}
-
-// Local backup functions
-export function saveLocalBackup(data) {
-    try {
-        localStorage.setItem('edunorm_local_backup', JSON.stringify(data));
-        localStorage.setItem('lastLocalBackup', new Date().toISOString());
-        return true;
-    } catch (e) { console.error('Local backup failed:', e); return false; }
-}
-
-export function getLocalBackup() {
-    try {
-        const d = localStorage.getItem('edunorm_local_backup');
-        return d ? JSON.parse(d) : null;
-    } catch (e) { return null; }
-}
-
-export function hasLocalBackup() {
-    return !!localStorage.getItem('edunorm_local_backup');
-}

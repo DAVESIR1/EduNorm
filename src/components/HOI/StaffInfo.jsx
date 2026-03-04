@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUndo } from '../../contexts/UndoContext';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 import { SaveIcon, EditIcon, PrinterIcon, PlusIcon, TrashIcon, SearchIcon } from '../Icons/CustomIcons';
 import './StaffInfo.css';
 
@@ -42,7 +42,7 @@ export default function StaffInfo() {
 
     const loadStaffList = async () => {
         try {
-            const saved = await db.getSetting('staff_info_list');
+            const saved = await ServiceLayer.getSetting('staff_info_list');
             setStaffList(Array.isArray(saved) ? saved : []);
         } catch (error) {
             console.error('Failed to load staff list:', error);
@@ -69,23 +69,23 @@ export default function StaffInfo() {
         const staff = list.find(s => s.id === staffId);
         const newList = list.filter(s => s.id !== staffId);
         setStaffList(newList);
-        await db.setSetting('staff_info_list', newList);
+        await ServiceLayer.saveSetting('staff_info_list', newList);
 
         recordAction({
             type: 'DELETE_STAFF',
             description: `Deleted staff: ${staff?.data?.name}`,
             undo: async () => {
-                const list = await db.getSetting('staff_info_list');
+                const list = await ServiceLayer.getSetting('staff_info_list');
                 const arr = Array.isArray(list) ? list : [];
                 arr.push(staff);
-                await db.setSetting('staff_info_list', arr);
+                await ServiceLayer.saveSetting('staff_info_list', arr);
                 setStaffList(arr);
             },
             redo: async () => {
-                const list = await db.getSetting('staff_info_list');
+                const list = await ServiceLayer.getSetting('staff_info_list');
                 const arr = Array.isArray(list) ? list : [];
                 const filtered = arr.filter(s => s.id !== staffId);
-                await db.setSetting('staff_info_list', filtered);
+                await ServiceLayer.saveSetting('staff_info_list', filtered);
                 setStaffList(filtered);
             }
         });
@@ -135,7 +135,7 @@ export default function StaffInfo() {
                 newList = [...list, staffData];
             }
 
-            await db.setSetting('staff_info_list', newList);
+            await ServiceLayer.saveSetting('staff_info_list', newList);
             setStaffList(newList);
             setShowForm(false);
             setSelectedStaff(null);
@@ -144,11 +144,11 @@ export default function StaffInfo() {
                 type: selectedStaff ? 'UPDATE_STAFF' : 'ADD_STAFF',
                 description: `${selectedStaff ? 'Updated' : 'Added'} staff: ${formData.name}`,
                 undo: async () => {
-                    await db.setSetting('staff_info_list', list);
+                    await ServiceLayer.saveSetting('staff_info_list', list);
                     setStaffList(list);
                 },
                 redo: async () => {
-                    await db.setSetting('staff_info_list', newList);
+                    await ServiceLayer.saveSetting('staff_info_list', newList);
                     setStaffList(newList);
                 }
             });

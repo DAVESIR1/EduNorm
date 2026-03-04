@@ -14,6 +14,7 @@ FeatureRegistry.register({
     group: 'school',
     order: 1,
     roles: ['any'],
+    description: 'Core student data entry, ledger, GR register, and class roster management.',
 
     // Lazy-loaded: only downloaded when the user navigates here
     component: () => import('./view.jsx').then(m => ({ default: m.StudentManagementView || m.default })),

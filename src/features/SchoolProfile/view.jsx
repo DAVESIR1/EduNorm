@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Edit, Printer, Plus, Trash, Camera, FileText } from 'lucide-react';
 import { SchoolIcon, InfrastructureIcon } from '../../components/Icons/CustomIcons';
 import SchoolLogic from './logic.js';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 
 /**
  * SOVEREIGN SCHOOL PROFILE: VIEW
@@ -28,7 +28,7 @@ export function SchoolProfileView({
     // Initial Load & Sync
     useEffect(() => {
         const load = async () => {
-            const saved = await db.getSetting('school_profile');
+            const saved = await ServiceLayer.getSetting('school_profile');
             if (saved) {
                 setFacilities(SchoolLogic.mergeFacilities(saved.facilities));
                 setCustomFields(saved.customFields || []);
@@ -57,8 +57,8 @@ export function SchoolProfileView({
         setSaving(true);
         try {
             // MERGE with existing data to prevent overwriting App.jsx settings (schoolName, etc.)
-            const existing = await db.getSetting('school_profile') || {};
-            await db.setSetting('school_profile', {
+            const existing = await ServiceLayer.getSetting('school_profile') || {};
+            await ServiceLayer.saveSetting('school_profile', {
                 ...existing,
                 facilities,
                 customFields,

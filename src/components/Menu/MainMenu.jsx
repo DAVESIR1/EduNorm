@@ -3,19 +3,57 @@ import { useMenu, MENU_STRUCTURE } from '../../contexts/MenuContext';
 import { IconMap } from '../Icons/CustomIcons';
 import './MainMenu.css';
 
-// Password modal for HOI access
+// Password modal for HOI access — with brute-force lockout
 function PasswordModal({ isOpen, onClose, onSubmit }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [attempts, setAttempts] = useState(0);
+    const [lockedUntil, setLockedUntil] = useState(null);
+    const [countdown, setCountdown] = useState(0);
+
+    const MAX_ATTEMPTS = 3;
+    const LOCKOUT_SECONDS = 60;
+
+    // Countdown timer
+    React.useEffect(() => {
+        if (!lockedUntil) return;
+        const interval = setInterval(() => {
+            const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+            if (remaining <= 0) {
+                setLockedUntil(null);
+                setAttempts(0);
+                setCountdown(0);
+                clearInterval(interval);
+            } else {
+                setCountdown(remaining);
+            }
+        }, 500);
+        return () => clearInterval(interval);
+    }, [lockedUntil]);
+
+    const isLocked = lockedUntil && Date.now() < lockedUntil;
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (isLocked) return;
+
         const success = onSubmit(password);
         if (!success) {
-            setError('Incorrect password');
+            const newAttempts = attempts + 1;
+            setAttempts(newAttempts);
+            if (newAttempts >= MAX_ATTEMPTS) {
+                const until = Date.now() + LOCKOUT_SECONDS * 1000;
+                setLockedUntil(until);
+                setError(`Too many attempts. Locked for ${LOCKOUT_SECONDS} seconds.`);
+            } else {
+                setError(`Incorrect password. ${MAX_ATTEMPTS - newAttempts} attempt(s) remaining.`);
+            }
+            setPassword('');
         } else {
             setPassword('');
             setError('');
+            setAttempts(0);
+            setLockedUntil(null);
             onClose();
         }
     };
@@ -32,16 +70,22 @@ function PasswordModal({ isOpen, onClose, onSubmit }) {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter password"
-                        autoFocus
+                        placeholder={isLocked ? `Locked for ${countdown}s...` : 'Enter password'}
+                        autoFocus={!isLocked}
+                        disabled={isLocked}
+                        style={isLocked ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                     />
-                    {error && <span className="error">{error}</span>}
+                    {error && (
+                        <span className="error" style={{ color: isLocked ? '#ef4444' : '#f59e0b' }}>
+                            {isLocked ? `🔐 ${error} (${countdown}s)` : `⚠️ ${error}`}
+                        </span>
+                    )}
                     <div className="modal-actions">
                         <button type="button" onClick={onClose} className="btn-secondary">
                             Cancel
                         </button>
-                        <button type="submit" className="btn-primary">
-                            Unlock
+                        <button type="submit" className="btn-primary" disabled={isLocked}>
+                            {isLocked ? `🔐 Locked (${countdown}s)` : 'Unlock'}
                         </button>
                     </div>
                 </form>

@@ -12,6 +12,7 @@ FeatureRegistry.register({
     group: 'school',
     order: 2,
     roles: ['any'],
+    description: 'School identity — name, logo, contact details, and unified profile management.',
 
     component: () => import('./view.jsx').then(m => ({ default: m.SchoolProfileView || m.default })),
 

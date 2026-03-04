@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import * as db from '../services/database';
+import ServiceLayer from '../services/ServiceLayer.js';
 
 /**
  * useSmartAutofill — Pattern-based ghost suggestions for data entry.
@@ -39,7 +39,7 @@ export default function useSmartAutofill(standard) {
 
         async function analyze() {
             try {
-                const students = await db.getStudentsByStandard(standard);
+                const students = await ServiceLayer.getStudentsByStandard(standard);
                 if (cancelled || students.length < MIN_STUDENTS_FOR_SUGGESTION) {
                     setPatterns({});
                     setIsReady(true);

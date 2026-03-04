@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { DATA_FIELDS } from '../features/StudentManagement/types';
+import { DATA_FIELDS } from '../shared/constants/fields.js';
 
 // Get all field definitions from DATA_FIELDS
 const getAllFieldKeys = () => {

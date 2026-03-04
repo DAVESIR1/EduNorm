@@ -1,4 +1,4 @@
-import './core/v2/SentinelLayer';
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -9,24 +9,13 @@ import { UndoProvider } from './contexts/UndoContext'
 import { MenuProvider } from './contexts/MenuContext'
 import './styles/design-system.css'
 import './styles/v2-tokens.css'
+import './styles/aurora-theme.css'
+import './styles/theme-fixes.css'
+
 import { UIEngine } from './core/v2/UIEngine'
 
 // Initialize Sovereign UI Engine & Sentinel
 UIEngine.init();
-
-// Boot Doctor Bridge (Real-time error capture for Doctor tool)
-if (import.meta.env.DEV) {
-    import('./core/v2/DoctorBridge').then(m => m.initDoctorBridge?.());
-}
-
-// Boot Sentinel (Matches user specification for protection before rendering)
-(async () => {
-    try {
-        await import('./core/v2/SentinelLayer').then(m => m.default?.boot?.());
-    } catch (e) {
-        console.warn("Sentinel boot failed, continuing in unsafe mode.");
-    }
-})();
 
 
 

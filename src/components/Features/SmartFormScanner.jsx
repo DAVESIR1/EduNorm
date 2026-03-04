@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Camera, Upload, FileText, X, Check, AlertCircle, ScanLine } from 'lucide-react';
 import './DocumentScanner.css'; // Re-use styles
-import { DATA_FIELDS } from '../../features/StudentManagement/types';
+import { DATA_FIELDS } from '../../shared/constants/fields.js';
 
 export default function SmartFormScanner({ isOpen, onClose, onDataExtracted }) {
     const [image, setImage] = useState(null);

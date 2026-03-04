@@ -321,14 +321,35 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                         )}
                     </div>
 
-                    {/* Theme Toggle */}
-                    <button
-                        className="rail-icon"
-                        title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                        onClick={() => changeTheme(theme === 'dark' ? 'light' : 'dark')}
-                    >
-                        {theme === 'dark' ? <Sun size={20} /> : <Palette size={20} />}
-                    </button>
+                    {/* Theme Cycle: light → aurora → dark → light */}
+                    {(() => {
+                        const themes = ['light', 'aurora', 'dark'];
+                        const labels = { light: '☀️ Light', aurora: '🌸 Aurora', dark: '🌙 Dark' };
+                        const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length];
+                        // Icon for current theme
+                        const ThemeIcon = theme === 'dark' ? Sun : theme === 'aurora'
+                            ? () => <span style={{ fontSize: 18, lineHeight: 1 }}>🌸</span>
+                            : Palette;
+                        return (
+                            <button
+                                className="rail-icon"
+                                title={`Theme: ${labels[theme] || theme} — click for ${labels[nextTheme]}`}
+                                onClick={() => changeTheme(nextTheme)}
+                                style={{ position: 'relative' }}
+                            >
+                                <ThemeIcon size={20} />
+                                {theme === 'aurora' && (
+                                    <span style={{
+                                        position: 'absolute', bottom: 4, right: 4,
+                                        width: 7, height: 7, borderRadius: '50%',
+                                        background: '#6366f1', border: '1.5px solid white',
+                                        display: 'block'
+                                    }} />
+                                )}
+                            </button>
+                        );
+                    })()}
+
 
                     {/* User Avatar */}
                     {user && (

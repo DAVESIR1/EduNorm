@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 
 /**
  * Usage Instructions Page
@@ -206,7 +206,7 @@ export default function UsageInstructions({ onBack }) {
     useEffect(() => {
         const checkWhatsNew = async () => {
             try {
-                const seen = await db.getSetting('whats_new_seen_version');
+                const seen = await ServiceLayer.getSetting('whats_new_seen_version');
                 if (seen !== WHATS_NEW[0].version) {
                     setShowWhatsNew(true);
                     setHasSeenWhatsNew(false);

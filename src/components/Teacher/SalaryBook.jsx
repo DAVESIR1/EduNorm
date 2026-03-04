@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useUndo } from '../../contexts/UndoContext';
-import * as db from '../../services/database';
-import { SaveIcon, PrinterIcon, PlusIcon, TrashIcon, EditIcon, FileTextIcon } from '../Icons/CustomIcons';
+import ServiceLayer from '../../services/ServiceLayer.js';
+import { jsPDF } from 'jspdf';
+import { SaveIcon, PrinterIcon, PlusIcon, TrashIcon, EditIcon, FileTextIcon, DownloadIcon } from '../Icons/CustomIcons';
 import './SalaryBook.css';
 
 // Default salary fields
@@ -56,7 +57,7 @@ export default function SalaryBook() {
     // Load staff list
     useEffect(() => {
         const loadStaff = async () => {
-            const saved = await db.getSetting('staff_info_list') || [];
+            const saved = await ServiceLayer.getSetting('staff_info_list') || [];
             setStaffList(saved);
             if (saved.length > 0 && !selectedStaff) {
                 setSelectedStaff(saved[0].id);
@@ -75,7 +76,7 @@ export default function SalaryBook() {
     const loadSalaryData = async () => {
         try {
             const key = `salary_${selectedStaff}_${selectedYear}`;
-            const saved = await db.getSetting(key) || {};
+            const saved = await ServiceLayer.getSetting(key) || {};
             setSalaryData(saved || {});
         } catch (error) {
             console.error('Failed to load salary data:', error);
@@ -118,7 +119,7 @@ export default function SalaryBook() {
             const oldData = { ...salaryData };
             const newData = { ...salaryData, [editMonth]: monthData };
 
-            await db.setSetting(key, newData);
+            await ServiceLayer.saveSetting(key, newData);
             setSalaryData(newData);
             setEditMonth(null);
 
@@ -126,11 +127,11 @@ export default function SalaryBook() {
                 type: 'UPDATE_SALARY',
                 description: `Updated salary for ${editMonth} ${selectedYear}`,
                 undo: async () => {
-                    await db.setSetting(key, oldData);
+                    await ServiceLayer.saveSetting(key, oldData);
                     setSalaryData(oldData);
                 },
                 redo: async () => {
-                    await db.setSetting(key, newData);
+                    await ServiceLayer.saveSetting(key, newData);
                     setSalaryData(newData);
                 }
             });
@@ -164,7 +165,94 @@ export default function SalaryBook() {
 
     const activeStaff = staffList.find(s => s.id === selectedStaff);
 
-    // Salary Slip Modal
+    const handleDownloadPDF = (month) => {
+        const slipData = (salaryData && salaryData[month]) || {};
+        const totals = calculateTotals(slipData);
+        const staffName = activeStaff?.data?.name || 'Staff Member';
+        const designation = activeStaff?.data?.designation || '';
+
+        const doc = new jsPDF({ unit: 'mm', format: 'a5' });
+        const pageW = doc.internal.pageSize.getWidth();
+
+        // Header
+        doc.setFillColor(37, 99, 235);
+        doc.rect(0, 0, pageW, 28, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SALARY SLIP', pageW / 2, 12, { align: 'center' });
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${month} ${selectedYear}`, pageW / 2, 20, { align: 'center' });
+
+        // Staff Info
+        doc.setTextColor(30, 30, 30);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(staffName, pageW / 2, 35, { align: 'center' });
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(designation, pageW / 2, 41, { align: 'center' });
+
+        // Earnings table
+        let y = 50;
+        doc.setDrawColor(200, 200, 200);
+        doc.setFillColor(240, 253, 244);
+        doc.rect(8, y, pageW / 2 - 12, 7, 'F');
+        doc.setTextColor(22, 163, 74);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('EARNINGS', 10, y + 5);
+        y += 9;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(30, 30, 30);
+        SALARY_FIELDS.filter(f => !f.isDeduction).forEach(field => {
+            const val = slipData[field.id] || 0;
+            doc.text(field.label, 10, y);
+            doc.text(`Rs. ${val.toLocaleString()}`, pageW / 2 - 4, y, { align: 'right' });
+            y += 6;
+        });
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(22, 163, 74);
+        doc.text('Total Earnings', 10, y);
+        doc.text(`Rs. ${totals.earnings.toLocaleString()}`, pageW / 2 - 4, y, { align: 'right' });
+
+        // Deductions table
+        let y2 = 50;
+        const col2X = pageW / 2 + 4;
+        doc.setFillColor(255, 241, 242);
+        doc.rect(col2X, y2, pageW / 2 - 12, 7, 'F');
+        doc.setTextColor(220, 38, 38);
+        doc.setFont('helvetica', 'bold');
+        doc.text('DEDUCTIONS', col2X + 2, y2 + 5);
+        y2 += 9;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(30, 30, 30);
+        SALARY_FIELDS.filter(f => f.isDeduction).forEach(field => {
+            const val = slipData[field.id] || 0;
+            doc.text(field.label, col2X + 2, y2);
+            doc.text(`Rs. ${val.toLocaleString()}`, pageW - 8, y2, { align: 'right' });
+            y2 += 6;
+        });
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(220, 38, 38);
+        doc.text('Total Deductions', col2X + 2, y2);
+        doc.text(`Rs. ${totals.deductions.toLocaleString()}`, pageW - 8, y2, { align: 'right' });
+
+        // Net Salary bar
+        const netY = Math.max(y, y2) + 10;
+        doc.setFillColor(37, 99, 235);
+        doc.rect(8, netY, pageW - 16, 10, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('NET SALARY', 12, netY + 7);
+        doc.text(`Rs. ${totals.net.toLocaleString()}`, pageW - 12, netY + 7, { align: 'right' });
+
+        doc.save(`Salary_Slip_${staffName}_${month}_${selectedYear}.pdf`);
+    };
+
     if (showSlip) {
         const slipData = (salaryData && salaryData[showSlip]) || {};
         const totals = calculateTotals(slipData);
@@ -217,6 +305,9 @@ export default function SalaryBook() {
 
                 <div className="slip-actions no-print">
                     <button className="btn-secondary" onClick={() => setShowSlip(null)}>Close</button>
+                    <button className="btn-accent" onClick={() => handleDownloadPDF(showSlip)}>
+                        <DownloadIcon size={16} /> Download PDF
+                    </button>
                     <button className="btn-primary" onClick={() => window.print()}>
                         <PrinterIcon size={16} /> Print
                     </button>
@@ -374,13 +465,22 @@ export default function SalaryBook() {
                                                 <EditIcon size={16} />
                                             </button>
                                             {hasData && (
-                                                <button
-                                                    className="btn-icon-sm"
-                                                    onClick={() => handlePrintSlip(month)}
-                                                    title="Print Slip"
-                                                >
-                                                    <PrinterIcon size={16} />
-                                                </button>
+                                                <>
+                                                    <button
+                                                        className="btn-icon-sm"
+                                                        onClick={() => handlePrintSlip(month)}
+                                                        title="View & Print Slip"
+                                                    >
+                                                        <PrinterIcon size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="btn-icon-sm"
+                                                        onClick={() => handleDownloadPDF(month)}
+                                                        title="Download PDF Slip"
+                                                    >
+                                                        <DownloadIcon size={16} />
+                                                    </button>
+                                                </>
                                             )}
                                         </td>
                                     </tr>

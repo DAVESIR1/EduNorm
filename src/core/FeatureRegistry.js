@@ -42,6 +42,19 @@ function register(manifest) {
         if (!manifest[key]) throw new Error(`FeatureRegistry: manifest missing "${key}" (feature: ${manifest.id || '?'})`);
     }
 
+    // Soft-warn on recommended fields
+    if (typeof manifest.order !== 'number') {
+        console.warn(`FeatureRegistry: "${manifest.id}" should declare a numeric "order" — defaulting to 99`);
+        manifest.order = 99;
+    }
+    if (!Array.isArray(manifest.roles) || manifest.roles.length === 0) {
+        console.warn(`FeatureRegistry: "${manifest.id}" should declare "roles" array — defaulting to ['any']`);
+        manifest.roles = ['any'];
+    }
+    if (!manifest.description) {
+        console.info(`FeatureRegistry: "${manifest.id}" has no "description" field — add one for discoverability`);
+    }
+
     if (_registry.has(manifest.id)) {
         console.warn(`FeatureRegistry: "${manifest.id}" is already registered — skipping duplicate`);
         return;
@@ -54,14 +67,39 @@ function register(manifest) {
     _groups.get(manifest.group).push(manifest);
     _groups.get(manifest.group).sort((a, b) => (a.order || 99) - (b.order || 99));
 
-    // Wire AppBus event handlers declared in the manifest
+    // Wire AppBus event handlers declared in the manifest.
+    // Store refs per-feature so we can clean up on unregister (HMR-safe).
     if (manifest.onEvents) {
+        manifest._eventCleanups = [];
         for (const [event, handler] of Object.entries(manifest.onEvents)) {
-            AppBus.on(event, handler);
+            const unsub = AppBus.on(event, handler);
+            manifest._eventCleanups.push(unsub);
         }
     }
 
-    console.log(`[FeatureRegistry] Registered: ${manifest.id} (group: ${manifest.group})`);
+    console.log(`[FeatureRegistry] Registered: ${manifest.id} (group: ${manifest.group}, order: ${manifest.order})`);
+}
+
+
+// ─── Unregister ───────────────────────────────────────────────────────────────
+// Call this in HMR accept callbacks or for testing to cleanly remove a feature.
+function unregister(id) {
+    const manifest = _registry.get(id);
+    if (!manifest) return;
+
+    // Clean up all AppBus listeners this feature registered
+    if (manifest._eventCleanups) {
+        manifest._eventCleanups.forEach(unsub => unsub());
+    }
+
+    // Remove from group
+    if (_groups.has(manifest.group)) {
+        const arr = _groups.get(manifest.group).filter(m => m.id !== id);
+        _groups.set(manifest.group, arr);
+    }
+
+    _registry.delete(id);
+    console.log(`[FeatureRegistry] Unregistered: ${id}`);
 }
 
 // ─── Query ────────────────────────────────────────────────────────────────────
@@ -122,6 +160,7 @@ function setAutoBackupHandler(handler) {
 // ─── Export ───────────────────────────────────────────────────────────────────
 const FeatureRegistry = {
     register,
+    unregister,
     get,
     getGroup,
     getAll,
@@ -129,6 +168,10 @@ const FeatureRegistry = {
     getForRole,
     loadComponent,
     setAutoBackupHandler,
+    /** Returns true if a feature with this id is registered */
+    hasFeature: (id) => _registry.has(id),
+    /** Returns count of registered features */
+    count: () => _registry.size,
 };
 
 if (typeof window !== 'undefined') {

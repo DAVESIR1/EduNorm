@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUndo } from '../../contexts/UndoContext';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
+import AppBus, { APP_EVENTS } from '../../core/AppBus.js';
 import { SaveIcon, CalendarIcon, UsersIcon, PlusIcon, TrashIcon, ClockIcon, PrinterIcon, ShareIcon, DownloadIcon } from '../Icons/CustomIcons';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -28,10 +29,10 @@ const ClassManagement = ({ isTeacherView = false }) => {
     const loadData = async () => {
         try {
             const [stds, staff, mappingRaw, tablesRaw] = await Promise.all([
-                db.getAllStandards(),
-                db.getSetting('staff_info_list'),
-                db.getSetting('class_teacher_mapping'),
-                db.getSetting('class_time_tables')
+                ServiceLayer.getStandards(),
+                ServiceLayer.getSetting('staff_info_list'),
+                ServiceLayer.getSetting('class_teacher_mapping'),
+                ServiceLayer.getSetting('class_time_tables')
             ]);
             setStandards(stds || []);
             setStaffList(staff || []);
@@ -252,9 +253,10 @@ const ClassManagement = ({ isTeacherView = false }) => {
         setSaving(true);
         try {
             await Promise.all([
-                db.setSetting('class_teacher_mapping', teacherMapping),
-                db.setSetting('class_time_tables', timeTables)
+                ServiceLayer.saveSetting('class_teacher_mapping', teacherMapping),
+                ServiceLayer.saveSetting('class_time_tables', timeTables)
             ]);
+            // AppBus event emitted automatically by ServiceLayer.saveSetting
 
             recordAction({
                 type: 'UPDATE_CLASS_MANAGEMENT',

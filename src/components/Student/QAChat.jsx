@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 
 /**
  * Q&A Chat Component
@@ -25,7 +25,7 @@ export default function QAChat({ studentData, isTeacher = false, teacherName = '
         const load = async () => {
             try {
                 // Load teachers list
-                const staffList = await db.getSetting('staff_list');
+                const staffList = await ServiceLayer.getSetting('staff_list');
                 if (staffList && Array.isArray(staffList)) {
                     setTeachers(staffList.map(s => s.name || s.teacherName).filter(Boolean));
                 }
@@ -34,7 +34,7 @@ export default function QAChat({ studentData, isTeacher = false, teacherName = '
                 const chatKey = isTeacher
                     ? 'qa_chat_messages'
                     : `qa_chat_messages_${studentData?.id}`;
-                const stored = await db.getSetting(chatKey);
+                const stored = await ServiceLayer.getSetting(chatKey);
                 if (stored && Array.isArray(stored)) {
                     setMessages(stored);
                 }
@@ -77,7 +77,7 @@ export default function QAChat({ studentData, isTeacher = false, teacherName = '
             // Save for student
             await db.updateSetting(`qa_chat_messages_${studentData?.id}`, updated);
             // Save to global queue for teacher view
-            const globalChat = (await db.getSetting('qa_chat_messages')) || [];
+            const globalChat = (await ServiceLayer.getSetting('qa_chat_messages')) || [];
             await db.updateSetting('qa_chat_messages', [...globalChat, msg]);
         } catch (err) {
             console.error('QAChat: Failed to save message:', err);

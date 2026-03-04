@@ -91,21 +91,21 @@ export function AuthProvider({ children }) {
                 // Broadcast login to all features via AppBus
                 AppBus.emit(APP_EVENTS.USER_LOGGED_IN, { user: enrichedUser });
 
-                // 🔥 Start Phoenix Sync (self-healing immortal backup)
+                // Start Firebase + Drive sync
                 setTimeout(async () => {
                     try {
-                        const { phoenixInit } = await import('../services/HybridSyncService.js');
-                        await phoenixInit(enrichedUser);
+                        const SyncService = (await import('../services/SyncService.js')).default;
+                        await SyncService.init(enrichedUser);
                     } catch (e) {
-                        console.warn('[AuthContext] Phoenix init skipped:', e.message);
+                        console.warn('[AuthContext] SyncService init skipped:', e.message);
                     }
                 }, 3000);
             } else {
                 setUser(null);
                 AppBus.emit(APP_EVENTS.USER_LOGGED_OUT, {});
-                // 🔥 Stop Phoenix
+                // Stop sync on logout
                 try {
-                    import('../services/HybridSyncService.js').then(m => m.phoenixStop()).catch(() => { });
+                    import('../services/SyncService.js').then(m => m.default.stop()).catch(() => { });
                 } catch (_) { }
             }
             setLoading(false);

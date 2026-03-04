@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUndo } from '../../contexts/UndoContext';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 import { SaveIcon, EditIcon, PrinterIcon, UserAddIcon, PlusIcon, TrashIcon } from '../Icons/CustomIcons';
 import './TeacherProfile.css';
 
@@ -37,7 +37,7 @@ export default function TeacherProfile() {
 
     const loadProfile = async () => {
         try {
-            const saved = await db.getSetting('teacher_self_profile') || {};
+            const saved = await ServiceLayer.getSetting('teacher_self_profile') || {};
             setProfileData(saved.data || {});
             setCustomFields(saved.customFields || []);
             setPhotoUrl(saved.photoUrl || '');
@@ -79,7 +79,7 @@ export default function TeacherProfile() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const oldProfile = await db.getSetting('teacher_self_profile') || {};
+            const oldProfile = await ServiceLayer.getSetting('teacher_self_profile') || {};
             const newProfile = {
                 data: profileData,
                 customFields: customFields.filter(f => f.label.trim()),
@@ -87,20 +87,20 @@ export default function TeacherProfile() {
                 updatedAt: Date.now()
             };
 
-            await db.setSetting('teacher_self_profile', newProfile);
+            await ServiceLayer.saveSetting('teacher_self_profile', newProfile);
             setEditing(false);
 
             recordAction({
                 type: 'UPDATE_TEACHER_PROFILE',
                 description: 'Updated teacher profile',
                 undo: async () => {
-                    await db.setSetting('teacher_self_profile', oldProfile);
+                    await ServiceLayer.saveSetting('teacher_self_profile', oldProfile);
                     setProfileData(oldProfile.data || {});
                     setCustomFields(oldProfile.customFields || []);
                     setPhotoUrl(oldProfile.photoUrl || '');
                 },
                 redo: async () => {
-                    await db.setSetting('teacher_self_profile', newProfile);
+                    await ServiceLayer.saveSetting('teacher_self_profile', newProfile);
                     setProfileData(newProfile.data);
                     setCustomFields(newProfile.customFields);
                     setPhotoUrl(newProfile.photoUrl);

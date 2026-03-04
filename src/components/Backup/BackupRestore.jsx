@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-    X, Download, Upload, Share2, Mail, Cloud,
-    Smartphone, FileJson, FileSpreadsheet, RefreshCw
+    X, Download, Upload, Share2, Mail, FileJson, FileSpreadsheet, RefreshCw
 } from 'lucide-react';
-import * as db from '../../services/database';
+import ServiceLayer from '../../services/ServiceLayer.js';
 import { downloadBlankTemplate, exportToExcel, exportLedger, parseExcelFile } from '../../services/ExcelService';
 import './BackupRestore.css';
 
@@ -35,11 +34,17 @@ export default function BackupRestore({
     // Export JSON
     const handleExportJSON = async () => {
         try {
-            const allData = await db.exportAllData();
+            const [students, settings, standards] = await Promise.all([
+                ServiceLayer.getAllStudents(),
+                ServiceLayer.getAllSettings(),
+                ServiceLayer.getAllStandards(),
+            ]);
             const dataWithMeta = {
-                ...allData,
+                students: students || [],
+                settings: Object.fromEntries((settings || []).map(s => [s.key, s.value])),
+                standards: standards || [],
                 exportedAt: new Date().toISOString(),
-                version: '1.0'
+                version: '2.0'
             };
             const blob = new Blob([JSON.stringify(dataWithMeta, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -84,43 +89,27 @@ export default function BackupRestore({
     // Native Share
     const handleNativeShare = async () => {
         try {
-            const allData = await db.exportAllData();
-            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const students = await ServiceLayer.getAllStudents();
+            const payload = { students, exportedAt: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
             const file = new File([blob], 'edunorm_backup.json', { type: 'application/json' });
 
             if (navigator.share && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'EduNorm Backup',
-                    text: 'Student data backup from EduNorm',
-                    files: [file]
-                });
+                await navigator.share({ title: 'EduNorm Backup', text: 'Student data backup', files: [file] });
             } else {
-                // Fallback - show sharing options manually
-                alert('Native sharing not supported. Please use Export options instead.');
+                alert('Native sharing not supported. Use Export options instead.');
             }
         } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error('Share failed:', error);
-                alert('Sharing failed. Please try Export options.');
-            }
+            if (error.name !== 'AbortError') alert('Sharing failed. Please try Export options.');
         }
     };
 
     // Email share
     const handleEmailShare = async () => {
         try {
-            const allData = await db.exportAllData();
-            const summary = `
-EduNorm Backup Summary:
-- Date: ${new Date().toLocaleString()}
-- Total Students: ${allData.students?.length || 0}
-- Standards: ${allData.standards?.map(s => s.name).join(', ') || 'None'}
-
-Note: For full data, please use the JSON export feature and attach the file to your email.
-            `.trim();
-
+            const students = await ServiceLayer.getAllStudents();
             const subject = encodeURIComponent('EduNorm Backup - ' + new Date().toLocaleDateString());
-            const body = encodeURIComponent(summary);
+            const body = encodeURIComponent(`EduNorm Backup\nDate: ${new Date().toLocaleString()}\nStudents: ${students?.length || 0}\n\nUse JSON export for full data.`);
             window.open(`mailto:?subject=${subject}&body=${body}`);
         } catch (error) {
             console.error('Email failed:', error);
@@ -160,7 +149,7 @@ Note: For full data, please use the JSON export feature and attach the file to y
         setImporting(true);
         try {
             for (const student of importPreview) {
-                await db.addStudent({
+                await ServiceLayer.saveStudent({
                     ...student,
                     standard: selectedStandard
                 });
@@ -192,12 +181,20 @@ Note: For full data, please use the JSON export feature and attach the file to y
             const text = await file.text();
             const data = JSON.parse(text);
 
-            // Validate backup structure
             if (!data.students && !data.settings && !data.standards) {
                 throw new Error('Invalid backup file format');
             }
 
-            await db.importData(data);
+            // Restore students
+            for (const student of (data.students || [])) {
+                await ServiceLayer.saveStudent(student);
+            }
+            // Restore settings
+            const settings = data.settings || {};
+            for (const [key, value] of Object.entries(settings)) {
+                await ServiceLayer.saveSetting(key, value);
+            }
+
             alert('✅ Database restored successfully! Please refresh the page.');
             window.location.reload();
         } catch (error) {
