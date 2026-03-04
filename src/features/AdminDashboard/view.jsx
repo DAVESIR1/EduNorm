@@ -59,8 +59,8 @@ export function AdminDashboardView({ onClose, totalStudents = 0, totalStandards 
             <div className="admin-modal" onClick={e => e.stopPropagation()}>
 
                 <header className="admin-header">
-                    <div className="header-badge"><Shield size={20} /> ADMIN</div>
-                    <button className="close-btn" onClick={onClose}><X /></button>
+                    <div className="header-badge badge-premium"><Shield size={16} /> SOVEREIGN ADMIN</div>
+                    <button className="close-btn" onClick={onClose} style={{ borderRadius: '12px' }}><X size={20} /></button>
                 </header>
 
                 <div className="admin-content">
@@ -85,12 +85,12 @@ export function AdminDashboardView({ onClose, totalStudents = 0, totalStandards 
                                 <option value="monthly">Monthly (30 Days)</option>
                                 <option value="yearly">Yearly (365 Days)</option>
                             </select>
-                            <button className="btn btn-primary" onClick={handleGenerate}>Generate</button>
+                            <button className="btn-premium btn-premium-primary" onClick={handleGenerate} style={{ padding: '10px 20px' }}>Generate</button>
                         </div>
                         {generatedCode && (
                             <div className="code-result">
                                 <code>{generatedCode}</code>
-                                <button className="btn-icon" onClick={() => handleCopy(generatedCode)}>
+                                <button className="btn-premium btn-premium-secondary" onClick={() => handleCopy(generatedCode)} style={{ padding: '8px' }}>
                                     {copied ? <Check size={16} /> : <Copy size={16} />}
                                 </button>
                             </div>

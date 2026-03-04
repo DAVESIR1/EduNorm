@@ -10,6 +10,7 @@ import { MenuProvider } from './contexts/MenuContext'
 import './styles/design-system.css'
 import './styles/v2-tokens.css'
 import './styles/aurora-theme.css'
+import './styles/premium-theme.css'
 import './styles/theme-fixes.css'
 
 import { UIEngine } from './core/v2/UIEngine'

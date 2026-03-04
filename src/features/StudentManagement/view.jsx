@@ -3,6 +3,8 @@ import React, { useState, useMemo } from 'react';
 import { FileSpreadsheet, X, Download, Share2, ChevronUp, ChevronDown, Eye, Edit3, Search } from 'lucide-react';
 import { StudentLogic } from './logic.js';
 import { SORT_FIELDS, DATA_FIELDS } from './types.js';
+import '../../components/Ledger/GeneralRegister.css';
+
 
 // Feature-specific components
 import UniversalExport from '../../components/Common/UniversalExport';
@@ -114,11 +116,15 @@ export function StudentLedgerView({
             {/* Header Section */}
             <div className="ledger-header">
                 <div className="ledger-title">
-                    <FileSpreadsheet size={28} />
-                    <h2 className="display-font gradient-text">Student Ledger</h2>
-                    <span className="ledger-count badge badge-primary">{processedData.length} Records</span>
+                    <div style={{ padding: '10px', borderRadius: '14px', background: 'var(--primary)', color: 'white' }}>
+                        <FileSpreadsheet size={24} />
+                    </div>
+                    <div>
+                        <h2 className="display-font gradient-text" style={{ margin: 0 }}>Student Ledger</h2>
+                        <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>{processedData.length} active records found</span>
+                    </div>
                 </div>
-                {!isFullPage && <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={24} /></button>}
+                {!isFullPage && <button className="btn-premium btn-premium-ghost" onClick={onClose} style={{ padding: '8px' }}><X size={20} /></button>}
             </div>
 
             {/* Stats Summary Bar */}
@@ -188,10 +194,10 @@ export function StudentLedgerView({
                     />
                 </div>
                 <div className="action-btns">
-                    <button className="btn btn-secondary" onClick={handleDownloadCSV}>
+                    <button className="btn-premium btn-premium-secondary" onClick={handleDownloadCSV}>
                         <Download size={18} /> Export CSV
                     </button>
-                    <button className="btn btn-outline" onClick={() => setShowExportPanel(!showExportPanel)}>
+                    <button className="btn-premium btn-premium-primary" onClick={() => setShowExportPanel(!showExportPanel)}>
                         <Share2 size={18} /> Multi-Export
                     </button>
                 </div>

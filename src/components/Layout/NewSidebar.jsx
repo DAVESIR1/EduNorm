@@ -226,10 +226,12 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
     return (
         <>
             <aside className="sidebar-rail" style={{ gridArea: 'side' }}>
-                {/* Logo */}
-                <div className="rail-logo" title="EduNorm v2">
-                    <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }} />
-                </div>
+                {/* Logo - Hidden on mobile in CSS, but let's be explicit if needed */}
+                {!isMobile && (
+                    <div className="rail-logo" title="EduNorm v2" onClick={() => window.location.reload()}>
+                        <img src="/edunorm-logo.png" alt="EduNorm" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }} />
+                    </div>
+                )}
 
                 {/* Menu Icons */}
                 <nav className="rail-nav">
@@ -251,11 +253,12 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                                     style={{ '--menu-color': menu.color }}
                                     onClick={() => handleIconClick(menu.id)}
                                 >
-                                    <SectionIcon size={22} />
+                                    <SectionIcon size={isMobile ? 24 : 22} />
+                                    {isMobile && <span className="mobile-label">{menu.name.split(' ')[0]}</span>}
                                 </button>
 
                                 {hoveredMenu === menu.id && (
-                                    <div className="rail-flyout">
+                                    <div className={`rail-flyout ${isMobile ? 'flyout-mobile-up' : ''}`}>
                                         <div className="flyout-inner">
                                             <div className="flyout-header" style={{ '--header-color': menu.color }}>
                                                 <SectionIcon size={16} style={{ color: menu.color }} />
@@ -285,111 +288,36 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                             </div>
                         );
                     })}
-                </nav>
 
-                {/* Bottom Tools */}
-                <div className="rail-bottom">
-                    {/* Tools flyout */}
-                    <div
-                        className="rail-icon-group"
-                        onMouseEnter={isMobile ? undefined : () => handleMouseEnter('tools')}
-                        onMouseLeave={isMobile ? undefined : handleMouseLeave}
-                    >
-                        <button className="rail-icon" title="Tools" onClick={() => handleIconClick('tools')}>
-                            <FileJson size={20} />
-                        </button>
-                        {hoveredMenu === 'tools' && (
-                            <div className="rail-flyout flyout-bottom">
-                                <div className="flyout-inner">
-                                    <div className="flyout-header" style={{ '--header-color': '#6366f1' }}>
-                                        <FileJson size={16} style={{ color: '#6366f1' }} />
-                                        <span>Sovereign Tools</span>
-                                    </div>
-                                    <div className="flyout-items">
-                                        <button className="flyout-btn" onClick={handleAutoRestore} disabled={isRestoring}>
-                                            {isRestoring ? <Loader2 size={16} className="animate-spin" /> : <FileJson size={16} />}
-                                            <span>{isRestoring ? 'Restoring...' : 'Auto-Restore (JSON)'}</span>
-                                        </button>
-                                        <label className="flyout-btn" style={{ cursor: 'pointer' }}>
-                                            {isImporting ? <Loader2 size={16} className="animate-spin" /> : <FileSpreadsheet size={16} />}
-                                            <span>{isImporting ? 'Importing...' : 'Import from Excel'}</span>
-                                            <input type="file" hidden accept=".xlsx,.xls" onChange={handleExcelImport} />
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Theme Cycle: light → aurora → dark → light */}
-                    {(() => {
-                        const themes = ['light', 'aurora', 'dark'];
-                        const labels = { light: '☀️ Light', aurora: '🌸 Aurora', dark: '🌙 Dark' };
-                        const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length];
-                        // Icon for current theme
-                        const ThemeIcon = theme === 'dark' ? Sun : theme === 'aurora'
-                            ? () => <span style={{ fontSize: 18, lineHeight: 1 }}>🌸</span>
-                            : Palette;
-                        return (
-                            <button
-                                className="rail-icon"
-                                title={`Theme: ${labels[theme] || theme} — click for ${labels[nextTheme]}`}
-                                onClick={() => changeTheme(nextTheme)}
-                                style={{ position: 'relative' }}
-                            >
-                                <ThemeIcon size={20} />
-                                {theme === 'aurora' && (
-                                    <span style={{
-                                        position: 'absolute', bottom: 4, right: 4,
-                                        width: 7, height: 7, borderRadius: '50%',
-                                        background: '#6366f1', border: '1.5px solid white',
-                                        display: 'block'
-                                    }} />
-                                )}
-                            </button>
-                        );
-                    })()}
-
-
-                    {/* User Avatar */}
-                    {user && (
+                    {/* On mobile, integrate bottom tools into the main row */}
+                    {isMobile && (
                         <div
                             className="rail-icon-group"
-                            onMouseEnter={isMobile ? undefined : () => handleMouseEnter('user')}
-                            onMouseLeave={isMobile ? undefined : handleMouseLeave}
+                            onMouseEnter={undefined}
+                            onMouseLeave={undefined}
                         >
-                            <button
-                                className={`rail-icon ${isAdmin ? 'rail-admin-avatar' : 'rail-avatar'}`}
-                                title={user.displayName || user.email?.split('@')[0]}
-                                onClick={() => handleIconClick('user')}
-                            >
-                                {isAdmin ? (
-                                    <ShieldIcon size={22} />
-                                ) : user.photoURL ? (
-                                    <img src={user.photoURL} alt="" />
+                            <button className="rail-icon" onClick={() => handleIconClick('user')}>
+                                {user?.photoURL ? (
+                                    <img src={user.photoURL} alt="" className="mobile-avatar" />
                                 ) : (
-                                    <IconMap.studentProfile size={20} />
+                                    <IconMap.studentProfile size={24} />
                                 )}
+                                <span className="mobile-label">Me</span>
                             </button>
                             {hoveredMenu === 'user' && (
-                                <div className="rail-flyout flyout-bottom">
+                                <div className="rail-flyout flyout-mobile-up">
                                     <div className="flyout-inner">
                                         <div className="flyout-header" style={{ '--header-color': '#6366f1' }}>
                                             <IconMap.studentProfile size={16} style={{ color: '#6366f1' }} />
-                                            <span>{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                                            <span>Profile</span>
                                         </div>
                                         <div className="flyout-items">
-                                            <div className="flyout-email">{user.email}</div>
-                                            {isAdmin && (
-                                                <button className="flyout-btn" onClick={() => { setHoveredMenu(null); onOpenAdmin?.(); }}>
-                                                    <ShieldIcon size={16} /><span>Admin Panel</span>
-                                                </button>
-                                            )}
-                                            {isFree && onOpenUpgrade && (
-                                                <button className="flyout-btn flyout-accent" onClick={() => { setHoveredMenu(null); onOpenUpgrade(); }}>
-                                                    <SparklesIcon size={16} /><span>Upgrade Pro</span>
-                                                </button>
-                                            )}
+                                            <button className="flyout-btn" onClick={() => { changeTheme(theme === 'dark' ? 'light' : theme === 'light' ? 'aurora' : 'dark'); }}>
+                                                <Palette size={16} /><span>Theme: {theme}</span>
+                                            </button>
+                                            <button className="flyout-btn" onClick={() => { handleIconClick('tools'); }}>
+                                                <FileJson size={16} /><span>Tools</span>
+                                            </button>
                                             <button className="flyout-btn flyout-danger" onClick={onLogout}>
                                                 <LogoutIcon size={16} /><span>Logout</span>
                                             </button>
@@ -397,9 +325,134 @@ export default function NewSidebar({ isOpen, onToggle, onNavigate, onOpenAdmin, 
                                     </div>
                                 </div>
                             )}
+                            {hoveredMenu === 'tools' && (
+                                <div className="rail-flyout flyout-mobile-up" style={{ bottom: '135px' }}>
+                                    <div className="flyout-inner">
+                                        <div className="flyout-header" style={{ '--header-color': '#6366f1' }}>
+                                            <FileJson size={16} style={{ color: '#6366f1' }} />
+                                            <span>Tools</span>
+                                        </div>
+                                        <div className="flyout-items">
+                                            <button className="flyout-btn" onClick={handleAutoRestore}>
+                                                <FileJson size={16} /><span>Restore Data</span>
+                                            </button>
+                                            <button className="flyout-btn flyout-danger" onClick={() => setHoveredMenu('user')}>
+                                                <span>Back</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
-                </div>
+                </nav>
+
+                {/* Bottom Tools (Desktop Only) */}
+                {!isMobile && (
+                    <div className="rail-bottom">
+                        {/* Tools flyout */}
+                        <div
+                            className="rail-icon-group"
+                            onMouseEnter={() => handleMouseEnter('tools')}
+                            onMouseLeave={handleMouseLeave}
+                        >
+                            <button className="rail-icon" title="Tools" onClick={() => handleIconClick('tools')}>
+                                <FileJson size={20} />
+                            </button>
+                            {hoveredMenu === 'tools' && (
+                                <div className="rail-flyout flyout-bottom">
+                                    <div className="flyout-inner">
+                                        <div className="flyout-header" style={{ '--header-color': '#6366f1' }}>
+                                            <FileJson size={16} style={{ color: '#6366f1' }} />
+                                            <span>Sovereign Tools</span>
+                                        </div>
+                                        <div className="flyout-items">
+                                            <button className="flyout-btn" onClick={handleAutoRestore} disabled={isRestoring}>
+                                                {isRestoring ? <Loader2 size={16} className="animate-spin" /> : <FileJson size={16} />}
+                                                <span>{isRestoring ? 'Restoring...' : 'Auto-Restore (JSON)'}</span>
+                                            </button>
+                                            <label className="flyout-btn" style={{ cursor: 'pointer' }}>
+                                                {isImporting ? <Loader2 size={16} className="animate-spin" /> : <FileSpreadsheet size={16} />}
+                                                <span>{isImporting ? 'Importing...' : 'Import from Excel'}</span>
+                                                <input type="file" hidden accept=".xlsx,.xls" onChange={handleExcelImport} />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Theme Cycle */}
+                        {(() => {
+                            const themes = ['light', 'aurora', 'dark'];
+                            const labels = { light: '☀️ Light', aurora: '🌸 Aurora', dark: '🌙 Dark' };
+                            const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length];
+                            const ThemeIcon = theme === 'dark' ? Sun : theme === 'aurora'
+                                ? () => <span style={{ fontSize: 18, lineHeight: 1 }}>🌸</span>
+                                : Palette;
+                            return (
+                                <button
+                                    className="rail-icon"
+                                    title={`Theme: ${labels[theme] || theme}`}
+                                    onClick={() => changeTheme(nextTheme)}
+                                    style={{ position: 'relative' }}
+                                >
+                                    <ThemeIcon size={20} />
+                                </button>
+                            );
+                        })()}
+
+
+                        {/* User Avatar */}
+                        {user && (
+                            <div
+                                className="rail-icon-group"
+                                onMouseEnter={() => handleMouseEnter('user')}
+                                onMouseLeave={handleMouseLeave}
+                            >
+                                <button
+                                    className={`rail-icon ${isAdmin ? 'rail-admin-avatar' : 'rail-avatar'}`}
+                                    title={user.displayName || user.email?.split('@')[0]}
+                                    onClick={() => handleIconClick('user')}
+                                >
+                                    {isAdmin ? (
+                                        <ShieldIcon size={22} />
+                                    ) : user.photoURL ? (
+                                        <img src={user.photoURL} alt="" />
+                                    ) : (
+                                        <IconMap.studentProfile size={20} />
+                                    )}
+                                </button>
+                                {hoveredMenu === 'user' && (
+                                    <div className="rail-flyout flyout-bottom">
+                                        <div className="flyout-inner">
+                                            <div className="flyout-header" style={{ '--header-color': '#6366f1' }}>
+                                                <IconMap.studentProfile size={16} style={{ color: '#6366f1' }} />
+                                                <span>{user.displayName || user.email?.split('@')[0] || 'User'}</span>
+                                            </div>
+                                            <div className="flyout-items">
+                                                <div className="flyout-email">{user.email}</div>
+                                                {isAdmin && (
+                                                    <button className="flyout-btn" onClick={() => { setHoveredMenu(null); onOpenAdmin?.(); }}>
+                                                        <ShieldIcon size={16} /><span>Admin Panel</span>
+                                                    </button>
+                                                )}
+                                                {isFree && onOpenUpgrade && (
+                                                    <button className="flyout-btn flyout-accent" onClick={() => { setHoveredMenu(null); onOpenUpgrade(); }}>
+                                                        <SparklesIcon size={16} /><span>Upgrade Pro</span>
+                                                    </button>
+                                                )}
+                                                <button className="flyout-btn flyout-danger" onClick={onLogout}>
+                                                    <LogoutIcon size={16} /><span>Logout</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
             </aside>
 
             <PasswordModal

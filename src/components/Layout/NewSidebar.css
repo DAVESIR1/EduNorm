@@ -330,18 +330,19 @@
         right: 0;
         top: auto;
         width: 100% !important;
-        height: 56px;
+        height: clamp(65px, 10vh, 75px);
         flex-direction: row;
-        border-radius: 20px 20px 0 0;
-        padding: 4px 8px;
-        z-index: 200;
-        gap: 0;
+        border-radius: 28px 28px 0 0;
+        padding: 8px 12px;
+        z-index: 2000;
+        gap: 4px;
         background: var(--glass-bg-strong);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
+        backdrop-filter: blur(30px) saturate(160%);
+        -webkit-backdrop-filter: blur(30px) saturate(160%);
         border: 1px solid var(--glass-border);
         border-bottom: none;
-        box-shadow: 0 -4px 20px rgba(92, 61, 46, 0.1);
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.12);
+        justify-content: space-around;
     }
 
     .rail-logo {
@@ -355,46 +356,87 @@
         overflow: visible;
         gap: 0;
         padding: 0;
-    }
-
-    .rail-icon-group {
-        position: static;
-        width: auto;
+        width: 100%;
     }
 
     .rail-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+        width: auto;
+        min-width: 60px;
+        height: 100%;
+        flex-direction: column;
+        gap: 4px;
+        border-radius: 16px;
+        padding: 4px;
+    }
+
+    .rail-icon svg {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .rail-icon.active svg {
+        transform: translateY(-4px) scale(1.1);
+        color: var(--primary);
+    }
+
+    .mobile-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+
+    .rail-icon.active .mobile-label {
+        opacity: 1;
+        transform: scale(1.05);
+        color: var(--primary);
     }
 
     .rail-icon.active::before {
-        left: 50%;
-        top: -4px;
-        transform: translateX(-50%);
-        width: 20px;
-        height: 3px;
-        border-radius: 0 0 3px 3px;
+        display: none;
+        /* Hide the sidebar bar style */
+    }
+
+    .mobile-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid var(--primary);
     }
 
     /* Flyout goes UP on mobile */
-    .rail-flyout {
+    .rail-flyout.flyout-mobile-up {
         position: fixed;
-        bottom: 62px;
+        bottom: 85px;
         left: 50%;
         top: auto;
         transform: translateX(-50%);
         padding-left: 0;
-        padding-bottom: 6px;
-        min-width: 220px;
-        max-width: 90vw;
+        padding-bottom: 0;
+        min-width: 240px;
+        max-width: 92vw;
         z-index: 9999;
+        filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.2));
+    }
+
+    .flyout-mobile-up::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid var(--glass-bg-strong);
     }
 
     @keyframes flyoutSlideIn {
         from {
             opacity: 0;
-            transform: translateX(-50%) translateY(8px) scale(0.96);
+            transform: translateX(-50%) translateY(20px) scale(0.9);
         }
 
         to {
@@ -404,14 +446,8 @@
     }
 
     .rail-bottom {
-        flex-direction: row;
-        margin-top: 0;
-        margin-left: auto;
-        padding: 0 4px;
-        border-top: none;
-        border-left: 1px solid var(--glass-border);
-        gap: 2px;
-        width: auto;
+        display: none;
+        /* Items moved to main nav row */
     }
 }
 

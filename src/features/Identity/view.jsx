@@ -203,197 +203,280 @@ export default function IdentityWizard({ isOpen, onComplete }) {
     };
 
     return (
-        <div className="role-modal-overlay">
-            <div className="role-modal-content wizard-container" style={{ position: 'relative' }}>
+        <div className="role-modal-overlay" style={{ backdropFilter: 'blur(20px)', backgroundColor: 'rgba(0,0,0,0.6)' }}>
+            <div className="glass-panel wizard-container" style={{
+                maxWidth: '650px',
+                padding: '0',
+                overflow: 'hidden',
+                position: 'relative',
+                border: '1px solid var(--glass-border)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+            }}>
+                {/* Close/Logout button */}
                 <button
-                    onClick={() => {
-                        logout();
-                        window.location.reload();
-                    }}
+                    onClick={() => { logout(); window.location.reload(); }}
+                    className="btn-premium btn-premium-ghost"
                     style={{
                         position: 'absolute',
-                        top: '16px',
-                        right: '16px',
-                        border: 'none',
-                        background: 'none',
-                        color: '#64748b',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '0.9rem'
+                        top: '1rem',
+                        right: '1rem',
+                        zIndex: 10,
+                        padding: '8px 12px',
+                        fontSize: '0.8rem'
                     }}
-                    title="Logout / Switch Account"
                 >
-                    <LogOut size={16} /> Logout
+                    <LogOut size={14} /> Exit
                 </button>
 
+                {/* Progress Bar */}
+                <div style={{
+                    height: '4px',
+                    width: '100%',
+                    background: 'rgba(255,255,255,0.05)',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0
+                }}>
+                    <div style={{
+                        height: '100%',
+                        width: step === 'role' ? '25%' : step === 'identity' ? '50%' : step === 'preview' ? '75%' : '100%',
+                        background: 'var(--primary)',
+                        transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: '0 0 10px var(--primary)'
+                    }} />
+                </div>
+
                 {step === 'role' && (
-                    <div className="wizard-step animate-fade-in">
-                        <h2>🎓 Select Your Role</h2>
-                        <p className="subtitle">Choose how you will use EduNorm</p>
-                        <div className="role-options-grid">
-                            <div className="role-option" onClick={() => handleRoleSelect(ROLES.STUDENT)}>
-                                <div className="role-icon-box"><GraduationCap size={32} /></div>
-                                <h3>Student</h3>
+                    <div className="wizard-step animate-fade-in" style={{ padding: '3rem 2rem' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                            <div style={{
+                                display: 'inline-flex',
+                                padding: '12px',
+                                borderRadius: '16px',
+                                background: 'rgba(99, 102, 241, 0.1)',
+                                color: 'var(--primary)',
+                                marginBottom: '1rem'
+                            }}>
+                                <UserCheck size={32} />
                             </div>
-                            <div className="role-option" onClick={() => handleRoleSelect(ROLES.TEACHER)}>
-                                <div className="role-icon-box"><BookOpen size={32} /></div>
-                                <h3>Teacher</h3>
+                            <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0' }}>Welcome to EduNorm</h2>
+                            <p style={{ opacity: 0.7, marginTop: '0.5rem' }}>Select your identity to personalize your experience</p>
+                        </div>
+
+                        <div className="role-options-grid" style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                            gap: '1.25rem'
+                        }}>
+                            <div className="role-card glass-card clickable" onClick={() => handleRoleSelect(ROLES.STUDENT)}>
+                                <div className="role-icon-box" style={{ background: 'linear-gradient(135deg, #6366f1, #818cf8)' }}>
+                                    <GraduationCap size={32} color="white" />
+                                </div>
+                                <h3 style={{ margin: '1rem 0 0.5rem' }}>Student</h3>
+                                <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>View reports & attendance</p>
                             </div>
-                            <div className="role-option" onClick={() => handleRoleSelect(ROLES.HOI)}>
-                                <div className="role-icon-box"><School size={32} /></div>
-                                <h3>Institute (HOI)</h3>
+
+                            <div className="role-card glass-card clickable" onClick={() => handleRoleSelect(ROLES.TEACHER)}>
+                                <div className="role-icon-box" style={{ background: 'linear-gradient(135deg, #ec4899, #f472b6)' }}>
+                                    <BookOpen size={32} color="white" />
+                                </div>
+                                <h3 style={{ margin: '1rem 0 0.5rem' }}>Teacher</h3>
+                                <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>Manage classes & students</p>
+                            </div>
+
+                            <div className="role-card glass-card clickable" onClick={() => handleRoleSelect(ROLES.HOI)}>
+                                <div className="role-icon-box" style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24)' }}>
+                                    <School size={32} color="white" />
+                                </div>
+                                <h3 style={{ margin: '1rem 0 0.5rem' }}>HOI</h3>
+                                <p style={{ fontSize: '0.8rem', opacity: 0.6, margin: 0 }}>Institute administration</p>
                             </div>
                         </div>
                     </div>
                 )}
 
                 {step === 'identity' && (
-                    <div className="wizard-step animate-fade-in">
-                        <button className="back-link" onClick={() => setStep('role')}>← Back</button>
-                        <h2>🛡️ Verify Identity</h2>
-                        <p className="subtitle">We need to check if you are registered.</p>
+                    <div className="wizard-step animate-fade-in" style={{ padding: '3rem 2rem' }}>
+                        <button className="btn-premium btn-premium-ghost" onClick={() => setStep('role')} style={{ marginBottom: '1rem' }}>
+                            ← Back
+                        </button>
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: '800' }}>Confirm Identity</h2>
+                        <p style={{ opacity: 0.7, marginBottom: '2rem' }}>Enter your credentials to link your account</p>
 
-                        <form onSubmit={verifyIdentity} className="wizard-form">
+                        <form onSubmit={verifyIdentity} className="wizard-form" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div className="input-group">
-                                <label>🏫 School Code / UDISE</label>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600' }}>
+                                    🏫 School / UDISE Code
+                                </label>
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         className="input-field"
+                                        style={{ width: '100%', padding: '12px 14px', borderRadius: '12px' }}
                                         value={schoolCode}
                                         onChange={e => setSchoolCode(e.target.value)}
-                                        placeholder="e.g. 2405..."
+                                        placeholder="Enter school code..."
                                         required
                                     />
-                                    {isResolvingSchool && <Loader2 className="spin" size={16} style={{ position: 'absolute', right: '12px', top: '14px', color: '#6366f1' }} />}
+                                    {isResolvingSchool && <Loader2 className="animate-spin" size={18} style={{ position: 'absolute', right: '12px', top: '12px', color: 'var(--primary)' }} />}
                                 </div>
                                 {discoveredSchool && (
-                                    <div className="discovery-success animate-fade-in">
-                                        <Check size={14} /> Found: <b>{discoveredSchool.name}</b>
+                                    <div className="discovery-success animate-fade-in" style={{
+                                        marginTop: '10px',
+                                        padding: '10px',
+                                        background: 'rgba(16, 185, 129, 0.1)',
+                                        borderRadius: '10px',
+                                        fontSize: '0.85rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        color: '#10b981'
+                                    }}>
+                                        <Check size={16} /> <span>Verified: <b>{discoveredSchool.name}</b></span>
                                     </div>
                                 )}
                             </div>
 
                             {selectedRole !== ROLES.HOI && (
-                                <>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                     <div className="input-group">
-                                        <label>{selectedRole === ROLES.STUDENT ? 'GR Number' : 'Teacher Code'}</label>
+                                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600' }}>
+                                            {selectedRole === ROLES.STUDENT ? 'GR Number' : 'Teacher Code'}
+                                        </label>
                                         <input
                                             className="input-field"
+                                            style={{ width: '100%', padding: '12px 14px', borderRadius: '12px' }}
                                             value={userId}
                                             onChange={e => setUserId(e.target.value)}
-                                            placeholder={selectedRole === ROLES.STUDENT ? 'e.g. 101' : 'e.g. T45'}
+                                            placeholder="ID..."
                                             required
                                         />
                                     </div>
                                     <div className="input-group">
-                                        <label>Any ID</label>
+                                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600' }}>Verify With</label>
                                         <input
                                             className="input-field"
+                                            style={{ width: '100%', padding: '12px 14px', borderRadius: '12px' }}
                                             value={govId}
                                             onChange={e => setGovId(e.target.value)}
-                                            placeholder="Aadhar, Mobile, Email, PAN, etc."
+                                            placeholder="Mobile / Email..."
                                             required
                                         />
-                                        <p className="input-note">
-                                            <Info size={12} /> You can type any ID that&apos;s available in school data
-                                        </p>
                                     </div>
-                                </>
+                                </div>
                             )}
 
-                            <button className="btn btn-primary btn-large btn-block" disabled={loading}>
-                                {loading ? <Loader2 className="spin" /> : 'Find My Profile'}
+                            <button className="btn-premium btn-premium-primary btn-block" style={{ padding: '14px' }} disabled={loading}>
+                                {loading ? <Loader2 className="animate-spin" /> : <><Search size={18} /> Find My Profile</>}
                             </button>
                         </form>
                     </div>
                 )}
 
                 {step === 'preview' && foundProfile && (
-                    <div className="wizard-step animate-fade-in">
-                        <button className="back-link" onClick={() => setStep('identity')}>← Back</button>
-                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                            <div className="profile-match-icon">
-                                <UserCheck size={48} />
+                    <div className="wizard-step animate-fade-in" style={{ padding: '3rem 2rem' }}>
+                        <button className="btn-premium btn-premium-ghost" onClick={() => setStep('identity')} style={{ marginBottom: '1rem' }}>
+                            ← Back
+                        </button>
+                        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                            <div className="profile-match-icon" style={{
+                                width: '80px',
+                                height: '80px',
+                                borderRadius: '50%',
+                                background: 'rgba(16, 185, 129, 0.1)',
+                                color: '#10b981',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 1.5rem'
+                            }}>
+                                <UserCheck size={40} />
                             </div>
-                            <h2>Is this you?</h2>
-                            <p className="subtitle">We found a matching record</p>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: '800' }}>Is this you?</h2>
+                            <p style={{ opacity: 0.7 }}>We found a unique match in our system</p>
                         </div>
 
-                        <div className="profile-preview-card">
-                            <div className="preview-row">
-                                <span className="label">Name</span>
-                                <span className="value">{foundProfile.name}</span>
-                            </div>
-                            {selectedRole === ROLES.STUDENT && (
-                                <div className="preview-row">
-                                    <span className="label">Class</span>
-                                    <span className="value">{foundProfile.standard} {foundProfile.division}</span>
+                        <div className="glass-card" style={{ marginBottom: '2rem', padding: '1.5rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>
+                                    <span style={{ opacity: 0.6 }}>Full Name</span>
+                                    <span style={{ fontWeight: '700' }}>{foundProfile.name}</span>
                                 </div>
-                            )}
-                            <div className="preview-row">
-                                <span className="label">{selectedRole === ROLES.STUDENT ? 'GR No' : 'Code'}</span>
-                                <span className="value">{foundProfile.grNo || foundProfile.teacherCode}</span>
+                                {selectedRole === ROLES.STUDENT && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>
+                                        <span style={{ opacity: 0.6 }}>Class</span>
+                                        <span style={{ fontWeight: '700' }}>{foundProfile.standard} - {foundProfile.division || 'A'}</span>
+                                    </div>
+                                )}
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ opacity: 0.6 }}>Record ID</span>
+                                    <span style={{ fontWeight: '700' }}>{foundProfile.grNo || foundProfile.teacherCode}</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="confirmation-warning">
-                            <small>By clicking &quot;Confirm&quot;, you link this professional record to your account <b>{user.email}</b>. This action is permanent.</small>
+                        <div style={{
+                            padding: '1rem',
+                            background: 'rgba(245, 158, 11, 0.05)',
+                            border: '1px solid rgba(245, 158, 11, 0.1)',
+                            borderRadius: '12px',
+                            marginBottom: '2rem',
+                            display: 'flex',
+                            gap: '10px'
+                        }}>
+                            <Info size={16} color="#f59e0b" style={{ flexShrink: 0, marginTop: '2px' }} />
+                            <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}> Linking this record to <b>{user.email}</b> is a permanent professional mapping.</p>
                         </div>
 
-                        <button className="btn btn-primary btn-large btn-block" onClick={finalizeMapping} disabled={loading}>
-                            {loading ? <Loader2 className="spin" /> : 'Yes, That&apos;s Me - Finish'}
+                        <button className="btn-premium btn-premium-primary btn-block" style={{ padding: '14px' }} onClick={finalizeMapping} disabled={loading}>
+                            {loading ? <Loader2 className="animate-spin" /> : 'Yes, This Is Me - Continue'}
                         </button>
                     </div>
                 )}
 
                 {step === 'otp' && (
-                    <div className="wizard-step animate-fade-in">
-                        <button className="back-link" onClick={() => setStep('identity')}>← Back</button>
-                        <h2>📧 Email Verification</h2>
-                        <p className="subtitle">
-                            Enter the OTP sent to <b>{verifiedData?.email || user.email}</b>
-                            <br />
-                            <small>Sent via help@edunorm.in</small>
-                        </p>
+                    <div className="wizard-step animate-fade-in" style={{ padding: '3rem 2rem' }}>
+                        <button className="btn-premium btn-premium-ghost" onClick={() => setStep('identity')} style={{ marginBottom: '1rem' }}>
+                            ← Back
+                        </button>
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: '800' }}>Verification</h2>
+                        <p style={{ opacity: 0.7, marginBottom: '2rem' }}>Enter the 6-digit code sent to your email</p>
 
-                        <form onSubmit={verifyOtpAndFinish} className="wizard-form">
-                            <div className="input-group">
-                                <label className="center-text">One Time Password</label>
+                        <form onSubmit={verifyOtpAndFinish} className="wizard-form" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                            <div className="otp-container" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
                                 <input
                                     type="text"
-                                    className="input-field otp-input"
-                                    placeholder="• • • • • •"
+                                    className="input-field"
+                                    style={{
+                                        width: '100%',
+                                        textAlign: 'center',
+                                        fontSize: '2rem',
+                                        letterSpacing: '0.5rem',
+                                        fontWeight: '800',
+                                        padding: '1rem',
+                                        borderRadius: '16px'
+                                    }}
+                                    placeholder="000000"
                                     value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
+                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                                     maxLength={6}
                                 />
-                                {window.location.hostname === 'localhost' && (
-                                    <p style={{ color: '#f59e0b', fontSize: '0.8rem', marginTop: '8px' }}>
-                                        🚧 Dev Mode: Use OTP <strong>123456</strong>
-                                    </p>
-                                )}
                             </div>
 
-                            <button className="btn btn-primary btn-large btn-block" disabled={loading}>
-                                {loading ? 'Verifying...' : 'Unlock Dashboard'}
+                            <button className="btn-premium btn-premium-primary btn-block" style={{ padding: '14px' }} disabled={loading}>
+                                {loading ? <Loader2 className="animate-spin" /> : <><Sparkles size={18} /> Unlock Dashboard</>}
                             </button>
 
-                            <div style={{ marginTop: '16px' }}>
+                            <div style={{ textAlign: 'center' }}>
                                 {canResend ? (
                                     <button
                                         type="button"
-                                        className="btn-link"
+                                        className="btn-premium btn-premium-ghost"
                                         onClick={handleResendOtp}
-                                        style={{ color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                                     >
-                                        Resend OTP
+                                        Resend Code
                                     </button>
                                 ) : (
-                                    <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-                                        Resend OTP in {timer}s
-                                    </p>
+                                    <p style={{ fontSize: '0.9rem', opacity: 0.6 }}>Resend available in {timer}s</p>
                                 )}
                             </div>
                         </form>

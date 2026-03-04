@@ -4,12 +4,21 @@
  */
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import SyncService from '../../services/SyncService.js';
-import AppBus, { APP_EVENTS } from '../../core/AppBus.js';
 import {
-    isAuthenticated as driveIsAuthenticated,
-    signOut as driveSignOut,
-} from '../../services/GoogleDriveService.js';
+    Cloud,
+    HardDrive,
+    RefreshCcw,
+    Shield,
+    ArrowUp,
+    ArrowDown,
+    Info,
+    Loader2,
+    Palette,
+    Sparkles,
+    FileJson,
+    FileSpreadsheet,
+    Sun
+} from 'lucide-react';
 import './SyncBackup.css';
 
 // ── Drive OAuth helper ────────────────────────────────────────────────────────
@@ -73,8 +82,7 @@ export default function SyncBackupView({ user, onClose }) {
         try {
             await connectGoogleDrive();
             setDriveConnected(true);
-            showMsg('✅ Google Drive connected! Checking cloud data...');
-            // Pull-First check after connection
+            showMsg('✅ Google Drive connected!');
             await SyncService.init(user);
         } catch (err) {
             showMsg(`❌ Drive connection failed: ${err.message}`);
@@ -110,7 +118,7 @@ export default function SyncBackupView({ user, onClose }) {
             if (result.success) {
                 AppBus.emit(APP_EVENTS.SETTINGS_CHANGED, { source: 'restore' });
                 AppBus.emit(APP_EVENTS.STUDENT_IMPORTED, { count: result.count, source: 'drive' });
-                showMsg(`✅ Restored ${result.count} records! Refreshing...`);
+                showMsg(`✅ Restored ${result.count} records!`);
                 setTimeout(() => AppBus.emit(APP_EVENTS.SETTINGS_CHANGED, { source: 'restore-final' }), 800);
             } else {
                 showMsg(`❌ ${result.error || 'Restore failed'}`);
@@ -133,17 +141,22 @@ export default function SyncBackupView({ user, onClose }) {
         setLoading(false);
     }, [user, showMsg]);
 
-    const statusColor = { idle: '#22c55e', syncing: '#f59e0b', error: '#ef4444' }[status.state] || '#6b7280';
-    const lastSyncText = status.lastSync ? new Date(status.lastSync).toLocaleString() : 'Never';
+    const handleToggleAutoSync = useCallback(async () => {
+        const newVal = !status.isAutoSync;
+        await SyncService.updateConfig({ isAutoSync: newVal });
+        showMsg(newVal ? '🚀 Auto-sync enabled' : '⏸️ Auto-sync disabled');
+    }, [status.isAutoSync, showMsg]);
+
+    const isSyncing = status.state === 'syncing';
 
     return (
         <div className="sb-page">
             <div className="sb-header">
                 <div className="sb-title-row">
-                    <span className="sb-icon">☁️</span>
+                    <Cloud size={24} className="sb-icon" />
                     <div>
                         <h1 className="sb-title">Backup &amp; Sync</h1>
-                        <p className="sb-subtitle">Cloud-First Architecture (Google Drive)</p>
+                        <p className="sb-subtitle">Cloud-First Architecture</p>
                     </div>
                 </div>
                 {onClose && <button className="sb-close" onClick={onClose}>✕</button>}
@@ -155,63 +168,139 @@ export default function SyncBackupView({ user, onClose }) {
                 </div>
             )}
 
-            <div className="sb-card sb-status-card">
-                <div className="sb-status-dot" style={{ background: statusColor }} />
-                <div>
-                    <div className="sb-status-label">
-                        {status.state === 'syncing' ? '⏳ Syncing...' : '✅ Ready'}
+            <div className="glass-panel" style={{ padding: '0', overflow: 'hidden', marginTop: '1rem' }}>
+                {/* Header Area */}
+                <div style={{
+                    padding: '2rem',
+                    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05))',
+                    borderBottom: '1px solid var(--glass-border)',
+                    textAlign: 'center'
+                }}>
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '20px',
+                        background: 'var(--primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 1rem',
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+                    }}>
+                        <Cloud className="text-white" size={32} />
                     </div>
-                    <div className="sb-status-msg">{status.message}</div>
-                    <div className="sb-status-time">Last sync: {lastSyncText}</div>
-                </div>
-            </div>
-
-            <div className="sb-card">
-                <div className="sb-card-head">
-                    <span className="sb-card-icon">🗂</span>
-                    <div>
-                        <div className="sb-card-title">Google Drive</div>
-                        <div className="sb-card-sub">Single Source of Truth</div>
-                    </div>
-                    <span className={`sb-badge ${driveConnected ? 'connected' : 'disconnected'}`}>
-                        {driveConnected ? 'Connected' : 'Not connected'}
-                    </span>
+                    <h2 style={{ margin: '0', fontSize: '1.5rem', fontWeight: '800' }}>Google Drive Recovery</h2>
+                    <p style={{ opacity: 0.7, marginTop: '0.4rem', fontSize: '0.9rem' }}>Protecting {user?.schoolCode || 'your'} data</p>
                 </div>
 
-                <div className="sb-card-body">
-                    <p className="sb-info">
-                        Stores everything in <strong>EduNorm Backups / {user?.schoolCode || 'School'}/</strong>.
-                    </p>
-                    <div className="sb-btn-row">
-                        {driveConnected ? (
-                            <div className="sync-actions" style={{ display: 'flex', gap: 8 }}>
-                                <button className="sb-btn primary" disabled={loading} onClick={handleBackupNow}>
-                                    {loading ? '⏳ ...' : '⬆️ Backup Now'}
-                                </button>
-                                <button className="sb-btn secondary" disabled={loading} onClick={handleRestoreDrive}>
-                                    Restore from Drive
-                                </button>
-                                <button className="sb-btn ghost" disabled={loading} onClick={handleDisconnectDrive}>
-                                    Disconnect
-                                </button>
+                <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+                    {/* Connection Status Card */}
+                    <div className="glass-card" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '1.25rem',
+                        background: driveConnected ? 'rgba(16, 185, 129, 0.05)' : 'var(--glass-bg-strong)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{
+                                padding: '10px',
+                                borderRadius: '12px',
+                                background: driveConnected ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)'
+                            }}>
+                                <HardDrive size={22} color={driveConnected ? '#10b981' : '#6b7280'} />
                             </div>
-                        ) : (
-                            <div style={{ display: 'flex', gap: 8 }}>
-                                <button className="sb-btn primary" onClick={handleConnectDrive} disabled={loading}>
-                                    🔗 Connect Google Drive
-                                </button>
-                                <button className="sb-btn secondary" onClick={handleRestoreDrive} disabled={loading}>
-                                    ⬇️ Restore (auto-connect)
-                                </button>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1rem' }}>Cloud Connectivity</h3>
+                                <p style={{ margin: '2px 0 0', fontSize: '0.85rem', opacity: 0.7 }}>
+                                    {driveConnected ? 'Connected & Ready' : 'Disconnected'}
+                                </p>
                             </div>
-                        )}
+                        </div>
+
+                        <button
+                            disabled={loading}
+                            onClick={driveConnected ? handleDisconnectDrive : handleConnectDrive}
+                            className={`btn-premium ${driveConnected ? 'btn-premium-secondary' : 'btn-premium-primary'}`}
+                        >
+                            {loading ? <Loader2 size={16} className="animate-spin" /> : driveConnected ? <RefreshCcw size={16} /> : <Cloud size={16} />}
+                            <span style={{ marginLeft: 8 }}>{driveConnected ? 'Disconnect' : 'Connect'}</span>
+                        </button>
+                    </div>
+
+                    {driveConnected && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                            {/* Auto Sync Settings */}
+                            <div className="glass-card" style={{ padding: '1.25rem' }}>
+                                <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', fontSize: '0.95rem' }}>
+                                    <Shield size={16} color="var(--primary)" />
+                                    Auto-Protection
+                                </h4>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'rgba(0,0,0,0.03)', borderRadius: '10px' }}>
+                                    <span style={{ fontSize: '0.9rem' }}>Real-time Sync</span>
+                                    <div
+                                        className={`status-badge ${status.isAutoSync ? 'sync-success' : ''}`}
+                                        style={{ cursor: 'pointer', padding: '4px 10px', fontSize: '0.75rem' }}
+                                        onClick={handleToggleAutoSync}
+                                    >
+                                        {status.isAutoSync ? 'ON' : 'OFF'}
+                                    </div>
+                                </div>
+                                <p style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '0.8rem' }}>
+                                    Syncs automatically after every change to ensure zero data loss.
+                                </p>
+                            </div>
+
+                            {/* Manual Controls */}
+                            <div className="glass-card" style={{ padding: '1.25rem' }}>
+                                <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', fontSize: '0.95rem' }}>
+                                    <RefreshCcw size={16} color="#6366f1" />
+                                    Manual Sync
+                                </h4>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        onClick={handleBackupNow}
+                                        disabled={loading || isSyncing}
+                                        className="btn-premium btn-premium-primary"
+                                        style={{ flex: 1, padding: '10px' }}
+                                    >
+                                        {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <ArrowUp size={14} />}
+                                        <span style={{ marginLeft: 4 }}>Backup</span>
+                                    </button>
+                                    <button
+                                        onClick={handleRestoreDrive}
+                                        disabled={loading || isSyncing}
+                                        className="btn-premium btn-premium-secondary"
+                                        style={{ flex: 1, padding: '10px' }}
+                                    >
+                                        {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <ArrowDown size={14} />}
+                                        <span style={{ marginLeft: 4 }}>Restore</span>
+                                    </button>
+                                </div>
+                                <p style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '0.8rem', textAlign: 'center' }}>
+                                    Last Sync: {lastSyncText}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Info Box */}
+                    <div style={{
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(245, 158, 11, 0.2)',
+                        background: 'rgba(245, 158, 11, 0.05)',
+                        display: 'flex',
+                        gap: '10px'
+                    }}>
+                        <Info size={16} color="#f59e0b" style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-soft)', lineHeight: '1.4' }}>
+                            <strong>Security Note:</strong> Your data is stored in your private Google Drive.
+                            EduNorm does not store any school data on our servers.
+                        </p>
                     </div>
                 </div>
-            </div>
-
-            <div className="sb-footer">
-                <p>🔄 Auto-backup every 5 min. Data changes trigger backup within 30 sec.</p>
-                <p>📁 Drive folder: EduNorm Backups / {user?.schoolCode || 'YourSchool'}</p>
             </div>
         </div>
     );

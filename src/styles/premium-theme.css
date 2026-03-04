@@ -1,0 +1,266 @@
+/* 
+   EDUNORM SOVEREIGN DESIGN SYSTEM 
+   Unified Premium UI v3.0 — The "Wow" Experience
+*/
+
+:root {
+  /* HSL Palette - More harmonious & flexible */
+  --p-h: 12;
+  /* Primary Hue (Coral/Warm) */
+  --p-s: 70%;
+  /* Primary Saturation */
+  --p-l: 64%;
+  /* Primary Lightness */
+
+  --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
+  --primary-dark: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
+  --primary-light: hsl(var(--p-h), var(--p-s), calc(var(--p-l) + 20%));
+
+  /* Surface / Glass Values */
+  --glass-blur: 20px;
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-strong: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px rgba(92, 61, 46, 0.1);
+
+  /* Text */
+  --text-main: #2d1a12;
+  --text-soft: #5c4a3e;
+  --text-white: #ffffff;
+
+  /* Layout */
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --gap: clamp(1rem, 2vw, 2rem);
+}
+
+/* --- DARK MODE OVERRIDES --- */
+[data-theme="dark"] {
+  --p-h: 12;
+  --p-l: 75%;
+  /* Lighter primary for contrast on dark */
+
+  --glass-bg: rgba(15, 23, 20, 0.55);
+  --glass-bg-strong: rgba(18, 25, 22, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  --text-main: #f0faf4;
+  --text-soft: #b8ccc0;
+}
+
+/* --- AURORA MODE OVERRIDES --- */
+[data-theme="aurora"] {
+  --p-h: 231;
+  /* Indigo Hue */
+  --p-s: 65%;
+  --p-l: 66%;
+
+  --glass-bg: rgba(252, 253, 255, 0.82);
+  --glass-bg-strong: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(99, 102, 241, 0.15);
+
+  --text-main: #1e1b4b;
+  --text-soft: #4b5563;
+}
+
+/* --- GLOBAL RESETS --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-main);
+  background: var(--bg-main, #fdf8f5);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- THE "WOW" BENTO LAYOUT --- */
+.bento-container {
+  display: grid;
+  height: 100vh;
+  padding: var(--gap);
+  gap: var(--gap);
+  grid-template-columns: 80px 1fr 340px;
+  grid-template-areas: "side main right";
+  position: relative;
+  z-index: 10;
+}
+
+/* Mobile Layout Overhaul */
+@media (max-width: 1024px) {
+  .bento-container {
+    grid-template-columns: 80px 1fr;
+    grid-template-areas: "side main";
+  }
+
+  .right-panel {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .bento-container {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    height: auto;
+    min-height: 100dvh;
+    padding-bottom: 80px;
+    /* Space for Bottom Nav */
+    gap: 16px;
+  }
+
+  /* Sidebar becomes Bottom Navigation */
+  .sidebar-rail {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    width: 100% !important;
+    flex-direction: row !important;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 24px 24px 0 0 !important;
+    background: var(--glass-bg-strong) !important;
+    backdrop-filter: blur(25px) !important;
+    border-top: 1px solid var(--glass-border) !important;
+    z-index: 2000;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* --- PREMIUM INTERACTIVES --- */
+.btn-premium {
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn-premium::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: white;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  transition: transform 0.6s, opacity 0.6s;
+}
+
+.btn-premium:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.2;
+}
+
+.btn-premium-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 15px hsla(var(--p-h), var(--p-s), var(--p-l), 0.3);
+}
+
+.btn-premium-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  background: var(--primary-dark);
+  box-shadow: 0 12px 25px hsla(var(--p-h), var(--p-s), var(--p-l), 0.4);
+}
+
+.btn-premium-secondary {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  backdrop-filter: blur(10px);
+}
+
+.btn-premium-secondary:hover {
+  background: var(--glass-bg-strong);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* Disappearing Button Fix: High Contrast Ghost */
+.btn-premium-ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.btn-premium-ghost:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* --- GLASS REFINEMENT --- */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  padding: 24px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* --- UTILITIES --- */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.display-font {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.badge-premium {
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px hsla(var(--p-h), var(--p-s), var(--p-l), 0.3);
+}

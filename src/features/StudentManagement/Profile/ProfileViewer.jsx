@@ -19,7 +19,7 @@ const PAPER_SIZES = {
     a5: { name: 'A5', width: 148, height: 210, cols: 1, rows: 3, cards: 3 }
 };
 
-export default function ProfileViewer({
+export function ProfileViewer({
     isOpen,
     onClose,
     students,
@@ -176,29 +176,62 @@ export default function ProfileViewer({
     const maxCardsPerPage = paper.cards;
 
     return (
-        <div className="profile-viewer-overlay animate-fade-in" onClick={onClose}>
-            <div className="profile-viewer-container" onClick={e => e.stopPropagation()}>
-                {/* Header */}
-                <div className="profile-viewer-header no-print">
-                    <h2 className="display-font gradient-text">
-                        {viewMode === 'idcard' ? '🪪 ID Card' : '👤 Profile'}
-                    </h2>
-                    <div className="header-actions">
-                        <button className="btn btn-ghost btn-icon btn-sm" onClick={onClose}>
-                            <X size={20} />
-                        </button>
+        <div className="profile-viewer-overlay" style={{ backdropFilter: 'blur(12px)', backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1000 }} onClick={onClose}>
+            <div className="glass-panel profile-viewer-container" style={{
+                maxWidth: '1200px',
+                width: '95%',
+                height: '92vh',
+                padding: '0',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                border: '1px solid var(--glass-border)'
+            }} onClick={e => e.stopPropagation()}>
+
+                {/* Premium Header */}
+                <div style={{
+                    padding: '1.25rem 2rem',
+                    background: 'var(--glass-bg-strong)',
+                    borderBottom: '1px solid var(--glass-border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    zIndex: 10
+                }} className="no-print">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ padding: '8px', borderRadius: '12px', background: 'var(--primary)', color: 'white' }}>
+                            {viewMode === 'idcard' ? <Plus size={20} /> : <Eye size={20} />}
+                        </div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800' }} className="gradient-text">
+                                {viewMode === 'idcard' ? 'ID Card Studio' : 'Student Dossier'}
+                            </h2>
+                            <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.6 }}>{selectedStudent?.name || 'Select a record'}</p>
+                        </div>
                     </div>
+
+                    <button className="btn-premium btn-premium-ghost" onClick={onClose} style={{ padding: '10px' }}>
+                        <X size={20} />
+                    </button>
                 </div>
 
-                {/* Controls */}
-                <div className="profile-controls no-print">
-                    {/* Hide selection controls if only one student (Student Logged In) */}
+                {/* Dashboard Controls */}
+                <div style={{
+                    padding: '1rem 2rem',
+                    background: 'var(--glass-bg)',
+                    borderBottom: '1px solid var(--glass-border)',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '1.5rem',
+                    alignItems: 'center'
+                }} className="no-print">
+
                     {students.length > 1 && (
-                        <>
-                            <div className="control-group">
-                                <label>Standard:</label>
+                        <div style={{ display: 'flex', gap: '1rem', flex: '1 1 auto' }}>
+                            <div className="control-group" style={{ flex: 1, minWidth: '150px' }}>
                                 <select
                                     className="input-field"
+                                    style={{ width: '100%', borderRadius: '10px', padding: '8px 12px' }}
                                     value={selectedStandard}
                                     onChange={(e) => {
                                         setSelectedStandard(e.target.value);
@@ -214,10 +247,10 @@ export default function ProfileViewer({
                             </div>
 
                             {!batchMode && (
-                                <div className="control-group">
-                                    <label>Student:</label>
+                                <div className="control-group" style={{ flex: 2, minWidth: '200px' }}>
                                     <select
                                         className="input-field"
+                                        style={{ width: '100%', borderRadius: '10px', padding: '8px 12px' }}
                                         value={selectedStudent?.id || ''}
                                         onChange={(e) => {
                                             const student = filteredStudents.find(s => s.id == e.target.value);
@@ -233,288 +266,289 @@ export default function ProfileViewer({
                                     </select>
                                 </div>
                             )}
-                        </>
+                        </div>
                     )}
 
-                    <div className="control-group view-toggle">
+                    <div style={{
+                        display: 'inline-flex',
+                        background: 'rgba(0,0,0,0.1)',
+                        padding: '4px',
+                        borderRadius: '12px',
+                        gap: '4px'
+                    }}>
                         <button
                             className={`toggle-btn ${viewMode === 'profile' ? 'active' : ''}`}
                             onClick={() => { setViewMode('profile'); setBatchMode(false); }}
+                            style={{
+                                padding: '8px 16px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                background: viewMode === 'profile' ? 'var(--primary)' : 'transparent',
+                                color: viewMode === 'profile' ? 'white' : 'inherit',
+                                fontSize: '0.85rem',
+                                fontWeight: '600',
+                                transition: 'all 0.2s'
+                            }}
                         >
                             📋 Profile
                         </button>
                         <button
                             className={`toggle-btn ${viewMode === 'idcard' ? 'active' : ''}`}
                             onClick={() => setViewMode('idcard')}
+                            style={{
+                                padding: '8px 16px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                background: viewMode === 'idcard' ? 'var(--primary)' : 'transparent',
+                                color: viewMode === 'idcard' ? 'white' : 'inherit',
+                                fontSize: '0.85rem',
+                                fontWeight: '600',
+                                transition: 'all 0.2s'
+                            }}
                         >
-                            🪪 ID
+                            🪪 ID Card
                         </button>
                     </div>
 
-                    {/* Options Menu for ID Card */}
                     {viewMode === 'idcard' && (
-                        <div className="options-menu-container" ref={optionsMenuRef}>
+                        <div style={{ position: 'relative' }} ref={optionsMenuRef}>
                             <button
-                                className="btn btn-ghost btn-sm options-trigger"
+                                className="btn-premium btn-premium-secondary"
                                 onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                                style={{ padding: '8px 14px' }}
                             >
                                 <Settings size={16} />
-                                Options
-                                <ChevronDown size={14} className={showOptionsMenu ? 'rotated' : ''} />
+                                <span>Export Options</span>
+                                <ChevronDown size={14} style={{ transform: showOptionsMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                             </button>
                             {showOptionsMenu && (
-                                <div className="options-dropdown">
-                                    <div className="option-item">
-                                        <label>📄 Paper:</label>
+                                <div className="glass-panel" style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    right: 0,
+                                    marginTop: '8px',
+                                    width: '240px',
+                                    padding: '1rem',
+                                    zIndex: 100,
+                                    border: '1px solid var(--glass-border)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '12px'
+                                }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '4px' }}>Paper Size</label>
                                         <select
-                                            className="input-field input-sm"
+                                            className="input-field"
+                                            style={{ width: '100%', fontSize: '0.8rem' }}
                                             value={paperSize}
                                             onChange={(e) => setPaperSize(e.target.value)}
                                         >
                                             {Object.entries(PAPER_SIZES).map(([key, size]) => (
-                                                <option key={key} value={key}>
-                                                    {size.name} ({size.cards})
-                                                </option>
+                                                <option key={key} value={key}>{size.name} ({size.cards} cards)</option>
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="option-item">
-                                        <label>🎨 Template:</label>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '4px' }}>Design Theme</label>
                                         <select
-                                            className="input-field input-sm"
+                                            className="input-field"
+                                            style={{ width: '100%', fontSize: '0.8rem' }}
                                             value={idCardTemplate}
                                             onChange={(e) => setIdCardTemplate(e.target.value)}
                                         >
                                             {TEMPLATES.map(t => (
-                                                <option key={t.id} value={t.id}>
-                                                    {t.icon} {t.name}
-                                                </option>
+                                                <option key={t.id} value={t.id}>{t.icon} {t.name}</option>
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="option-item">
-                                        <label className="checkbox-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={batchMode}
-                                                onChange={(e) => setBatchMode(e.target.checked)}
-                                            />
-                                            🔢 Batch Print
-                                        </label>
-                                    </div>
-                                    <div className="option-item">
-                                        <label className="checkbox-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={showBackSide}
-                                                onChange={(e) => setShowBackSide(e.target.checked)}
-                                            />
-                                            🔄 Print Back Side
-                                        </label>
-                                    </div>
-                                    <div className="option-item">
-                                        <button
-                                            className="btn btn-ghost btn-sm full-width"
-                                            onClick={() => {
-                                                setShowFieldCustomizer(!showFieldCustomizer);
-                                                setShowOptionsMenu(false); // Close parent menu
-                                            }}
-                                        >
-                                            ⚙️ Customize Fields
-                                        </button>
-                                    </div>
+                                    <hr style={{ border: 'none', borderTop: '1px solid var(--glass-border)', margin: '4px 0' }} />
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked={batchMode} onChange={(e) => setBatchMode(e.target.checked)} />
+                                        <span>Multi-Entry Mode</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked={showBackSide} onChange={(e) => setShowBackSide(e.target.checked)} />
+                                        <span>Print Back Side</span>
+                                    </label>
+                                    <button
+                                        className="btn-premium btn-premium-ghost"
+                                        style={{ width: '100%', justifyContent: 'center', fontSize: '0.8rem' }}
+                                        onClick={() => { setShowFieldCustomizer(!showFieldCustomizer); setShowOptionsMenu(false); }}
+                                    >
+                                        ⚙️ Customize Fields
+                                    </button>
                                 </div>
                             )}
                         </div>
                     )}
                 </div>
 
-                {/* Field Customizer Popup */}
-                {showFieldCustomizer && (
-                    <div className="field-customizer-panel no-print" ref={fieldCustomizerRef}>
-                        <div className="field-checkboxes">
+                {/* Main Viewport */}
+                <div style={{ flex: 1, overflow: 'auto', background: 'var(--app-bg)', display: 'flex' }}>
+
+                    {/* Sidebar for Batch Selection */}
+                    {viewMode === 'idcard' && batchMode && (
+                        <div style={{
+                            width: '320px',
+                            borderRight: '1px solid var(--glass-border)',
+                            background: 'var(--glass-bg)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flexShrink: 0
+                        }}>
+                            <div style={{ padding: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
+                                <div className="search-box" style={{ background: 'rgba(0,0,0,0.05)', borderRadius: '10px', padding: '4px 12px' }}>
+                                    <Search size={16} />
+                                    <input
+                                        type="text"
+                                        placeholder="Filter list..."
+                                        style={{ border: 'none', background: 'transparent', padding: '8px', fontSize: '0.9rem', width: '100%' }}
+                                        value={grSearchQuery}
+                                        onChange={(e) => setGrSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                                    <button className="btn-link" style={{ fontSize: '0.75rem' }} onClick={() => setSelectedGrNumbers(filteredStudents.map(s => s.grNo))}>All</button>
+                                    <button className="btn-link" style={{ fontSize: '0.75rem' }} onClick={() => setSelectedGrNumbers([])}>None</button>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: '700' }}>{selectedGrNumbers.length} Selected</span>
+                                </div>
+                            </div>
+                            <div style={{ flex: 1, overflow: 'auto', padding: '0.5rem' }}>
+                                {filteredStudents
+                                    .filter(s => !grSearchQuery || (s.name || '').toLowerCase().includes(grSearchQuery.toLowerCase()) || (s.grNo || '').includes(grSearchQuery))
+                                    .map(s => (
+                                        <div
+                                            key={s.id}
+                                            onClick={() => {
+                                                if (selectedGrNumbers.includes(s.grNo)) setSelectedGrNumbers(prev => prev.filter(g => g !== s.grNo));
+                                                else setSelectedGrNumbers(prev => [...prev, s.grNo]);
+                                            }}
+                                            style={{
+                                                padding: '10px 12px',
+                                                borderRadius: '10px',
+                                                marginBottom: '4px',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '12px',
+                                                background: selectedGrNumbers.includes(s.grNo) ? 'var(--primary-glow)' : 'transparent',
+                                                border: '1px solid',
+                                                borderColor: selectedGrNumbers.includes(s.grNo) ? 'var(--primary)' : 'transparent',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <input type="checkbox" checked={selectedGrNumbers.includes(s.grNo)} readOnly style={{ pointerEvents: 'none' }} />
+                                            <div style={{ overflow: 'hidden' }}>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: '700', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.name || s.nameEnglish}</div>
+                                                <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>GR: {s.grNo} • Roll: {s.rollNo}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Content Area */}
+                    <div style={{ flex: 1, padding: '2rem', display: 'flex', justifyContent: 'center' }}>
+                        {viewMode === 'idcard' && batchMode && batchStudents.length > 0 ? (
+                            <div ref={batchPrintRef} className={`id-card-print-sheet paper-${paperSize}`} style={{ background: 'white', padding: '10mm', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+                                {batchStudents.map((student, idx) => (
+                                    <IdCard
+                                        key={student.grNo || idx}
+                                        student={student}
+                                        schoolName={schoolName}
+                                        schoolLogo={schoolLogo}
+                                        schoolContact={schoolContact}
+                                        schoolAddress={settings?.schoolAddress}
+                                        template={idCardTemplate}
+                                        visibleFields={visibleIdFields}
+                                        backSide={showBackSide}
+                                    />
+                                ))}
+                            </div>
+                        ) : selectedStudent ? (
+                            <div style={{ width: '100%', maxWidth: viewMode === 'idcard' ? '450px' : '900px', animation: 'slideUp 0.4s ease' }}>
+                                {viewMode === 'idcard' ? (
+                                    <div className="glass-card" style={{ padding: '2rem', background: 'white' }}>
+                                        <IdCard
+                                            ref={idCardRef}
+                                            student={selectedStudent}
+                                            schoolName={schoolName}
+                                            schoolLogo={schoolLogo}
+                                            schoolContact={schoolContact}
+                                            schoolAddress={settings?.schoolAddress}
+                                            template={idCardTemplate}
+                                            visibleFields={visibleIdFields}
+                                            backSide={showBackSide}
+                                        />
+                                    </div>
+                                ) : (
+                                    <ProfileCard
+                                        ref={profileRef}
+                                        student={selectedStudent}
+                                        template={template}
+                                        schoolName={schoolName}
+                                        schoolLogo={schoolLogo}
+                                        schoolContact={schoolContact}
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5, gap: '1rem' }}>
+                                <div style={{ fontSize: '4rem' }}>{batchMode ? '📚' : '👤'}</div>
+                                <h3 style={{ margin: 0 }}>{batchMode ? 'Selection Required' : 'No Student Selected'}</h3>
+                                <p>{batchMode ? 'Pick students from the sidebar to generate ID cards' : 'Choose a student from the dropdown to view details'}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div style={{
+                    padding: '1rem 2rem',
+                    background: 'var(--glass-bg-strong)',
+                    borderTop: '1px solid var(--glass-border)',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '1rem'
+                }} className="no-print">
+                    {(selectedStudent || (batchMode && selectedGrNumbers.length > 0)) && (
+                        <>
+                            <button className="btn-premium btn-premium-secondary" onClick={() => setIsPrinting(true)}>
+                                <Printer size={18} /> Print Now
+                            </button>
+                            <button className="btn-premium btn-premium-primary" onClick={handleDownloadPDF}>
+                                <Download size={18} /> Export PDF
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* Field Customizer Modal Overlay */}
+            {showFieldCustomizer && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+                    <div className="glass-panel" ref={fieldCustomizerRef} style={{ maxWidth: '400px', width: '90%', padding: '2rem' }}>
+                        <h3 style={{ margin: '0 0 1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Settings size={20} /> Field Customizer</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             {ID_CARD_FIELDS.map(field => (
-                                <label key={field.id} className="field-checkbox">
+                                <label key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer' }}>
                                     <input
                                         type="checkbox"
                                         checked={visibleIdFields.includes(field.id)}
                                         onChange={(e) => {
-                                            if (e.target.checked) {
-                                                setVisibleIdFields([...visibleIdFields, field.id]);
-                                            } else {
-                                                setVisibleIdFields(visibleIdFields.filter(f => f !== field.id));
-                                            }
+                                            if (e.target.checked) setVisibleIdFields([...visibleIdFields, field.id]);
+                                            else setVisibleIdFields(visibleIdFields.filter(f => f !== field.id));
                                         }}
                                     />
                                     {field.label}
                                 </label>
                             ))}
                         </div>
+                        <button className="btn-premium btn-premium-primary btn-block" style={{ marginTop: '2rem' }} onClick={() => setShowFieldCustomizer(false)}>Done</button>
                     </div>
-                )}
-
-                {/* Batch Student Selection (Replaces Search) */}
-                {viewMode === 'idcard' && batchMode && (
-                    <div className="batch-selection-container no-print">
-                        <div className="batch-toolbar">
-                            <div className="search-box">
-                                <Search size={16} />
-                                <input
-                                    type="text"
-                                    placeholder="Search students..."
-                                    value={grSearchQuery}
-                                    onChange={(e) => setGrSearchQuery(e.target.value)}
-                                />
-                            </div>
-                            <div className="selection-actions">
-                                <button
-                                    className="btn btn-xs btn-outline"
-                                    onClick={() => setSelectedGrNumbers(filteredStudents.map(s => s.grNo))}
-                                >
-                                    Select All ({filteredStudents.length})
-                                </button>
-                                <button
-                                    className="btn btn-xs btn-outline"
-                                    onClick={() => setSelectedGrNumbers([])}
-                                >
-                                    Clear Selection
-                                </button>
-                                <button
-                                    className="btn btn-xs btn-outline btn-error"
-                                    onClick={() => {
-                                        setBatchMode(false);
-                                        setSelectedGrNumbers([]);
-                                    }}
-                                >
-                                    Exit Batch
-                                </button>
-                                <span className="selection-count">
-                                    {selectedGrNumbers.length} Selected
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="batch-grid-list">
-                            {/* Filter based on search query if exists, else show all filteredStudents */}
-                            {filteredStudents
-                                .filter(s => !grSearchQuery ||
-                                    (s.name && s.name.toLowerCase().includes(grSearchQuery.toLowerCase())) ||
-                                    (s.nameEnglish && s.nameEnglish.toLowerCase().includes(grSearchQuery.toLowerCase())) ||
-                                    (s.grNo && s.grNo.includes(grSearchQuery))
-                                )
-                                .map(s => (
-                                    <label key={s.id} className={`batch-item ${selectedGrNumbers.includes(s.grNo) ? 'selected' : ''}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedGrNumbers.includes(s.grNo)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedGrNumbers(prev => [...prev, s.grNo]);
-                                                } else {
-                                                    setSelectedGrNumbers(prev => prev.filter(g => g !== s.grNo));
-                                                }
-                                            }}
-                                        />
-                                        <div className="batch-info">
-                                            <div className="name">{s.name || s.nameEnglish}</div>
-                                            <div className="meta">GR: {s.grNo} | Roll: {s.rollNo}</div>
-                                        </div>
-                                    </label>
-                                ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Template Selector (only for full profile) */}
-                {viewMode === 'profile' && (
-                    <TemplateSelector
-                        selected={template}
-                        onSelect={setTemplate}
-                    />
-                )}
-
-
-
-                {/* Profile/ID Card Display */}
-                <div className="profile-display">
-                    {/* Batch ID Card Print View */}
-                    {viewMode === 'idcard' && batchMode && batchStudents.length > 0 ? (
-                        <div
-                            ref={batchPrintRef}
-                            className={`id-card-print-sheet paper-${paperSize}`}
-                        >
-                            {batchStudents.map((student, idx) => (
-                                <IdCard
-                                    key={student.grNo || idx}
-                                    student={student}
-                                    schoolName={schoolName}
-                                    schoolLogo={schoolLogo}
-                                    schoolContact={schoolContact}
-                                    schoolAddress={settings?.schoolAddress}
-                                    template={idCardTemplate}
-                                    visibleFields={visibleIdFields}
-                                    backSide={showBackSide}
-                                />
-                            ))}
-                        </div>
-                    ) : selectedStudent ? (
-                        viewMode === 'idcard' ? (
-                            <div className="id-card-preview-wrap">
-                                <IdCard
-                                    ref={idCardRef}
-                                    student={selectedStudent}
-                                    schoolName={schoolName}
-                                    schoolLogo={schoolLogo}
-                                    schoolContact={schoolContact}
-                                    schoolAddress={settings?.schoolAddress}
-                                    template={idCardTemplate}
-                                    visibleFields={visibleIdFields}
-                                    backSide={showBackSide}
-                                />
-                            </div>
-                        ) : (
-                            <ProfileCard
-                                ref={profileRef}
-                                student={selectedStudent}
-                                template={template}
-                                schoolName={schoolName}
-                                schoolLogo={schoolLogo}
-                                schoolContact={schoolContact}
-                            />
-                        )
-                    ) : (
-                        <div className="no-selection">
-                            <span className="empty-icon">👆</span>
-                            <p>
-                                {batchMode
-                                    ? 'Search and select students by GR number above'
-                                    : `Select a student to view their ${viewMode === 'idcard' ? 'ID Card' : 'profile'}`
-                                }
-                            </p>
-                        </div>
-                    )}
                 </div>
-
-                {/* Export Actions */}
-                {(selectedStudent || (batchMode && batchStudents.length > 0)) && (
-                    <div className="export-actions no-print">
-                        <button className="btn btn-secondary" onClick={() => setIsPrinting(true)}>
-                            <Printer size={18} />
-                            Print
-                        </button>
-                        <button className="btn btn-primary" onClick={handleDownloadPDF}>
-                            <Download size={18} />
-                            Download PDF
-                        </button>
-                        <button className="btn btn-accent" onClick={handleDownloadImage}>
-                            <Image size={18} />
-                            Save as Image
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* IN-PAGE PRINT OVERLAY (Replaces Portal) */}
+            )}
             {/* IN-PAGE PRINT FRAME (Invisible) */}
             {isPrinting && (
                 <PrintFrame
@@ -525,7 +559,7 @@ export default function ProfileViewer({
                         {viewMode === 'idcard' ? (
                             <IdCardPrintDocument
                                 students={
-                                    viewMode === 'idcard' && batchMode
+                                    batchMode
                                         ? (selectedGrNumbers.length > 0
                                             ? batchStudents.filter(s => selectedGrNumbers.includes(s.grNo))
                                             : batchStudents)
@@ -556,3 +590,5 @@ export default function ProfileViewer({
 }
 
 // Force Rebuild 123
+
+export default ProfileViewer;
